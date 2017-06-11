@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+    <package name="stat" namespace="/stat" extends="default">
+        <action name="viewSignsReport" class="com.platform.report.action.WorkHireReportAction" method="viewSignsReport">
+            <result name="success">/view/report/workhire/viewSignsReport.jsp</result>
+        </action>
+        <action name="viewSignsReportDetail" class="com.platform.report.action.WorkHireReportAction" method="viewSignsReportDetail">
+            <result name="success">/view/report/workhire/viewSignsReportDetail.jsp</result>
+        </action>
+    </package>
+</struts>

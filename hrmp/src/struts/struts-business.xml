@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+    <package name="business" namespace="/business" extends="default">
+        <action name="viewWorkHire" class="com.platform.business.action.WorkHireAction" method="viewWorkHire">
+            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+        </action>
+        <action name="saveWorkHire" class="com.platform.business.action.WorkHireAction" method="saveWorkHire">
+            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+        </action>
+        <action name="deleteWorkHire" class="com.platform.business.action.WorkHireAction" method="deleteWorkHire">
+            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+        </action>
+        <action name="publishWorkHire" class="com.platform.business.action.WorkHireAction" method="publishWorkHire">
+            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+        </action>
+        <action name="closeWorkHire" class="com.platform.business.action.WorkHireAction" method="closeWorkHire">
+            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+        </action>
+        <action name="queryWorkHire" class="com.platform.business.action.WorkHireAction" method="queryWorkHire">
+            <result name="success">/view/business/workhire/queryWorkHire.jsp</result>
+        </action>
+        <action name="deleteWorkHireById" class="com.platform.business.action.WorkHireAction" method="deleteWorkHireById">
+            <result name="success">/view/business/workhire/queryWorkHire.jsp</result>
+        </action>
+        <action name="publishWorkHireById" class="com.platform.business.action.WorkHireAction" method="publishWorkHireById">
+            <result name="success">/view/business/workhire/queryWorkHire.jsp</result>
+        </action>
+        <action name="closeWorkHireById" class="com.platform.business.action.WorkHireAction" method="closeWorkHireById">
+            <result name="success">/view/business/workhire/queryWorkHire.jsp</result>
+        </action>
+        <action name="viewWorkSigns" class="com.platform.business.action.WorkHireAction" method="viewWorkSigns">
+            <result name="success">/view/business/workhire/viewWorkSigns.jsp</result>
+        </action>
+        <action name="viewOpinions" class="com.platform.business.action.WorkHireAction" method="viewOpinions">
+            <result name="success">/view/business/workhire/viewOpinions.jsp</result>
+        </action>
+        <action name="viewVisits" class="com.platform.business.action.WorkHireAction" method="viewVisits">
+            <result name="success">/view/business/workhire/viewVisits.jsp</result>
+        </action>
+        
+        <!-- 报名 -->
+        <action name="viewPublishingWorkHire" class="com.platform.business.action.WorkHireAction" method="viewPublishingWorkHire">
+            <result name="success">/view/business/workhire/queryWorkHireForSign.jsp</result>
+        </action>
+        <action name="viewWorkHireForSign" class="com.platform.business.action.WorkHireAction" method="viewWorkHireForSign">
+            <result name="success">/view/business/workhire/viewWorkHireForSign.jsp</result>
+        </action>
+        <action name="workSign" class="com.platform.business.action.WorkHireAction" method="workSign">
+            <result name="success">/view/business/workhire/viewWorkHireForSign.jsp</result>
+        </action>
+        <action name="workSignById" class="com.platform.business.action.WorkHireAction" method="workSignById">
+            <result name="success">/view/business/workhire/queryWorkHireForSign.jsp</result>
+        </action>
+        <action name="confirmWorkSign" class="com.platform.business.action.WorkHireAction" method="confirmWorkSign">
+            <result name="success">/view/business/workhire/viewWorkSigns.jsp</result>
+        </action>
+        
+        <action name="myWorkSign" class="com.platform.business.action.WorkHireAction" method="myWorkSign">
+            <result name="success">/view/business/workhire/queryMyWorkHire.jsp</result>
+        </action>
+        <action name="cancelWorkSign" class="com.platform.business.action.WorkHireAction" method="cancelWorkSign">
+            <result name="success">/view/business/workhire/viewWorkHireForSign.jsp</result>
+        </action>
+        <action name="cancelWorkSignById" class="com.platform.business.action.WorkHireAction" method="cancelWorkSign">
+            <result name="success">/view/business/workhire/queryMyWorkHire.jsp</result>
+        </action>
+        
+        <!-- 回访 -->
+        <action name="viewWorkHireVisit" class="com.platform.business.action.WorkHireAction" method="viewWorkHireVisit">
+            <result name="success">/view/business/workhire/viewWorkHireVisit.jsp</result>
+        </action>
+        <action name="saveWorkHireVisit" class="com.platform.business.action.WorkHireAction" method="saveWorkHireVisit">
+            <result name="success">/view/business/workhire/viewWorkHireVisit.jsp</result>
+        </action>
+        
+        <!-- 二次用工-->
+        <action name="forwardToSecondEmp" class="com.platform.business.action.WorkHireAction" method="forwardToSecondEmp">
+            <result name="success">/view/business/workhire/addSecondEmp.jsp</result>
+        </action>
+        <action name="selectUsersForSecondEmp" class="com.platform.business.action.WorkHireAction" method="selectUsersForSecondEmp">
+            <result name="success">/view/business/workhire/selectUsersForSecondEmp.jsp</result>
+        </action>
+        <action name="saveSecondEmp" class="com.platform.business.action.WorkHireAction" method="saveSecondEmp">
+            <result name="success">/view/business/workhire/addSecondEmp.jsp</result>
+        </action>
+        
+        <!-- 调换-->
+        <action name="forwardToReplaceEmp" class="com.platform.business.action.WorkHireAction" method="forwardToReplaceEmp">
+            <result name="success">/view/business/workhire/replaceEmp.jsp</result>
+        </action>
+        <action name="selectUsersForReplaceEmp" class="com.platform.business.action.WorkHireAction" method="selectUsersForReplaceEmp">
+            <result name="success">/view/business/workhire/selectUsersForSecondEmp.jsp</result>
+        </action>
+        <action name="saveReplaceEmp" class="com.platform.business.action.WorkHireAction" method="saveReplaceEmp">
+            <result name="success">/view/business/workhire/replaceEmp.jsp</result>
+        </action>
+        
+        <!-- 消息管理 -->
+        <action name="myUnreadMessage" class="com.platform.business.action.MessageAction" method="myUnreadMessage">
+            <result name="success">/view/business/message/myUnreadMessage.jsp</result>
+        </action>
+        <action name="myReadMessage" class="com.platform.business.action.MessageAction" method="myReadMessage">
+            <result name="success">/view/business/message/myReadMessage.jsp</result>
+        </action>
+        <action name="readMessage" class="com.platform.business.action.MessageAction" method="readMessage">
+            <result name="success">/view/business/message/viewMessage.jsp</result>
+        </action>
+        <action name="viewMessage" class="com.platform.business.action.MessageAction" method="viewMessage">
+            <result name="success">/view/business/message/viewMessage.jsp</result>
+        </action>
+    </package>
+</struts>

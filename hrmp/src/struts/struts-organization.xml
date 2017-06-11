@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+    <package name="organization" namespace="/organization" extends="default">
+        <action name="userManage" class="com.platform.organization.action.OrganizationAction" method="userManage">
+            <result name="success">/view/user/userManage.jsp</result>
+        </action>
+        <action name="getDeptTree" class="com.platform.organization.action.OrganizationAction" method="getDeptTree">
+        </action>
+        <action name="userQuery" class="com.platform.organization.action.OrganizationAction" method="userQuery">
+            <result name="success">/view/user/userQuery.jsp</result>
+        </action>
+        <action name="delUser" class="com.platform.organization.action.OrganizationAction" method="delUser">
+            <result name="success">/view/user/userQuery.jsp</result>
+        </action>
+        <action name="viewUser" class="com.platform.organization.action.OrganizationAction" method="viewUser">
+            <result name="success">/view/user/userEdit.jsp</result>
+        </action>
+        <action name="saveUser" class="com.platform.organization.action.OrganizationAction" method="saveUser">
+            <result name="success">/view/user/userEdit.jsp</result>
+        </action>
+        <action name="selectRoles" class="com.platform.organization.action.OrganizationAction" method="selectRoles">
+        	<result name="success">/view/util/checkBoxTree.jsp</result>
+        </action>
+        <action name="viewModifyPwdPage" class="com.platform.organization.action.OrganizationAction" method="viewModifyPwdPage">
+        	<result name="success">/view/user/modifyPwd.jsp</result>
+        </action>
+        <action name="modifyPwd" class="com.platform.organization.action.OrganizationAction" method="modifyPwd">
+        	<result name="error">/view/user/modifyPwd.jsp</result>
+        	<result name="success" type="redirect">/security/logout.action</result>
+        </action>
+        
+        <!-- 角色管理 -->
+        <action name="roleManage" class="com.platform.organization.action.OrganizationAction" method="roleManage">
+            <result name="success">/view/role/roleManage.jsp</result>
+        </action>
+        <action name="roleQuery" class="com.platform.organization.action.OrganizationAction" method="roleQuery">
+            <result name="success">/view/role/roleQuery.jsp</result>
+        </action>
+        <action name="delRole" class="com.platform.organization.action.OrganizationAction" method="delRole">
+            <result name="success">/view/role/roleQuery.jsp</result>
+        </action>
+        <action name="viewRole" class="com.platform.organization.action.OrganizationAction" method="viewRole">
+            <result name="success">/view/role/roleEdit.jsp</result>
+        </action>
+        <action name="saveRole" class="com.platform.organization.action.OrganizationAction" method="saveRole">
+            <result name="success">/view/role/roleEdit.jsp</result>
+        </action>
+        <action name="delUserRole" class="com.platform.organization.action.OrganizationAction" method="delUserRole">
+            <result name="success">/view/role/relationUserList.jsp</result>
+        </action>
+        <action name="delRoleMenu" class="com.platform.organization.action.OrganizationAction" method="delRoleMenu">
+            <result name="success">/view/role/relationMenuList.jsp</result>
+        </action>
+        
+        <!-- 为角色添加用户 -->
+        <action name="selectUsersForRole" class="com.platform.organization.action.OrganizationAction" method="selectUsersForRole">
+        	<result name="success">/view/role/selectUsersForRole.jsp</result>
+        </action>
+        <action name="selectMenusForRole" class="com.platform.organization.action.OrganizationAction" method="selectMenusForRole">
+        	<result name="success">/view/role/selectMenusForRole.jsp</result>
+        </action>
+        <action name="addUserRole" class="com.platform.organization.action.OrganizationAction" method="addUserRole">
+        	<result name="success">/view/role/selectUsersForRole.jsp</result>
+        </action>
+        <action name="addRoleMenu" class="com.platform.organization.action.OrganizationAction" method="addRoleMenu">
+        	<result name="success">/view/role/selectMenusForRole.jsp</result>
+        </action>
+        <action name="ajaxRefreshRelationUser" class="com.platform.organization.action.OrganizationAction" method="ajaxRefreshRelationUser">
+        	<result name="success">/view/role/relationUserList.jsp</result>
+        </action>
+        <action name="ajaxRefreshRelationMenu" class="com.platform.organization.action.OrganizationAction" method="ajaxRefreshRelationMenu">
+        	<result name="success">/view/role/relationMenuList.jsp</result>
+        </action>
+        
+        <!-- 部门管理 -->
+        <action name="deptManage" class="com.platform.organization.action.OrganizationAction" method="deptManage">
+            <result name="success">/view/dept/deptManage.jsp</result>
+        </action>
+        <action name="deptQuery" class="com.platform.organization.action.OrganizationAction" method="deptQuery">
+            <result name="success">/view/dept/deptQuery.jsp</result>
+        </action>
+        <action name="delDept" class="com.platform.organization.action.OrganizationAction" method="delDept">
+            <result name="success">/view/dept/deptQuery.jsp</result>
+        </action>
+        <action name="viewDept" class="com.platform.organization.action.OrganizationAction" method="viewDept">
+            <result name="success">/view/dept/deptEdit.jsp</result>
+        </action>
+        <action name="saveDept" class="com.platform.organization.action.OrganizationAction" method="saveDept">
+            <result name="success">/view/dept/deptEdit.jsp</result>
+        </action>
+        
+        <!-- 菜单管理 -->
+        <action name="getMenuTree" class="com.platform.organization.action.OrganizationAction" method="getMenuTree">
+        </action>
+        <action name="menuManage" class="com.platform.organization.action.OrganizationAction" method="menuManage">
+            <result name="success">/view/menu/menuManage.jsp</result>
+        </action>
+        <action name="menuQuery" class="com.platform.organization.action.OrganizationAction" method="menuQuery">
+            <result name="success">/view/menu/menuQuery.jsp</result>
+        </action>
+        <action name="delMenu" class="com.platform.organization.action.OrganizationAction" method="delMenu">
+            <result name="success">/view/menu/menuQuery.jsp</result>
+        </action>
+        <action name="viewMenu" class="com.platform.organization.action.OrganizationAction" method="viewMenu">
+            <result name="success">/view/menu/menuEdit.jsp</result>
+        </action>
+        <action name="saveMenu" class="com.platform.organization.action.OrganizationAction" method="saveMenu">
+            <result name="success">/view/menu/menuEdit.jsp</result>
+        </action>
+    </package>
+</struts>

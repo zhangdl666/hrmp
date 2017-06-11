@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans default-autowire="autodetect">
+	<bean id="orgDeptDao" class="com.platform.organization.dao.OrgDeptDaoImpl"></bean>
+	<bean id="orgMenuDao" class="com.platform.organization.dao.OrgMenuDaoImpl"></bean>
+	<bean id="orgRoleDao" class="com.platform.organization.dao.OrgRoleDaoImpl"></bean>
+	<bean id="orgRoleMenuDao" class="com.platform.organization.dao.OrgRoleMenuDaoImpl"></bean>
+	<bean id="orgUserDao" class="com.platform.organization.dao.OrgUserDaoImpl"></bean>
+	<bean id="orgUserRoleDao" class="com.platform.organization.dao.OrgUserRoleDaoImpl"></bean>
+
+	<bean id="orgDeptService" class="com.platform.organization.service.OrgDeptServiceImpl"></bean>
+	<bean id="orgMenuService" class="com.platform.organization.service.OrgMenuServiceImpl"></bean>
+	<bean id="orgRoleMenuService" class="com.platform.organization.service.OrgRoleMenuServiceImpl"></bean>
+	<bean id="orgRoleService" class="com.platform.organization.service.OrgRoleServiceImpl"></bean>
+	<bean id="orgUserRoleService" class="com.platform.organization.service.OrgUserRoleServiceImpl"></bean>
+	<bean id="orgUserService" class="com.platform.organization.service.OrgUserServiceImpl"></bean>
+	
+	<bean id="logInfoDao" class="com.platform.core.dao.LogInfoDaoImpl"></bean>
+	<bean id="logInfoService" class="com.platform.core.service.LogInfoServiceImpl"></bean>
+	
+	<bean id="sysConfigDao" class="com.platform.core.dao.SysConfigDaoImpl"></bean>
+	<bean id="sysConfigService" class="com.platform.core.service.SysConfigServiceImpl"></bean>
+</beans>

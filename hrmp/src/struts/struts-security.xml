@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+    <package name="security" namespace="/security" extends="default">
+        <action name="login" class="com.platform.security.action.LoginAction" method="login">
+            <result name="success">/index.jsp</result>
+            <result name="login">/login.jsp</result>
+        </action>
+        <action name="passwordEncrypt" class="com.platform.security.action.PasswordEncrypt" method="getPublicKey">
+        </action>
+        <action name="logout" class="com.platform.security.action.LoginAction" method="logout">
+            <result name="success">/login.jsp</result>
+        </action>
+        <action name="index" class="com.platform.security.action.LoginAction" method="index">
+            <result name="success">/index.jsp</result>
+        </action>
+    </package>
+</struts>
