@@ -26,6 +26,16 @@ public class RspDetail {
 	private AndroidVersion androidVersion;
 	
 	/**
+	 * 微信支付结果，1：已支付；0：未支付
+	 */
+	private String payStatus;
+	
+	/**
+	 * 支付结果描述
+	 */
+	private String payDescri;
+	
+	/**
 	 * 招工列表
 	 */
 	private List<Work> workList;
@@ -38,6 +48,16 @@ public class RspDetail {
 	
 	private Msg msg;
 	
+	private WXPay wxPay;
+	
+	public WXPay getWxPay() {
+		return wxPay;
+	}
+
+	public void setWxPay(WXPay wxPay) {
+		this.wxPay = wxPay;
+	}
+
 	public AndroidVersion getAndroidVersion() {
 		return androidVersion;
 	}
@@ -52,6 +72,22 @@ public class RspDetail {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getPayStatus() {
+		return payStatus;
+	}
+
+	public void setPayStatus(String payStatus) {
+		this.payStatus = payStatus;
+	}
+
+	public String getPayDescri() {
+		return payDescri;
+	}
+
+	public void setPayDescri(String payDescri) {
+		this.payDescri = payDescri;
 	}
 
 	public String getUserLoginName() {

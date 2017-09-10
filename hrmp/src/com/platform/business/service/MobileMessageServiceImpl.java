@@ -21,9 +21,9 @@ public class MobileMessageServiceImpl implements MobileMessageService {
 
 	@Override
 	public String sendMessage(String mobile, String content) {
-		String url = "";
-		String regCode = ""; // 华兴软通注册码，请在这里填写您从客服那得到的注册码
-		String regPasswod = ""; // 华兴软通注册码对应的密码，请在这里填写您从客服那得到的注册码
+		String url = "http://www.stongnet.com/sdkhttp/sendsms.aspx";
+		String regCode = "101100-WEB-HUAX-115847"; // 华兴软通注册码，请在这里填写您从客服那得到的注册码
+		String regPasswod = "FTPAKUZJ"; // 华兴软通注册码对应的密码，请在这里填写您从客服那得到的注册码
 		String sourceAdd = null;		//子通道号（最长10位，可为空
 		//String phone = "15812345678";		//手机号码（最多1000个），多个用英文逗号(,)隔开，不可为空
 		/*

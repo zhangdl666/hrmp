@@ -627,4 +627,164 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		return (WorkHireVisit)query.uniqueResult();
 	}
 
+	@Override
+	public Page getWorkKindList(WorkHireQueryBo bo, Page page) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select w.workKind,sum(w.hireNum) from WorkHireView w where actualSignNum < hireNum");
+		
+		HashMap<Integer, Object> params = new HashMap<Integer, Object>();
+		int paramIndex = 0;
+		if(bo.getId()!=null && !bo.getId().equals("")){
+			sb.append(" and w.id = ?");
+			params.put(paramIndex, bo.getId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getBusinessNumber()!=null && !bo.getBusinessNumber().equals("")){
+			sb.append(" and w.businessNumber like ?");
+			params.put(paramIndex, "%" + bo.getBusinessNumber() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublisherId()!=null && !bo.getPublisherId().equals("")){
+			sb.append(" and w.publisherId = ?");
+			params.put(paramIndex, bo.getPublisherId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublisherName()!=null && !bo.getPublisherName().equals("")){
+			sb.append(" and w.publisherName like ?");
+			params.put(paramIndex, "%" + bo.getPublisherName() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getCreateTimeFrom()!=null){
+			sb.append(" and w.createTime > ?");
+			params.put(paramIndex, bo.getCreateTimeFrom());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getCreateTimeEnd()!=null){
+			sb.append(" and w.createTime < ?");
+			params.put(paramIndex, bo.getCreateTimeEnd());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getTitle()!=null && !bo.getTitle().equals("")){
+			sb.append(" and w.title like ?");
+			params.put(paramIndex, "%" + bo.getTitle() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getWorkCompany()!=null && !bo.getWorkCompany().equals("")){
+			sb.append(" and w.workCompany like ?");
+			params.put(paramIndex, "%" + bo.getWorkCompany() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublishTimeFrom()!=null){
+			sb.append(" and w.publishTime > ?");
+			params.put(paramIndex, bo.getPublishTimeFrom());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublishTimeEnd()!=null){
+			sb.append(" and w.publishTime < ?");
+			params.put(paramIndex, bo.getPublishTimeEnd());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getWorkArea()!=null && !bo.getWorkArea().equals("")){
+			sb.append(" and w.workArea like ?");
+			params.put(paramIndex, "%" + bo.getWorkArea() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getWorkDescri()!=null && !bo.getWorkDescri().equals("")){
+			sb.append(" and w.workDescri like ?");
+			params.put(paramIndex, "%" + bo.getWorkDescri() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getWorkKind()!=null && !bo.getWorkKind().equals("")){
+			sb.append(" and w.workKind = ?");
+			params.put(paramIndex, bo.getWorkKind());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPlanStartTimeFrom()!=null){
+			sb.append(" and w.planStartTime > ?");
+			params.put(paramIndex, bo.getPlanStartTimeFrom());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPlanStartTimeEnd()!=null){
+			sb.append(" and w.planStartTime < ?");
+			params.put(paramIndex, bo.getPlanStartTimeEnd());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPlanEndTimeFrom()!=null){
+			sb.append(" and w.planEndTime > ?");
+			params.put(paramIndex, bo.getPlanEndTimeFrom());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPlanEndTimeEnd()!=null){
+			sb.append(" and w.planEndTime < ?");
+			params.put(paramIndex, bo.getPlanEndTimeEnd());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getStatus()!=null && !bo.getStatus().equals("")){
+			sb.append(" and w.status = ?");
+			params.put(paramIndex, bo.getStatus());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getSignUserId()!=null && !bo.getSignUserId().equals("")){
+			sb.append(" and exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.empId = ?)");
+			params.put(paramIndex, bo.getSignUserId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getNotSignUserId()!=null && !bo.getNotSignUserId().equals("")){
+			sb.append(" and not exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.empId = ?)");
+			params.put(paramIndex, bo.getNotSignUserId());
+			paramIndex = paramIndex + 1;
+		}
+		sb.append(" group by w.workKind order by w.workKind ");
+		
+		String sql = sb.toString();
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
+		setQueryParameter(query,params);
+		
+		
+		query.setFirstResult(page.getCurrentPageOffset());
+		query.setMaxResults(page.getPageSize());
+		List<Object[]> list = query.list();
+		
+		if(list == null || list.size() ==0) {
+			return page;
+		}
+		page.setResult(list);
+		
+		//取记录总数
+		String countSql = "select count(w.workKind) " + sql.substring(sql.indexOf("from"));
+		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
+		setQueryParameter(countQuery, params);
+		Long count = (Long) countQuery.uniqueResult();
+		page.setTotalRowSize(count.intValue());
+		
+		return page;
+	}
+
+	@Override
+	public void deleteWorkSign(WorkSign ws) {
+		if(ws==null ||ws.getId()==null) {
+			return;
+		}
+		sessionFactory.getCurrentSession().delete(ws);
+	}
+
 }

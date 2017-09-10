@@ -47,6 +47,8 @@ public interface WorkHireDao {
 	
 	public List<Object[]> getWorkKindList(WorkHireQueryBo bo);
 	
+	public Page getWorkKindList(WorkHireQueryBo bo,Page page);
+	
 	/**
 	 * 查询我的工作
 	 * @param bo
@@ -61,4 +63,10 @@ public interface WorkHireDao {
 	 * @return
 	 */
 	public List<WorkHireVisitBo> getWorkHireVisitBoList(String workHireId);
+	
+	/**
+	 * 删除报名信息，用于微信支付接口调用失败时删除报名信息
+	 * @param ws
+	 */
+	public void deleteWorkSign(WorkSign ws);
 }

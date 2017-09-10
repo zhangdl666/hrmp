@@ -1,6 +1,5 @@
 package com.platform.app.service.xmlpo;
 
-import java.util.Date;
 
 public class Work {
 	
@@ -95,8 +94,8 @@ public class Work {
 	/**
 	 * 报名费单价，单位：元/人，用于“我要报名”弹出页面
 	 */
-	private int unitPrice;
-
+	private double unitPrice;
+	
 	/**
 	 * 是否能取消报名 
 	 * 1：可以取消报名；
@@ -104,12 +103,64 @@ public class Work {
 	 */
 	private String canCancelSign;
 	
+	/**
+	 * 支付状态	1：支付成功；0：待支付
+	 */
+	private String payStatus;
+	
+	/**
+	 * 预支付id
+	 */
+	private String prepayId;
+	
+	/**
+	 * 报名人数
+	 */
+	private String num;
+	
+	/**
+	 * 支付金额	单位：元
+	 */
+	private String payFee;
+	
 	public String getCanCancelSign() {
 		return canCancelSign;
 	}
 
 	public void setCanCancelSign(String canCancelSign) {
 		this.canCancelSign = canCancelSign;
+	}
+
+	public String getNum() {
+		return num;
+	}
+
+	public void setNum(String num) {
+		this.num = num;
+	}
+
+	public String getPayStatus() {
+		return payStatus;
+	}
+
+	public void setPayStatus(String payStatus) {
+		this.payStatus = payStatus;
+	}
+
+	public String getPrepayId() {
+		return prepayId;
+	}
+
+	public void setPrepayId(String prepayId) {
+		this.prepayId = prepayId;
+	}
+
+	public String getPayFee() {
+		return payFee;
+	}
+
+	public void setPayFee(String payFee) {
+		this.payFee = payFee;
 	}
 
 	public String getId() {
@@ -244,11 +295,13 @@ public class Work {
 		this.planEndTime = planEndTime;
 	}
 
-	public int getUnitPrice() {
+	public double getUnitPrice() {
 		return unitPrice;
 	}
 
-	public void setUnitPrice(int unitPrice) {
+	public void setUnitPrice(double unitPrice) {
 		this.unitPrice = unitPrice;
 	}
+
+	
 }

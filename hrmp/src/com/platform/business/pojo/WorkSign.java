@@ -52,6 +52,12 @@ public class WorkSign {
 	
 	@Column(name="TOTAL_MONEY")
 	private double totalMoney;
+	
+	@Column(name="PREPAY_ID")
+	private String prepayId;
+	
+	@Column(name="PAY_STATUS")
+	private String payStatus;
 
 	public String getId() {
 		return id;
@@ -132,4 +138,21 @@ public class WorkSign {
 	public void setTotalMoney(double totalMoney) {
 		this.totalMoney = totalMoney;
 	}
+
+	public String getPrepayId() {
+		return prepayId;
+	}
+
+	public void setPrepayId(String prepayId) {
+		this.prepayId = prepayId;
+	}
+
+	public String getPayStatus() {
+		return payStatus;
+	}
+
+	public void setPayStatus(String payStatus) {
+		this.payStatus = payStatus;
+	}
+	
 }

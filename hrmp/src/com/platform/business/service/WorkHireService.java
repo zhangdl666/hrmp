@@ -18,6 +18,8 @@ public WorkHire getWorkHire(String id);
 	
 	public WorkSign getWorkSign(String id);
 	
+	public void deleteWorkSign(WorkSign ws);
+	
 	public WorkHireVisit getWorkHireVisit(String id);
 	
 	public WorkSign getWorkSign(String workHireId,String empId);
@@ -58,6 +60,8 @@ public WorkHire getWorkHire(String id);
 	public Page getWorkHireList(WorkHireQueryBo bo,Page page);
 	
 	public List<Object[]> getWorkKindList(WorkHireQueryBo bo);
+	
+	public Page getWorkKindList(WorkHireQueryBo bo,Page page);
 	
 	/**
 	 * 查询我的工作

@@ -592,7 +592,7 @@ public class WorkHireAction extends BaseAction {
 			WorkSign ws = workHireService.getWorkSign(workHireId, loginUser.getId());
 			if(ws == null) {
 				permission = "sign";
-			}else if(ws.getConfirmResult()==null){
+			}else if(ws != null){
 				permission = "cancelSign";
 			}
 		}

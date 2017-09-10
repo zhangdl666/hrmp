@@ -41,7 +41,8 @@ public class SessionFilter extends HttpServlet implements Filter {
 		}
 		if(url.equals("/login.jsp") || url.equals("/security/login.action") || url.equals("/security/login.do") 
 				|| url.equals("/security/passwordEncrypt.action")
-				|| url.equals("security/logout.action")){
+				|| url.equals("security/logout.action")
+				|| url.indexOf("wxpayNotify.action")!=-1){
 			//登录页面或登录请求，直接放行
 			chain.doFilter(req, resp);
 			return;

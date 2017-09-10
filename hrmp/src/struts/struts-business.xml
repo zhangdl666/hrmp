@@ -112,5 +112,10 @@
         <action name="viewMessage" class="com.platform.business.action.MessageAction" method="viewMessage">
             <result name="success">/view/business/message/viewMessage.jsp</result>
         </action>
+        
+        <!-- 微信支付结果通知 -->
+        <action name="wxpayNotify" class="com.platform.weixin.WeiXinPay" method="wxpayNotify">
+            <result name="success">/view/business/message/viewMessage.jsp</result>
+        </action>
     </package>
 </struts>

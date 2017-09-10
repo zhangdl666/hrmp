@@ -12,6 +12,9 @@ public class ReqMsg {
 	 */
 	private String identification;
 	
+	//客户端ip
+	private String clientIp;
+	
 	/**
 	 * 请求报文体
 	 */
@@ -39,5 +42,13 @@ public class ReqMsg {
 
 	public void setReqDetail(ReqDetail reqDetail) {
 		this.reqDetail = reqDetail;
+	}
+
+	public String getClientIp() {
+		return clientIp;
+	}
+
+	public void setClientIp(String clientIp) {
+		this.clientIp = clientIp;
 	}
 }

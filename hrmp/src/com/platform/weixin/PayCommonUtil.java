@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -41,9 +40,11 @@ import org.jdom.input.SAXBuilder;
 
 public class PayCommonUtil {
 	// 微信参数配置
-	public static String API_KEY = "kshdf554sdf4s5f2sf121sdfsd1f5sdf";
-	public static String APPID = "wxd5609f7b5b4dd051";
-	public static String MCH_ID = "1230989902";
+	public static String API_KEY = "HBrenhelaowuliuqiangbaoding66688";
+	public static String APPID = "wx952f5178374ab836";
+	public static String MCH_ID = "1482009422";
+	
+	public static String notifyUrl = "http://rhlaowu.com.cn/hrmp/business/wxpayNotify.action";
 
 	// 随机字符串生成
 	public static String getRandomString(int length) { // length表示生成字符串的长度
@@ -67,8 +68,11 @@ public class PayCommonUtil {
 			Map.Entry entry = (Map.Entry) it.next();
 			String key = (String) entry.getKey();
 			String value = (String) entry.getValue();
-			if ("attach".equalsIgnoreCase(key) || "body".equalsIgnoreCase(key)
-					|| "sign".equalsIgnoreCase(key)) {
+			if(value == null){
+				continue;
+			}
+			if ("attach22".equalsIgnoreCase(key) || "body22".equalsIgnoreCase(key)
+					|| "sign22".equalsIgnoreCase(key)) {
 				sb.append("<" + key + ">" + "<![CDATA[" + value + "]]></" + key
 						+ ">");
 			} else {
@@ -95,9 +99,12 @@ public class PayCommonUtil {
 			}
 		}
 		sb.append("key=" + API_KEY);
-		System.out.println(sb.toString());
-		String sign = MD5Util.MD5Encode(sb.toString(), characterEncoding)
+		String str = sb.toString();
+		str = str.trim();
+		System.out.println(str);
+		String sign = MD5Util.MD5Encode(str, characterEncoding)
 				.toUpperCase();
+		System.out.println("生成的签名为：" + sign);
 		return sign;
 	}
 

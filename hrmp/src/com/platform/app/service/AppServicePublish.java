@@ -118,4 +118,13 @@ public class AppServicePublish extends ServletEndpointSupport {
 	public String queryAndroidVersion(String requestXml){
 		return appService.queryAndroidVersion(requestXml);
 	}
+	
+	/**
+	 * 查询微信支付结果
+	 * @param requestXml
+	 * @return
+	 */
+	public String queryWXPayResult(String requestXml){
+		return appService.queryWXPayResult(requestXml);
+	}
 }

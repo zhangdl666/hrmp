@@ -96,59 +96,36 @@
 				</div>
 			</div>
 			<div class="form-group">
+				<label class="col-sm-2 control-label">工种</label>
+				<div class="col-sm-4">
+					<s:select list="#{'壮工':'壮工','瓦工':'瓦工','抹灰工':'抹灰工','焊工':'焊工','钢筋工':'钢筋工','电工':'电工','建筑木工':'建筑木工','家装木工':'家装木工','架子工':'架子工','油漆工':'油漆工','腻子工':'腻子工','粘砖工':'粘砖工','彩钢':'彩钢','钢构工':'钢构工','水暖工':'水暖工','维修工':'维修工','防水工':'防水工','外墙保温':'外墙保温','高空作业工':'高空作业工','保洁工':'保洁工','各种司机':'各种司机','宣传员':'宣传员','促销员':'促销员','长期工':'长期工'}"
+						listKey="key" listValue="value" name="workHire.workKind" value="workHire.workKind" id="workKind" emptyOption="true"></s:select>
+				</div>
+				<label class="col-sm-2 control-label">招工数量</label>
+				<div class="col-sm-4">
+					<s:textfield name="workHire.hireNum" id="hireNum" class="form-control"></s:textfield>
+				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-sm-2 control-label">标题</label>
+				<label class="col-sm-2 control-label">工资</label>
 				<div class="col-sm-10">
-					<s:textfield name="workHire.title" class="form-control"></s:textfield>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-sm-2 control-label">用工单位</label>
-				<div class="col-sm-4">
-					<s:textfield name="workHire.workCompany" class="form-control"></s:textfield>
-				</div>
-				<label class="col-sm-2 control-label">工作地点</label>
-				<div class="col-sm-4">
-					<s:textfield name="workHire.workArea" class="form-control"></s:textfield>
+					<s:textarea name="workHire.salary" id="salary" class="form-control"></s:textarea>
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="col-sm-2 control-label">工作描述</label>
 				<div class="col-sm-10">
-					<s:textarea name="workHire.workDescri" class="form-control"></s:textarea>
+					<s:textarea name="workHire.workDescri" id="descri" class="form-control"></s:textarea>
 				</div>
 			</div>
-			<div class="form-group">
-				<label class="col-sm-2 control-label">需要工种</label>
-				<div class="col-sm-10">
-					<s:textarea name="workHire.workKind" class="form-control"></s:textarea>
+			<s:if test="permission=='cancelSign'">
+				<div class="form-group">
+					<label class="col-sm-2 control-label">联系电话</label>
+					<div class="col-sm-10">
+						<s:textfield name="workHire.workCompanyMobile" class="form-control"></s:textfield>
+					</div>
 				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-sm-2 control-label">预计用工时间</label>
-				<s:hidden name="workHire.planStartTime" id="planStartTime"></s:hidden>
-				<s:hidden name="workHire.planEndTime" id="planEndTime"></s:hidden>
-				<div class="col-sm-10">
-				<div class="input-group date form_date col-sm-4" data-date="" data-date-format="yyyy-MM-dd" data-link-field="planStartTime" data-link-format="yyyy-mm-dd">
-                	<input class="form-control" size="16" type="text" value="<s:date name="workHire.planStartTime" format="yyyy-MM-dd"/>" readonly>
-                	<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-				</div>
-				-
-				<div class="input-group date form_date col-sm-4" data-date="" data-date-format="yyyy-MM-dd" data-link-field="planEndTime" data-link-format="yyyy-mm-dd">
-                	<input class="form-control" size="16" type="text" value="<s:date name="workHire.planEndTime" format="yyyy-MM-dd"/>" readonly>
-                	<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-				</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-sm-2 control-label">招工数量</label>
-				<div class="col-sm-4">
-					<s:textfield name="workHire.hireNum" class="form-control"></s:textfield>
-				</div>
-			</div>
+			</s:if>
 			
 			<div class="form-group">
 				<div class="col-sm-12 col-md-offset-6">

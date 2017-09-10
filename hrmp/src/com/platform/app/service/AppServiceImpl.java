@@ -1,11 +1,16 @@
 package com.platform.app.service;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.jdom.JDOMException;
 
 import com.platform.app.service.xmlpo.AndroidVersion;
 import com.platform.app.service.xmlpo.Msg;
@@ -14,6 +19,7 @@ import com.platform.app.service.xmlpo.ReqMsg;
 import com.platform.app.service.xmlpo.RspDetail;
 import com.platform.app.service.xmlpo.RspMsg;
 import com.platform.app.service.xmlpo.SignEmp;
+import com.platform.app.service.xmlpo.WXPay;
 import com.platform.app.service.xmlpo.Work;
 import com.platform.business.bo.MessageBo;
 import com.platform.business.bo.MessageQueryBo;
@@ -34,6 +40,7 @@ import com.platform.organization.pojo.OrgUser;
 import com.platform.organization.service.OrgDeptService;
 import com.platform.organization.service.OrgUserService;
 import com.platform.security.util.Encrypts;
+import com.platform.weixin.PayCommonUtil;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
@@ -177,8 +184,8 @@ public class AppServiceImpl implements AppService{
 		workHireQueryBo.setNotSignUserId(loginUser.getId());
 		workHireQueryBo.setPublisherCompanyId(company.getId());
 		
-		List<Object[]> workKindList = workHireService.getWorkKindList(workHireQueryBo);
-		
+		Page p = workHireService.getWorkKindList(workHireQueryBo,page);
+		List<Object[]> workKindList = p.getResult();
 		List<Work> workList = new ArrayList<Work>();
 		if(workKindList!=null && workKindList.size()>0) {
 			for(int i=0;i<workKindList.size();i++) {
@@ -256,9 +263,10 @@ public class AppServiceImpl implements AppService{
 				WorkHireView v = list.get(i);
 				Work work = new Work();
 				work.setId(v.getId());
-				work.setUnitPrice(5);
+				work.setUnitPrice(unitPrice);
 				String descri = v.getWorkKind() + v.getHireNum() + "位，" + v.getSalary() + "，" + v.getWorkDescri();
 				work.setWorkDescri(descri);
+				work.setHireNum(v.getHireNum());
 				//判断是否可以取消报名
 				if(!v.getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
 					work.setCanCancelSign("0");
@@ -338,7 +346,7 @@ public class AppServiceImpl implements AppService{
 		work.setWorkKind(wh.getWorkKind());
 		work.setHireNum(wh.getHireNum());
 		work.setStatus(wh.getStatus());
-		work.setUnitPrice(5);
+		work.setUnitPrice(unitPrice);
 		
 		//判断是否可以取消报名
 		if(!wh.getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
@@ -534,6 +542,81 @@ public class AppServiceImpl implements AppService{
 		ws.setConfirmTime(calendar.getTime());
 		workHireService.saveWorkSign(ws);
 		
+		//调用微信支付统一下单接口
+		SortedMap<String, Object> parameterMap = new TreeMap<String, Object>();
+        //应用ID
+        parameterMap.put("appid", PayCommonUtil.APPID);  
+        //商户号
+        parameterMap.put("mch_id", PayCommonUtil.MCH_ID);
+        //设备号
+        parameterMap.put("device_info", "WEB");
+        //随机字符串
+        parameterMap.put("nonce_str", PayCommonUtil.getRandomString(32));  
+        //商品描述
+        parameterMap.put("body", "renhelaowu-sign");
+        //商户订单号 
+        parameterMap.put("out_trade_no", ws.getId());
+        //货币类型
+        parameterMap.put("fee_type", "CNY");  
+        //总金额  单位：分
+        java.text.DecimalFormat df=new java.text.DecimalFormat("0");  
+        parameterMap.put("total_fee", df.format(ws.getTotalMoney()*100));  
+        //终端IP
+        parameterMap.put("spbill_create_ip", "10.0.0.1");
+        //交易起始时间
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        parameterMap.put("time_start", sdf.format(cal.getTime()));
+        //交易结束时间  10分钟后订单失效
+        cal.add(Calendar.MINUTE, 10);
+        parameterMap.put("time_expire", sdf.format(cal.getTime()));
+        //通知地址
+        parameterMap.put("notify_url", PayCommonUtil.notifyUrl);
+        //支付类型
+        parameterMap.put("trade_type", "APP");
+        String signStr = PayCommonUtil.createSign("UTF-8", parameterMap); 
+        logger.info("jiner2");  
+        //签名
+        parameterMap.put("sign", signStr);  
+        String requestXML = PayCommonUtil.getRequestXml(parameterMap);  
+        logger.info(">>>>>>>>>>>>>>>>requestXML:" + requestXML);  
+        String result = PayCommonUtil.httpsRequest(  
+                "https://api.mch.weixin.qq.com/pay/unifiedorder", "POST",  
+                requestXML);
+        logger.info(result);
+        Map<String, String> map = null;  
+        try {  
+            map = PayCommonUtil.doXMLParse(result);
+        } catch (JDOMException e) {  
+            // TODO Auto-generated catch block  
+            e.printStackTrace();  
+        } catch (IOException e) {
+            // TODO Auto-generated catch block  
+            e.printStackTrace();  
+        }
+        
+        String return_code = map.get("return_code");
+        if("FAIL".equals(return_code)){//微信通信失败
+        	workHireService.deleteWorkSign(ws);
+        	return error(loginName, identifyCode, l,"4000", map.get("return_msg"));
+        }
+        
+        String result_code = map.get("result_code");
+        if("FAIL".equals(result_code)){
+        	workHireService.deleteWorkSign(ws);
+        	return error(loginName, identifyCode, l,"4000", map.get("err_code") + " --" + map.get("err_code_des"));
+        }
+        
+        //保存预支付id
+        ws.setPrepayId(map.get("prepay_id"));
+        ws.setPayStatus("0");
+        workHireService.saveWorkSign(ws);
+        
+        WXPay pay = new WXPay();
+        pay.setAppId(map.get("appid"));
+        pay.setPartnerId(map.get("mch_id"));
+        pay.setPrepayId(map.get("prepay_id"));
+        
 		//发送消息
 		Message m = new Message();
 		m.setCreateTime(calendar.getTime());
@@ -549,6 +632,7 @@ public class AppServiceImpl implements AppService{
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
+		rspDetail.setWxPay(pay);
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
 		rspMsg.setRspDesc("成功");
@@ -556,7 +640,7 @@ public class AppServiceImpl implements AppService{
 		rspMsg.setIdentification(reqMsg.getIdentification());
 		return outputMarshal(rspMsg);
 	}
-
+	
 	@Override
 	public String cancelSign(String requestXml) {
 		Calendar calendar = Calendar.getInstance();
@@ -813,7 +897,13 @@ public class AppServiceImpl implements AppService{
 				work.setBusinessNumber(bo.getWorkHire().getBusinessNumber());
 				String descri = bo.getWorkHire().getWorkKind() + bo.getWorkHire().getHireNum() + "位，" + bo.getWorkHire().getSalary() + "，" + bo.getWorkHire().getWorkDescri();
 				work.setWorkDescri(descri);
+				work.setHireNum(bo.getWorkHire().getHireNum());
 				work.setSignTime(sdf.format(bo.getWorkSign().getSignTime()));
+				work.setPrepayId(bo.getWorkSign().getPrepayId());
+				work.setNum("" + bo.getWorkSign().getNum());
+				work.setUnitPrice(bo.getWorkSign().getUnitPrice());
+				work.setPayFee("" + bo.getWorkSign().getTotalMoney());
+				work.setPayStatus(bo.getWorkSign().getPayStatus());
 				//判断是否可以取消报名
 				if(!bo.getWorkHire().getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
 					work.setCanCancelSign("0");
@@ -1001,6 +1091,63 @@ public class AppServiceImpl implements AppService{
 
 	public void setSysConfigService(SysConfigService sysConfigService) {
 		this.sysConfigService = sysConfigService;
+	}
+
+	@Override
+	public String queryWXPayResult(String requestXml) {
+		Calendar calendar = Calendar.getInstance();
+		long l = calendar.getTimeInMillis();
+		logger.info(l + " 查询微信支付结果>>请求报文---------" + requestXml);
+		
+		XStream xstream = new XStream();
+		xstream.alias("reqMsg", ReqMsg.class);
+		xstream.alias("reqDetail", ReqDetail.class);
+		xstream.alias("signEmp", SignEmp.class);
+		
+		ReqMsg reqMsg = (ReqMsg) xstream.fromXML(requestXml);
+		
+		String loginName = reqMsg.getOperater();
+		String identifyCode = reqMsg.getIdentification();
+		ReqDetail reqDetail = reqMsg.getReqDetail();
+		
+		//检查报文完整性
+		if(loginName == null || "".equals(loginName)) {
+			logger.info(l + " 查询微信支付结果>>---------operater值不允许为空");
+			return error(loginName, identifyCode, l,"4000", "用户名不允许为空");
+		}
+		
+		if(reqDetail == null) {
+			logger.info(l + " 查询微信支付结果>>---- -----reqDetail节点不存在");
+			return error(loginName, identifyCode, l,"4000", "reqDetail节点不存在");
+		}
+		
+		String workId = reqDetail.getWorkId();
+		OrgUser emp = orgUserService.getUserByLoginName(loginName);
+		WorkSign ws = workHireService.getWorkSign(workId, emp.getId());
+		
+		RspDetail rspDetail = new RspDetail();
+		if(ws == null) {
+			logger.info(l + " 查询微信支付结果>>---- -----未找到报名信息");
+			rspDetail.setPayStatus("0");
+			rspDetail.setPayDescri("未找到报名信息");
+		}else {
+			String s = ws.getPayStatus();
+			if("1".equals(s)){
+				rspDetail.setPayStatus("1");
+				rspDetail.setPayDescri("支付成功");
+			}else {
+				rspDetail.setPayStatus("0");
+				rspDetail.setPayDescri("待支付");
+			}
+		}
+		
+		RspMsg rspMsg = new RspMsg();
+		rspMsg.setRspDetail(rspDetail);
+		rspMsg.setRspResult("1000");
+		rspMsg.setRspDesc("成功");
+		rspMsg.setOperater(reqMsg.getOperater());
+		rspMsg.setIdentification(reqMsg.getIdentification());
+		return outputMarshal(rspMsg);
 	}
 	
 }

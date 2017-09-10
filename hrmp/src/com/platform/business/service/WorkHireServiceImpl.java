@@ -2,6 +2,8 @@ package com.platform.business.service;
 
 import java.util.List;
 
+import org.hibernate.Query;
+
 import com.platform.business.bo.WorkHireQueryBo;
 import com.platform.business.bo.WorkHireVisitBo;
 import com.platform.business.bo.WorkSignBo;
@@ -93,6 +95,16 @@ public class WorkHireServiceImpl implements WorkHireService {
 	@Override
 	public List<Object[]> getWorkKindList(WorkHireQueryBo bo) {
 		return workHireDao.getWorkKindList(bo);
+	}
+
+	@Override
+	public Page getWorkKindList(WorkHireQueryBo bo, Page page) {
+		return workHireDao.getWorkKindList(bo, page);
+	}
+
+	@Override
+	public void deleteWorkSign(WorkSign ws) {
+		workHireDao.deleteWorkSign(ws);
 	}
 
 

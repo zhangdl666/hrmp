@@ -85,4 +85,11 @@ public interface AppService {
 	 * @return
 	 */
 	public String queryAndroidVersion(String requestXml);
+	
+	/**
+	 * 查询微信支付结果
+	 * @param requestXml
+	 * @return
+	 */
+	public String queryWXPayResult(String requestXml);
 }
