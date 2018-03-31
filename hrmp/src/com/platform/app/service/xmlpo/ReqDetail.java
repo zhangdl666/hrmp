@@ -21,6 +21,13 @@ public class ReqDetail {
 	
 	private SignEmp signEmp;
 	
+	/**
+	 * 短信验证码类型	pwd：忘记密码;regedit：用户注册
+	 */
+	private String identifyCodeType;
+	
+	private User user;
+	
 	private String workId;
 	
 	private String msgId;
@@ -32,6 +39,10 @@ public class ReqDetail {
 	private String confirmPwd;
 	
 	private String workKind;
+	
+	private String empTypeId;
+	
+	private Work work;
 
 	public String getWorkKind() {
 		return workKind;
@@ -111,6 +122,38 @@ public class ReqDetail {
 
 	public void setConfirmPwd(String confirmPwd) {
 		this.confirmPwd = confirmPwd;
+	}
+
+	public String getIdentifyCodeType() {
+		return identifyCodeType;
+	}
+
+	public void setIdentifyCodeType(String identifyCodeType) {
+		this.identifyCodeType = identifyCodeType;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public String getEmpTypeId() {
+		return empTypeId;
+	}
+
+	public void setEmpTypeId(String empTypeId) {
+		this.empTypeId = empTypeId;
+	}
+
+	public Work getWork() {
+		return work;
+	}
+
+	public void setWork(Work work) {
+		this.work = work;
 	}
 
 }

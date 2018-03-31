@@ -52,15 +52,6 @@ public class WorkHireQueryBo {
 		this.title = title;
 	}
 
-
-	public String getWorkCompany() {
-		return workCompany;
-	}
-
-	public void setWorkCompany(String workCompany) {
-		this.workCompany = workCompany;
-	}
-
 	public Date getPublishTimeFrom() {
 		return publishTimeFrom;
 	}
@@ -101,37 +92,6 @@ public class WorkHireQueryBo {
 		this.workKind = workKind;
 	}
 
-	public Date getPlanStartTimeFrom() {
-		return planStartTimeFrom;
-	}
-
-	public void setPlanStartTimeFrom(Date planStartTimeFrom) {
-		this.planStartTimeFrom = planStartTimeFrom;
-	}
-
-	public Date getPlanStartTimeEnd() {
-		return planStartTimeEnd;
-	}
-
-	public void setPlanStartTimeEnd(Date planStartTimeEnd) {
-		this.planStartTimeEnd = planStartTimeEnd;
-	}
-
-	public Date getPlanEndTimeFrom() {
-		return planEndTimeFrom;
-	}
-
-	public void setPlanEndTimeFrom(Date planEndTimeFrom) {
-		this.planEndTimeFrom = planEndTimeFrom;
-	}
-
-	public Date getPlanEndTimeEnd() {
-		return planEndTimeEnd;
-	}
-
-	public void setPlanEndTimeEnd(Date planEndTimeEnd) {
-		this.planEndTimeEnd = planEndTimeEnd;
-	}
 
 	public String getStatus() {
 		return status;
@@ -180,6 +140,13 @@ public class WorkHireQueryBo {
 	public void setBusinessNumber(String businessNumber) {
 		this.businessNumber = businessNumber;
 	}
+	public String getEmpTypeId() {
+		return empTypeId;
+	}
+
+	public void setEmpTypeId(String empTypeId) {
+		this.empTypeId = empTypeId;
+	}
 	private String id;
 	
 	private String businessNumber;
@@ -198,8 +165,6 @@ public class WorkHireQueryBo {
 	
 	private String title;
 	
-	private String workCompany;
-	
 	private Date publishTimeFrom;
 	
 	private Date publishTimeEnd;
@@ -210,17 +175,11 @@ public class WorkHireQueryBo {
 	
 	private String workKind;
 	
-	private Date planStartTimeFrom;
-	
-	private Date planStartTimeEnd;
-	
-	private Date planEndTimeFrom;
-	
-	private Date planEndTimeEnd;
-	
 	private String status;//noPublish：草稿，publishing：正在招工，closed：已关闭；delete：删除
 
 	private String signUserId;//报名人ID  ，此属性有值时表示只查询此用户报名的招工信息
 	
 	private String notSignUserId;//报名人ID  ，此属性有值时表示需过滤掉此用户报名的招工信息
+	
+	private String empTypeId;
 }

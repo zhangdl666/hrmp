@@ -1,5 +1,7 @@
 package com.platform.business.action;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,6 +15,7 @@ import net.sf.json.JSONArray;
 import org.apache.log4j.Logger;
 import org.apache.struts2.ServletActionContext;
 
+import com.platform.app.push.AppPushService;
 import com.platform.business.bo.WorkHireQueryBo;
 import com.platform.business.bo.WorkHireVisitBo;
 import com.platform.business.bo.WorkSignBo;
@@ -62,6 +65,7 @@ public class WorkHireAction extends BaseAction {
 
 	private BusinessOpinionService businessOpinionService;
 	private BusinessNumberService businessNumberService;
+	private AppPushService appPushService;
 	
 	public OrgUserService getOrgUserService() {
 		return orgUserService;
@@ -69,6 +73,14 @@ public class WorkHireAction extends BaseAction {
 	
 	public void setOrgUserService(OrgUserService orgUserService) {
 		this.orgUserService = orgUserService;
+	}
+
+	public AppPushService getAppPushService() {
+		return appPushService;
+	}
+
+	public void setAppPushService(AppPushService appPushService) {
+		this.appPushService = appPushService;
 	}
 
 	public BusinessMessageService getBusinessMessageService() {
@@ -242,15 +254,20 @@ public class WorkHireAction extends BaseAction {
 			HttpServletRequest req = ServletActionContext.getRequest();
 			OrgUser loginUser = (OrgUser)req.getSession().getAttribute("loginUser");
 			OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
+			String empTypeId = req.getParameter("empTypeId");
 			workHire = new WorkHire();
 			String businessNumber = businessNumberService.getNumber("W");
 			workHire.setBusinessNumber(businessNumber);
 			workHire.setCreateTime(Calendar.getInstance().getTime());
 			workHire.setPublisherId(loginUser.getId());
-			workHire.setPublisherName(loginUser.getUserName());
+			workHire.setPublisherName(loginUser.getUserName() + "（" + loginUser.getLoginName() + "）");
 			workHire.setPublisherCompanyId(company.getId());
 			workHire.setPublisherCompanyName(company.getDeptName());
 			workHire.setStatus(WorkHire.WORK_HIRE_STATUS_NOPUBLISH);//草稿状态
+			workHire.setEmpTypeId(empTypeId);
+			workHire.setSex("male");
+			workHire.setSalaryRemark("BGF");
+			workHire.setPayMode("true");
 		}
 		
 		//确定页面读写权限
@@ -260,19 +277,28 @@ public class WorkHireAction extends BaseAction {
 		}else {
 			permission = "readonly";
 		}
-		return SUCCESS;
+		return workHire.getEmpTypeId();
 	}
 	
 	//保存
 	public String saveWorkHire() {
+		Calendar calendar = Calendar.getInstance();
 		if(WorkHire.WORK_HIRE_STATUS_PUBLISHING.equals(workHire.getStatus())) {
 			if(workHire.getPublishTime() == null) {
-				workHire.setPublishTime(Calendar.getInstance().getTime());
+				workHire.setPublishTime(calendar.getTime());
 			}
 		}
 		boolean isNew = false;
 		if(workHire.getId()==null) {
 			isNew = true;
+			HttpServletRequest req = ServletActionContext.getRequest();
+			String empDateFlag = req.getParameter("empDateFlag");
+			if("1".equals(empDateFlag)) {
+				workHire.setEmpDate(calendar.getTime());
+			}else if("2".equals(empDateFlag)) {
+				calendar.add(Calendar.DAY_OF_YEAR, 1);
+				workHire.setEmpDate(calendar.getTime());
+			}
 		}
 		
 		//确定页面读写权限
@@ -287,6 +313,26 @@ public class WorkHireAction extends BaseAction {
 			return SUCCESS;
 		}
 		
+		//当招工类型为长期工、临时工时，验证工资、招工人数是否符合修改要求
+		if(workHire.getId()!=null && ("LS".equals(workHire.getEmpTypeId()) || "CQ".equals(workHire.getEmpTypeId()))){
+			WorkHire wh = workHireService.getWorkHire(workHire.getId());
+			int oldHireNum = wh.getHireNum();
+			int oldSalary = Integer.valueOf(wh.getSalary());
+			int nowHireNum = workHire.getHireNum();
+			int nowSalary = Integer.valueOf(workHire.getSalary());
+			if(nowHireNum<oldHireNum || nowSalary < oldSalary) {
+				int signCount = workHireService.getWorkSignNum(workHire.getId());
+				if(nowSalary < oldSalary){
+					message = "操作失败，已有工人报名，工资不允许下调";
+					return workHire.getEmpTypeId();
+				}
+				if(nowHireNum < signCount) {
+					message = "操作失败，已有工人报名，招工人数修改不允许低于已报名人数";
+					return workHire.getEmpTypeId();
+				}
+			}
+		}
+		
 		workHireService.saveWorkHire(workHire);
 		//记录办理记录
 		if(isNew) {
@@ -297,7 +343,7 @@ public class WorkHireAction extends BaseAction {
 		
 		message = "保存成功";
 		
-		return SUCCESS;
+		return workHire.getEmpTypeId();
 	}
 	
 	public String queryWorkHire() {
@@ -351,7 +397,7 @@ public class WorkHireAction extends BaseAction {
 		}
 		page = workHireService.getWorkHireList(workHireQueryBo, page);
 		workHireList = page.getResult();
-		return SUCCESS;
+		return workHire.getEmpTypeId();
 	}
 	
 	//删除
@@ -383,7 +429,7 @@ public class WorkHireAction extends BaseAction {
 			businessOpinionService.saveBusinessOpinion(workHire.getId(),currentUser,"删除",remark);		
 		}
 		
-		return SUCCESS;
+		return workHire.getEmpTypeId();
 	}
 		
 	public String publishWorkHireById() {
@@ -419,11 +465,31 @@ public class WorkHireAction extends BaseAction {
 		}
 		page = workHireService.getWorkHireList(workHireQueryBo, page);
 		workHireList = page.getResult();
-		return SUCCESS;
+		
+		//推送消息至app
+		try {
+			String descri = workHire.getWorkKind() + workHire.getHireNum() + "位，" + workHire.getSalary() + "，" + workHire.getWorkDescri();
+			appPushService.sendAndroidBroadcast(descri,descri,descri,null,null);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return workHire.getEmpTypeId();
 	}
 	
 	//发布
 	public String publishWorkHire() {
+		if(workHire.getId()==null) {
+			Calendar calendar = Calendar.getInstance();
+			HttpServletRequest req = ServletActionContext.getRequest();
+			String empDateFlag = req.getParameter("empDateFlag");
+			if("1".equals(empDateFlag)) {
+				workHire.setEmpDate(calendar.getTime());
+			}else if("2".equals(empDateFlag)) {
+				calendar.add(Calendar.DAY_OF_YEAR, 1);
+				workHire.setEmpDate(calendar.getTime());
+			}
+		}
 		OrgUser currentUser = getLoginUser();
 		if(currentUser.getId().equals(workHire.getPublisherId())) {
 			permission = "write";
@@ -451,7 +517,33 @@ public class WorkHireAction extends BaseAction {
 			businessOpinionService.saveBusinessOpinion(workHire.getId(),currentUser,"发布",remark);
 		}
 		
-		return SUCCESS;
+		//推送消息至app
+		try {
+			String descri = workHire.getWorkKind() + workHire.getHireNum() + "位，" + workHire.getSalary() + "，" + workHire.getWorkDescri();
+			appPushService.sendAndroidBroadcast(descri,descri,descri,null,null);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return workHire.getEmpTypeId();
+	}
+	
+	public void validateWorkHireClose() {
+		try {
+			PrintWriter pw = this.getResponse().getWriter();
+			if(workHireId==null || workHireId.equals("")) {
+				pw.print("success");
+			}
+			int signCount = workHireService.getWorkSignNum(workHireId);
+			if(signCount == 0) {
+				pw.print("success");
+			}
+			pw.print("已有工人报名，此关闭操作将被视为违规行为，违规两次以上将会关闭您的使用权限，确认关闭吗？");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public String closeWorkHireById() {
@@ -487,7 +579,7 @@ public class WorkHireAction extends BaseAction {
 		}
 		page = workHireService.getWorkHireList(workHireQueryBo, page);
 		workHireList = page.getResult();
-		return SUCCESS;
+		return workHire.getEmpTypeId();
 	}
 	
 	//关闭
@@ -520,7 +612,7 @@ public class WorkHireAction extends BaseAction {
 			businessOpinionService.saveBusinessOpinion(workHire.getId(),currentUser,"关闭",remark);
 		}
 		
-		return SUCCESS;
+		return workHire.getEmpTypeId();
 	}
 	
 	//查看报名列表
@@ -634,13 +726,6 @@ public class WorkHireAction extends BaseAction {
 			return viewWorkHireForSign();
 		}
 		
-		//不良信用用户，限制报名
-		String userKind = currentUser.getUserKind();
-		if(OrgUser.USER_KIND_BADCREDIT.equals(userKind)) {
-			message = "您已限制报名，请到公司重新开通";
-			return viewWorkHireForSign();
-		}
-		
 		//验证是否超出报名上限
 		int planSignNum = workHire.getHireNum();
 		int acturalNum = workHireService.getWorkSignNum(workHire.getId());
@@ -654,8 +739,7 @@ public class WorkHireAction extends BaseAction {
 		ws.setWorkHireId(workHireId);
 		ws.setEmpId(currentUser.getId());
 		ws.setSignTime(Calendar.getInstance().getTime());
-		ws.setConfirmResult(WorkSign.COMFIRM_RESULT_PASS);//默认审核通过
-		ws.setConfirmTime(Calendar.getInstance().getTime());
+		ws.setValidStatus("1");
 		workHireService.saveWorkSign(ws);
 		message = "报名成功！";
 		
@@ -693,15 +777,8 @@ public class WorkHireAction extends BaseAction {
 			return viewPublishingWorkHire();
 		}
 		
-		if(ws.getConfirmResult()!=null) {
-//			if(WorkSign.COMFIRM_RESULT_PASS.equals(ws.getConfirmResult())) {
-//				message = "操作失败，报名已审核通过，不允许取消";
-//			}else if(WorkSign.COMFIRM_RESULT_NOPASS.equals(ws.getConfirmResult())) {
-//				message = "操作失败，报名已审核未通过，不允许取消";
-//			}else 
-			if(WorkSign.COMFIRM_RESULT_CANCEL.equals(ws.getConfirmResult())) {
-				message = "操作失败，报名已经取消，请勿重复取消";
-			}
+		if("0".equals(ws.getValidStatus())) {
+			message = "操作失败，报名已经取消，请勿重复取消";
 			return viewPublishingWorkHire();
 		}
 		
@@ -719,9 +796,8 @@ public class WorkHireAction extends BaseAction {
 		OrgUser loginUser = getLoginUser();
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		ws.setConfirmResult(WorkSign.COMFIRM_RESULT_CANCEL);
-		ws.setConfirmTime(Calendar.getInstance().getTime());
-		ws.setConfirmDescri(loginUser.getLoginName() + "主动取消报名 " + sdf.format(Calendar.getInstance().getTime()));
+		ws.setValidStatus("0");
+		ws.setRemark(loginUser.getLoginName() + "主动取消报名 " + sdf.format(Calendar.getInstance().getTime()));
 		workHireService.saveWorkSign(ws);
 		message = "报名已经取消！";
 		
@@ -761,52 +837,6 @@ public class WorkHireAction extends BaseAction {
 		page = workHireService.getWorkSignList(workHireQueryBo, page);
 		workSignList = page.getResult();
 		return SUCCESS;
-	}
-	
-	//报名确认
-	public String confirmWorkSign() {
-		WorkSign ws = workHireService.getWorkSign(workSignId);
-		if(ws == null) {
-			message = "操作失败，未找到报名记录（workSignId:" + workSignId + "）";
-		}else {
-			HttpServletRequest req = ServletActionContext.getRequest();
-			String result = req.getParameter("confirmResult");
-			String remark = req.getParameter("remark");
-			ws.setConfirmResult(result);
-			ws.setConfirmTime(Calendar.getInstance().getTime());
-			ws.setConfirmDescri(remark);
-			workHireService.saveWorkSign(ws);
-			
-			//报名成功后，取消用户其他报名
-			String s = workHire.getBusinessNumber() + "报名通过，系统自动取消其他报名";
-			workHireService.cancelOtherWorkSign(workSignId, ws.getEmpId(), s);
-			message = "操作成功";
-			
-			//记录办理记录
-			OrgUser currentUser = getLoginUser();
-			OrgUser user = orgUserService.getUser(ws.getEmpId());
-			
-			if(remark == null || "".equals(remark.trim())) {
-				if(WorkSign.COMFIRM_RESULT_PASS.equals(result)) {
-					remark = user.getUserName() + "报名审核通过";
-				}else if(WorkSign.COMFIRM_RESULT_NOPASS.equals(result)) {
-					remark = user.getUserName() + "报名审核未通过";
-				}
-			}
-			businessOpinionService.saveBusinessOpinion(ws.getWorkHireId(),currentUser,"报名确认",remark);
-			
-			//发送消息
-			Message m = new Message();
-			m.setCreateTime(Calendar.getInstance().getTime());
-			m.setIsRead("0");//未读
-			m.setMessageContent(message + "，招工单号：" + workHire.getBusinessNumber() + "，招工详情：" + workHire.getWorkDescri() + "，请知晓！");
-			m.setMessageTitle(message + workHire.getBusinessNumber() );
-			m.setReceiverUserId(workHire.getPublisherId());
-			m.setSendUserId(ws.getEmpId());
-			businessMessageService.saveMessage(m);
-		}
-		
-		return viewWorkSigns();
 	}
 	
 	//回访
@@ -901,39 +931,6 @@ public class WorkHireAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	public String saveSecondEmp() {
-		
-		String empIds = getRequest().getParameter("empIds");
-		String empNames = getRequest().getParameter("empNames");
-		String remark = getRequest().getParameter("remark");
-		
-		if(empIds==null || empIds.trim().equals("")) {
-			message = "添加失败，未选择工人";
-			return SUCCESS;
-		}
-		
-		OrgUser currentUser = getLoginUser();
-		String[] s = empIds.split(",");
-		for(int i=0; i<s.length; i++) {
-			if(s[i]==null || s[i].trim().equals("")) {
-				continue;
-			}
-			WorkSign ws = new WorkSign();
-			ws.setWorkHireId(workHireId);
-			ws.setEmpId(s[i]);
-			ws.setSignTime(Calendar.getInstance().getTime());
-			ws.setConfirmResult(WorkSign.COMFIRM_RESULT_PASS);
-			ws.setConfirmTime(Calendar.getInstance().getTime());
-			
-			ws.setConfirmDescri(currentUser.getUserName() + "添加二次用工:" + remark);
-			workHireService.saveWorkSign(ws);
-			
-		}
-		//办理记录
-		businessOpinionService.saveBusinessOpinion(workHireId,currentUser,"二次用工","添加工人:" + empNames + "，说明：" + remark);
-		message = "添加成功";
-		return SUCCESS;
-	}
 	
 	
 	//打开工人调换页面
@@ -942,96 +939,4 @@ public class WorkHireAction extends BaseAction {
 		return SUCCESS;
 	}
 
-	// 选择调换工人
-	public String selectUsersForReplaceEmp() {
-		WorkSign ws = workHireService.getWorkSign(workSignId);
-		WorkHire wh = workHireService.getWorkHire(ws.getWorkHireId());
-
-		// 先查询部门数据
-		List<OrgDeptView> depts = orgDeptService.queryDepts(null,
-				wh.getPublisherCompanyId(), true);
-		List<OrgUserBo> users = orgUserService.queryUsers(null, null,
-				wh.getPublisherCompanyId(), true);
-
-		List<TreeNode> treeNodes = new ArrayList<TreeNode>();
-		treeNodeData = "";
-
-		// 先放入部门节点
-		List<String> checkIdList = new ArrayList<String>();
-		if (depts != null && depts.size() > 0) {
-			for (int i = 0; i < depts.size(); i++) {
-				OrgDeptView d = depts.get(i);
-				TreeNode tnDept = new TreeNode();
-				tnDept.setId(d.getId());
-				tnDept.setName(d.getDeptName());
-				tnDept.setpId(d.getParentId());
-				tnDept.setParent(true);
-				treeNodes.add(tnDept);
-			}
-		}
-
-		// 再放入用户节点
-		if (checkedIds != null && !"".equals(checkedIds)) {
-			String[] s = checkedIds.split(",");
-			Collections.addAll(checkIdList, s);
-		}
-		if (users != null && users.size() > 0) {
-			for (int i = 0; i < users.size(); i++) {
-				OrgUserBo user = users.get(i);
-				TreeNode tn = new TreeNode();
-				tn.setId(user.getId());
-				tn.setName(user.getUserName());
-				tn.setpId(user.getDept().getId());
-				if (checkIdList.contains(user.getId())) {
-					tn.setChecked(true);
-				}
-				treeNodes.add(tn);
-			}
-			JSONArray jsonArray = JSONArray.fromObject(treeNodes);
-			treeNodeData = jsonArray.toString();
-		}
-		return SUCCESS;
-	}
-
-	public String saveReplaceEmp() {
-		workSignId = getRequest().getParameter("workSignId");
-		String empIds = getRequest().getParameter("empIds");
-		String empNames = getRequest().getParameter("empNames");
-		String remark = getRequest().getParameter("remark");
-
-		if (empIds == null || empIds.trim().equals("")) {
-			message = "调换失败，未选择工人";
-			return SUCCESS;
-		}
-
-		WorkSign ws = workHireService.getWorkSign(workSignId);
-		ws.setConfirmResult(WorkSign.COMFIRM_RESULT_CALL_OUT);
-		//调出时不修改confirmTime，避免交易信息汇总时重复计算
-		//ws.setConfirmTime(Calendar.getInstance().getTime());
-		ws.setConfirmDescri(getLoginUser().getUserName() + "将其调出：" + remark);
-		workHireService.saveWorkSign(ws);
-
-		OrgUser currentUser = getLoginUser();
-		String[] s = empIds.split(",");
-		for(int i=0; i<s.length; i++) {
-			if(s[i]==null || s[i].trim().equals("")) {
-				continue;
-			}
-			WorkSign ws2 = new WorkSign();
-			ws2.setWorkHireId(ws.getWorkHireId());
-			ws2.setEmpId(s[i]);
-			ws2.setSignTime(Calendar.getInstance().getTime());
-			ws2.setConfirmResult(WorkSign.COMFIRM_RESULT_CALL_IN);
-			ws2.setConfirmTime(Calendar.getInstance().getTime());
-			ws2.setConfirmDescri(getLoginUser().getUserName() + "调入：" + remark);
-			workHireService.saveWorkSign(ws2);
-		}
-		
-		//办理记录
-		OrgUser u = orgUserService.getUser(ws.getEmpId());
-		businessOpinionService.saveBusinessOpinion(ws.getWorkHireId(),currentUser,"调换",u.getUserName() + "被调换为：" + empNames + "，说明：" + remark);
-		
-		message = "调换成功";
-		return SUCCESS;
-	}
 }

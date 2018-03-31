@@ -120,4 +120,9 @@ public class OrgUserServiceImpl implements OrgUserService {
 		return orgUserDao.queryUsers(userName, loginName, departmentId, isContainChildDept, page);
 	}
 
+	@Override
+	public List<OrgUserBo> getAdminUserList(String companyId) {
+		return orgUserDao.getAdminUserList(companyId);
+	}
+
 }

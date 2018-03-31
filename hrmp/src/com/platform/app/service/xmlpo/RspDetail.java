@@ -40,6 +40,8 @@ public class RspDetail {
 	 */
 	private List<Work> workList;
 	
+	private String businessNumber;
+	
 	private Work work;
 	
 	private List<SignEmp> signEmpList;
@@ -47,6 +49,12 @@ public class RspDetail {
 	private List<Msg> msgList;
 	
 	private Msg msg;
+	
+	private List<Province> provinceList;
+	
+	private List<WorkKind> workKindList;
+	
+	private List<BadRecord> badRecordList;
 	
 	private WXPay wxPay;
 	
@@ -144,6 +152,38 @@ public class RspDetail {
 
 	public void setMsg(Msg msg) {
 		this.msg = msg;
+	}
+
+	public List<Province> getProvinceList() {
+		return provinceList;
+	}
+
+	public void setProvinceList(List<Province> provinceList) {
+		this.provinceList = provinceList;
+	}
+
+	public String getBusinessNumber() {
+		return businessNumber;
+	}
+
+	public void setBusinessNumber(String businessNumber) {
+		this.businessNumber = businessNumber;
+	}
+
+	public List<WorkKind> getWorkKindList() {
+		return workKindList;
+	}
+
+	public void setWorkKindList(List<WorkKind> workKindList) {
+		this.workKindList = workKindList;
+	}
+
+	public List<BadRecord> getBadRecordList() {
+		return badRecordList;
+	}
+
+	public void setBadRecordList(List<BadRecord> badRecordList) {
+		this.badRecordList = badRecordList;
 	}
 
 }

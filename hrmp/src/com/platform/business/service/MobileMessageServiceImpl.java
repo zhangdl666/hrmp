@@ -10,6 +10,7 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 import java.util.Collection;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -17,10 +18,17 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-public class MobileMessageServiceImpl implements MobileMessageService {
+import org.apache.log4j.Logger;
 
+import com.platform.business.dao.MobileMessageDao;
+import com.platform.business.pojo.MMobileMessage;
+
+public class MobileMessageServiceImpl implements MobileMessageService {
+	private final Logger logger = Logger.getLogger(MobileMessageServiceImpl.class);
+
+	private MobileMessageDao mobileMessageDao;
 	@Override
-	public String sendMessage(String mobile, String content) {
+	public String sendMessage(String mobile, String content) throws Exception {
 		String url = "http://www.stongnet.com/sdkhttp/sendsms.aspx";
 		String regCode = "101100-WEB-HUAX-115847"; // 华兴软通注册码，请在这里填写您从客服那得到的注册码
 		String regPasswod = "FTPAKUZJ"; // 华兴软通注册码对应的密码，请在这里填写您从客服那得到的注册码
@@ -33,19 +41,37 @@ public class MobileMessageServiceImpl implements MobileMessageService {
          *  短信内容的长度计算会包括签名;签名内容的长度限制受政策变化,具体请咨询客服
          *  写在程序里是让用户自定义签名的方式,还有一种方式是让客服绑定签名,这种方式签名不需要写在程序中,具体请咨询客服
          */
+		String encodeContent = "";
 		try {
-			content = URLEncoder.encode(content,"UTF-8");		//content中含有空格，换行，中文等非ascii字符时，需要进行url编码，否则无法正确传输到服务器
+			encodeContent = URLEncoder.encode(content,"UTF-8");		//content中含有空格，换行，中文等非ascii字符时，需要进行url编码，否则无法正确传输到服务器
 		} catch (Exception e) {
 			// TODO: handle exception
-			System.out.println(e.getMessage());
+			logger.error(e.getMessage());
+			throw e;
 		}
 		String param = "reg=" + regCode + "&pwd=" + regPasswod + "&sourceadd=" + sourceAdd + "&phone=" + mobile + "&content=" + content;
 		
 		String returnStr = this.requestPost(url, param);
-		System.out.println(returnStr);
+		logger.info(returnStr);
+		//保存入库
+		MMobileMessage mobileMessage = new MMobileMessage();
+		mobileMessage.setMobile(mobile);
+		mobileMessage.setContent(content);
+		mobileMessage.setCreateTime(Calendar.getInstance().getTime());
+		mobileMessage.setRemark(returnStr);
+		mobileMessageDao.saveMobileMessage(mobileMessage);
+		
 		return returnStr;
 	}
 	
+	public MobileMessageDao getMobileMessageDao() {
+		return mobileMessageDao;
+	}
+
+	public void setMobileMessageDao(MobileMessageDao mobileMessageDao) {
+		this.mobileMessageDao = mobileMessageDao;
+	}
+
 	/**
 	 * HTTP的Post请求方式(推荐)
 	 * @param strUrl 请求地址

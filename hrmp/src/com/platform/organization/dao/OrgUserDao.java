@@ -38,4 +38,11 @@ public interface OrgUserDao {
 	
 	public boolean delUser(String id);
 	
+	/**
+	 * 获取指定公司的客服人员列表
+	 * @param companyId
+	 * @return
+	 */
+	public List<OrgUserBo> getAdminUserList(String companyId);
+	
 }

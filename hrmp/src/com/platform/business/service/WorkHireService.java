@@ -5,6 +5,7 @@ import java.util.List;
 import com.platform.business.bo.WorkHireQueryBo;
 import com.platform.business.bo.WorkHireVisitBo;
 import com.platform.business.bo.WorkSignBo;
+import com.platform.business.pojo.BadRecord;
 import com.platform.business.pojo.WorkHire;
 import com.platform.business.pojo.WorkHireVisit;
 import com.platform.business.pojo.WorkSign;
@@ -12,7 +13,7 @@ import com.platform.core.bo.Page;
 
 public interface WorkHireService {
 
-public WorkHire getWorkHire(String id);
+	public WorkHire getWorkHire(String id);
 	
 	public WorkHire saveWorkHire(WorkHire wh);
 	
@@ -57,11 +58,29 @@ public WorkHire getWorkHire(String id);
 	 */
 	public List<WorkHireVisitBo> getWorkHireVisitBoList(String workHireId);
 	
+	/**
+	 * 查询正在招工列表
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
 	public Page getWorkHireList(WorkHireQueryBo bo,Page page);
 	
-	public List<Object[]> getWorkKindList(WorkHireQueryBo bo);
+	/**
+	 * 查询已关闭招工列表
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page getClosedWorkHireList(WorkHireQueryBo bo,Page page);
 	
-	public Page getWorkKindList(WorkHireQueryBo bo,Page page);
+	/**
+	 * 查询我发布的招工信息
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page getMyWorkHireList(String userId,WorkHireQueryBo bo,Page page);
 	
 	/**
 	 * 查询我的工作
@@ -70,4 +89,50 @@ public WorkHire getWorkHire(String id);
 	 * @return
 	 */
 	public Page getWorkSignList(WorkHireQueryBo bo,Page page);
+	
+	/**
+	 * 查询微信支付结果，更新支付状态
+	 */
+	public void queryWXPayResultFromWX();
+	
+	/**
+	 * 关闭超时招工
+	 */
+	public void closeOverTimePublish();
+	
+	/**
+	 * 获取用户最近一次发布的消息
+	 * @param loginName
+	 * @param empTypeId
+	 * @return
+	 */
+	public WorkHire getLastWorkHire(String loginName,String empTypeId);
+	
+	/**
+	 * 保持不良记录
+	 * @param br
+	 * @return
+	 */
+	public BadRecord saveBadRecord(BadRecord br);
+	
+	/**
+	 * 查询我的不良记录
+	 * @param userId
+	 * @return
+	 */
+	public Page getMyBadRecordList(String userId,Page page);
+	
+	/**
+	 * 置顶
+	 * @param id
+	 * @return
+	 */
+	public WorkHire toTopWorkHire(String id);
+	
+	/**
+	 * 查询微信支付结果
+	 * @param workSignId
+	 * @return
+	 */
+	public boolean isPaySuccess(String workSignId);
 }

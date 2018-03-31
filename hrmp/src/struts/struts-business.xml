@@ -6,19 +6,29 @@
 <struts>
     <package name="business" namespace="/business" extends="default">
         <action name="viewWorkHire" class="com.platform.business.action.WorkHireAction" method="viewWorkHire">
-            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+            <result name="LS">/view/business/workhire/viewWorkHire_LS.jsp</result>
+            <result name="CB">/view/business/workhire/viewWorkHire_CB.jsp</result>
+            <result name="CQ">/view/business/workhire/viewWorkHire_CQ.jsp</result>
         </action>
         <action name="saveWorkHire" class="com.platform.business.action.WorkHireAction" method="saveWorkHire">
-            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+            <result name="LS">/view/business/workhire/viewWorkHire_LS.jsp</result>
+            <result name="CB">/view/business/workhire/viewWorkHire_CB.jsp</result>
+            <result name="CQ">/view/business/workhire/viewWorkHire_CQ.jsp</result>
         </action>
         <action name="deleteWorkHire" class="com.platform.business.action.WorkHireAction" method="deleteWorkHire">
-            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+            <result name="LS">/view/business/workhire/viewWorkHire_LS.jsp</result>
+            <result name="CB">/view/business/workhire/viewWorkHire_CB.jsp</result>
+            <result name="CQ">/view/business/workhire/viewWorkHire_CQ.jsp</result>
         </action>
         <action name="publishWorkHire" class="com.platform.business.action.WorkHireAction" method="publishWorkHire">
-            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+            <result name="LS">/view/business/workhire/viewWorkHire_LS.jsp</result>
+            <result name="CB">/view/business/workhire/viewWorkHire_CB.jsp</result>
+            <result name="CQ">/view/business/workhire/viewWorkHire_CQ.jsp</result>
         </action>
         <action name="closeWorkHire" class="com.platform.business.action.WorkHireAction" method="closeWorkHire">
-            <result name="success">/view/business/workhire/viewWorkHire.jsp</result>
+            <result name="LS">/view/business/workhire/viewWorkHire_LS.jsp</result>
+            <result name="CB">/view/business/workhire/viewWorkHire_CB.jsp</result>
+            <result name="CQ">/view/business/workhire/viewWorkHire_CQ.jsp</result>
         </action>
         <action name="queryWorkHire" class="com.platform.business.action.WorkHireAction" method="queryWorkHire">
             <result name="success">/view/business/workhire/queryWorkHire.jsp</result>
@@ -40,6 +50,8 @@
         </action>
         <action name="viewVisits" class="com.platform.business.action.WorkHireAction" method="viewVisits">
             <result name="success">/view/business/workhire/viewVisits.jsp</result>
+        </action>
+        <action name="validateWorkHireClose" class="com.platform.business.action.WorkHireAction" method="validateWorkHireClose">
         </action>
         
         <!-- 报名 -->

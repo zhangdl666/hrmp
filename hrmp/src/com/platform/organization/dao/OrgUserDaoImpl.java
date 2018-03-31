@@ -205,16 +205,7 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		bo.setId(user.getId());
 		bo.setLoginName(user.getLoginName());
 		bo.setUserName(user.getUserName());
-		bo.setGender(user.getGender());
-		//º∆À„ƒÍ¡‰
-		bo.setBirthday(user.getBirthday());
-		if(user.getBirthday()!=null) {
-			int nowYear = Calendar.getInstance().getTime().getYear();
-			int birthYear = user.getBirthday().getYear();
-			bo.setAge(nowYear - birthYear);
-		}
 		bo.setMobile(user.getMobile());
-		bo.setWorkKind(user.getWorkKind());
 		//bo.setDeptId(user.getDeptId());
 		bo.setCreateTime(user.getCreateTime());
 		bo.setPwdUpdateTime(user.getPwdUpdateTime());
@@ -229,6 +220,45 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, roleId);
 		return query.list();
+	}
+
+	@Override
+	public List<OrgUserBo> getAdminUserList(String companyId) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" select {u.*},{dept.*}");
+		sb.append("   from org_user u,v_org_dept dept ");
+		sb.append("  where u.dept_id = dept.id and u.validstatus = '1'");
+		
+		HashMap<Integer, String> params = new HashMap<Integer, String>();
+		int paramIndex = 0;
+		
+		sb.append("    and u.dept_id in (select d.id");
+		sb.append("                        from org_dept d");
+		sb.append("                       where d.validstatus = '1'");
+		sb.append("                       start with d.id = ?");
+		sb.append("                      connect by prior id = parentid)");
+		params.put(paramIndex, companyId);
+		paramIndex = paramIndex + 1;
+		sb.append(" order by u.loginname");
+		
+		String sql = sb.toString();
+		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("u",OrgUser.class).addEntity("dept",OrgDeptView.class);
+		setQueryParameter(query,params);
+		
+		List<Object[]> list = query.list();
+		if(list==null || list.size()==0) {
+			return null;
+		}
+		
+		List<OrgUserBo> result = new ArrayList<OrgUserBo>();
+		for(int i=0;i<list.size();i++) {
+			Object[] o = list.get(i);
+			OrgUserBo bo = transToBo((OrgUser)o[0]);
+			bo.setDept((OrgDeptView)o[1]);
+			result.add(bo);
+		}
+		
+		return result;
 	}
 
 	

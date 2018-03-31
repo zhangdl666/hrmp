@@ -1,5 +1,7 @@
 package com.platform.app.service.xmlpo;
 
+import java.util.Date;
+
 
 public class Work {
 	
@@ -73,7 +75,7 @@ public class Work {
 	/**
 	 * 招工数量
 	 */
-	private int hireNum;
+	private String hireNum;
 	
 	private String status;//noPublish：草稿，publishing：正在招工，closed：已关闭；delete：删除
 	
@@ -81,6 +83,68 @@ public class Work {
 	 * 报名时间
 	 */
 	private String signTime;
+	
+	/* 招工类型 */
+	private String empTypeId;
+	
+	/* 招工时间 */
+	private String empDate;
+	
+	/* 性别，male：男
+	；female：女；
+	all：不限
+	 */
+	private String sex;
+	
+	private String salary;
+	
+	/* 工资备注  GF：管饭
+	；GCZ：管吃住；
+	BGF：不管饭
+	 */
+	private String salaryRemark;
+	
+	/* 承包施工-年龄要求 */
+	private String age;
+	
+	/* 上午，1：选中；0：未选中 */
+	private String am;
+	
+	/* 上午开始时间 */
+	private String amStart;
+	
+	/* 上午截止时间 */
+	private String amEnd;
+	
+	/* 下午，1：选中；0：未选中 */
+	private String pm;
+	
+	/* 下午开始时间 */
+	private String pmStart;
+	
+	/* 下午截止时间 */
+	private String pmEnd;
+	
+	/* 晚上，1：选中；0：未选中 */
+	private String night;
+	
+	/* 晚上开始时间 */
+	private String nightStart;
+	
+	/* 晚上截止时间 */
+	private String nightEnd;
+	
+	/* 承包施工-条件要求 */
+	private String condition;
+	
+	/* 承包施工-付款方式，1：面议；0：其他 */
+	private String payMode;
+	
+	/* 承包施工-付款方式-其他付款方式 */
+	private String payModeRemark;
+	
+	/*是否能关闭发布	1：可以关闭发布；0：不可以关闭发布*/
+	private String canClosePublish;
 	
 	
 	public String getSignTime() {
@@ -94,7 +158,7 @@ public class Work {
 	/**
 	 * 报名费单价，单位：元/人，用于“我要报名”弹出页面
 	 */
-	private double unitPrice;
+	private String unitPrice;
 	
 	/**
 	 * 是否能取消报名 
@@ -238,13 +302,6 @@ public class Work {
 	}
 
 
-	public int getHireNum() {
-		return hireNum;
-	}
-
-	public void setHireNum(int hireNum) {
-		this.hireNum = hireNum;
-	}
 
 	public String getStatus() {
 		return status;
@@ -295,12 +352,173 @@ public class Work {
 		this.planEndTime = planEndTime;
 	}
 
-	public double getUnitPrice() {
+
+	public String getHireNum() {
+		return hireNum;
+	}
+
+	public void setHireNum(String hireNum) {
+		this.hireNum = hireNum;
+	}
+
+	public String getUnitPrice() {
 		return unitPrice;
 	}
 
-	public void setUnitPrice(double unitPrice) {
+	public void setUnitPrice(String unitPrice) {
 		this.unitPrice = unitPrice;
+	}
+
+	public String getEmpTypeId() {
+		return empTypeId;
+	}
+
+	public void setEmpTypeId(String empTypeId) {
+		this.empTypeId = empTypeId;
+	}
+
+	public String getEmpDate() {
+		return empDate;
+	}
+
+	public void setEmpDate(String empDate) {
+		this.empDate = empDate;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public String getSalaryRemark() {
+		return salaryRemark;
+	}
+
+	public void setSalaryRemark(String salaryRemark) {
+		this.salaryRemark = salaryRemark;
+	}
+
+	public String getAge() {
+		return age;
+	}
+
+	public void setAge(String age) {
+		this.age = age;
+	}
+
+	public String getAm() {
+		return am;
+	}
+
+	public void setAm(String am) {
+		this.am = am;
+	}
+
+	public String getAmStart() {
+		return amStart;
+	}
+
+	public void setAmStart(String amStart) {
+		this.amStart = amStart;
+	}
+
+	public String getAmEnd() {
+		return amEnd;
+	}
+
+	public void setAmEnd(String amEnd) {
+		this.amEnd = amEnd;
+	}
+
+	public String getPm() {
+		return pm;
+	}
+
+	public void setPm(String pm) {
+		this.pm = pm;
+	}
+
+	public String getPmStart() {
+		return pmStart;
+	}
+
+	public void setPmStart(String pmStart) {
+		this.pmStart = pmStart;
+	}
+
+	public String getPmEnd() {
+		return pmEnd;
+	}
+
+	public void setPmEnd(String pmEnd) {
+		this.pmEnd = pmEnd;
+	}
+
+	public String getNight() {
+		return night;
+	}
+
+	public void setNight(String night) {
+		this.night = night;
+	}
+
+	public String getNightStart() {
+		return nightStart;
+	}
+
+	public void setNightStart(String nightStart) {
+		this.nightStart = nightStart;
+	}
+
+	public String getNightEnd() {
+		return nightEnd;
+	}
+
+	public void setNightEnd(String nightEnd) {
+		this.nightEnd = nightEnd;
+	}
+
+	public String getCondition() {
+		return condition;
+	}
+
+	public void setCondition(String condition) {
+		this.condition = condition;
+	}
+
+	public String getPayMode() {
+		return payMode;
+	}
+
+	public void setPayMode(String payMode) {
+		this.payMode = payMode;
+	}
+
+	public String getPayModeRemark() {
+		return payModeRemark;
+	}
+
+	public void setPayModeRemark(String payModeRemark) {
+		this.payModeRemark = payModeRemark;
+	}
+
+	public String getSalary() {
+		return salary;
+	}
+
+	public void setSalary(String salary) {
+		this.salary = salary;
+	}
+
+	public String getCanClosePublish() {
+		return canClosePublish;
+	}
+
+	public void setCanClosePublish(String canClosePublish) {
+		this.canClosePublish = canClosePublish;
 	}
 
 	

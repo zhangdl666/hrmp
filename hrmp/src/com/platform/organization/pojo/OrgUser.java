@@ -14,9 +14,8 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name="ORG_USER")
 public class OrgUser {
 
-	public static final String USER_KIND_BADCREDIT = "badCredit";
-	public static final String USER_KIND_VIP = "VIP";
-	public static final String USER_KIND_NORMAL = "Normal";
+	public static final String USER_KIND_MANAGER = "manager";
+	public static final String USER_KIND_REGISTER = "register";
 	
 	@Id
 	@GeneratedValue(generator="system-uuid")
@@ -33,17 +32,8 @@ public class OrgUser {
 	@Column(name = "PWD")
 	private String pwd;
 	
-	@Column(name="GENDER")
-	private String gender;
-	
-	@Column(name="BIRTHDAY")
-	private Date birthday;
-	
 	@Column(name="MOBILE")
 	private String mobile;
-	
-	@Column(name="WORK_KIND")
-	private String workKind;
 	
 	@Column(name = "DEPT_ID")
 	private String deptId;
@@ -58,7 +48,7 @@ public class OrgUser {
 	private String validstatus;
 	
 	@Column(name="USER_KIND")
-	private String userKind;//badCredit：不良信用、VIP：VIP用户，Normal：普通用户
+	private String userKind;//manager：公司用户；register：注册用户
 	
 	@Column(name = "REMARK")
 	private String remark;
@@ -95,21 +85,6 @@ public class OrgUser {
 		this.pwd = pwd;
 	}
 
-	public String getGender() {
-		return gender;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
-
-	public Date getBirthday() {
-		return birthday;
-	}
-
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
-	}
 
 	public String getMobile() {
 		return mobile;
@@ -117,14 +92,6 @@ public class OrgUser {
 
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
-	}
-
-	public String getWorkKind() {
-		return workKind;
-	}
-
-	public void setWorkKind(String workKind) {
-		this.workKind = workKind;
 	}
 
 	public String getDeptId() {

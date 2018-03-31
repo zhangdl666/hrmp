@@ -75,6 +75,7 @@ public class OrganizationAction extends ActionSupport {
 	
 	private String deptName;
 	private OrgDept dept;
+	private OrgDept parentDept;
 	private List<OrgDeptView> deptList;
 
 	private String menuId;
@@ -315,6 +316,14 @@ public class OrganizationAction extends ActionSupport {
 		this.delId = delId;
 	}
 
+	public OrgDept getParentDept() {
+		return parentDept;
+	}
+
+	public void setParentDept(OrgDept parentDept) {
+		this.parentDept = parentDept;
+	}
+
 	public String getRoleName() {
 		return roleName;
 	}
@@ -457,6 +466,7 @@ public class OrganizationAction extends ActionSupport {
 			user = new OrgUser();
 			user.setDeptId(deptId);
 		}
+		dept = orgDeptService.getOrgDept(user.getDeptId());
 		return SUCCESS;
 	}
 	
@@ -755,6 +765,13 @@ public class OrganizationAction extends ActionSupport {
 	}
 	
 	public String delDept() {
+		List<OrgDeptView> list = orgDeptService.queryDepts(null, deptId, false);
+		if(list!=null && list.size()>0) {
+			message = "存在下级组织机构，不允许删除！";
+			page = orgDeptService.queryDepts(deptName, deptId, true,page);
+			deptList = page.getResult();
+			return SUCCESS;
+		}
 		boolean b = orgDeptService.delDept(delId);
 		if(b) {
 			message = "删除成功";
@@ -776,6 +793,9 @@ public class OrganizationAction extends ActionSupport {
 			dept.setParentId(parentDeptId);
 			dept.setCreateTime(Calendar.getInstance().getTime());
 			dept.setValidstatus("1");
+		}
+		if(dept.getParentId()!=null) {
+			parentDept = orgDeptService.getOrgDept(dept.getParentId());
 		}
 		return SUCCESS;
 	}

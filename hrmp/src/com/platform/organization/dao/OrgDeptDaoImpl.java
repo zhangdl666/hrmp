@@ -113,7 +113,7 @@ public class OrgDeptDaoImpl implements OrgDeptDao {
 				sb.append("                       start with d.id = ?");
 				sb.append("                      connect by prior id = parentid)");
 			}else {
-				sb.append("    and dept.id = ? ");
+				sb.append("    and dept.parentid = ? ");
 			}
 			params.put(paramIndex, parentDeptId);
 			paramIndex = paramIndex + 1;

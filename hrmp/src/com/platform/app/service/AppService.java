@@ -1,7 +1,52 @@
 package com.platform.app.service;
 
-public interface AppService {
+import com.platform.business.pojo.WorkHire;
 
+public interface AppService {
+	
+	/**
+	 * 获取短信验证码
+	 * @param requestXml
+	 * @return
+	 */
+	public String getIdentifyCode(String requestXml);
+	
+	/**
+	 * 获取分公司
+	 * @param requestXml
+	 * @return
+	 */
+	public String getCompanyList(String requestXml);
+	
+	/**
+	 * 注册
+	 * @param requestXml
+	 * @return
+	 */
+	public String userRegister(String requestXml);
+	
+	/**
+	 * 找回密码
+	 * @param requestXml
+	 * @return
+	 */
+	public String retrievePwd(String requestXml);
+	
+	
+	/**
+	 * 获取此用户最近一次发布信息
+	 * @param requestXml
+	 * @return
+	 */
+	public String getLastWork(String requestXml);
+	
+	/**
+	 * 发布招工信息
+	 * @param requestXml
+	 * @return
+	 */
+	public String publishWork(String requestXml);
+	
 	/**
 	 * 登录
 	 * @param requestXml
@@ -16,19 +61,13 @@ public interface AppService {
 	 */
 	public String getWorkList(String requestXml);
 	
+	
 	/**
 	 * 招工详情
 	 * @param requestXml
 	 * @return
 	 */
-	public String getWorkDetailList(String requestXml);
-	
-	/**
-	 * 招工基本信息
-	 * @param requestXml
-	 * @return
-	 */
-	public String getWorkInfoById(String requestXml);
+	public String getWorkDetail(String requestXml);
 	
 	/**
 	 * 报名列表
@@ -92,4 +131,67 @@ public interface AppService {
 	 * @return
 	 */
 	public String queryWXPayResult(String requestXml);
+	
+	/**
+	 * 发起微信支付
+	 * @param requestXml
+	 * @return
+	 */
+	public String wxPay(String requestXml);
+	
+	/**
+	 * 获取工种列表，用于发布招工信息
+	 * @param requestXml
+	 * @return
+	 */
+	public String getWorkKindList(String requestXml);
+	
+	/**
+	 * 报名详情
+	 * @param requestXml
+	 * @return
+	 */
+	public String getSignDetail(String requestXml);
+	
+	/**
+	 * 我的发布
+	 * @param requestXml
+	 * @return
+	 */
+	public String getMyPublishList(String requestXml);
+	
+	/**
+	 * 发布详情
+	 * @param requestXml
+	 * @return
+	 */
+	public String getPublishDetail(String requestXml);
+	
+	/**
+	 * 关闭发布
+	 * @param requestXml
+	 * @return
+	 */
+	public String closePublish(String requestXml);
+	
+	/**
+	 * 取消关闭发布
+	 * @param requestXml
+	 * @return
+	 */
+	public String cancelClosePublish(String requestXml);
+	
+	/**
+	 * 违规记录列表
+	 * @param requestXml
+	 * @return
+	 */
+	public String getMyBadRecordList(String requestXml);
+	
+	/**
+	 * 置顶
+	 * @param requestXml
+	 * @return
+	 */
+	public String toTopWorkHire(String requestXml);
 }

@@ -15,6 +15,41 @@ public class AppServicePublish extends ServletEndpointSupport {
 		appService = (AppService) obj;
 	}
 	
+	/**
+	 * 获取短信验证码
+	 * @param requestXml
+	 * @return
+	 */
+	public String getIdentifyCode(String requestXml){
+		return appService.getIdentifyCode(requestXml);
+	}
+	
+	/**
+	 * 获取分公司
+	 * @param requestXml
+	 * @return
+	 */
+	public String getCompanyList(String requestXml){
+		return appService.getCompanyList(requestXml);
+	}
+	
+	/**
+	 * 注册
+	 * @param requestXml
+	 * @return
+	 */
+	public String userRegister(String requestXml){
+		return appService.userRegister(requestXml);
+	}
+	
+	/**
+	 * 找回密码
+	 * @param requestXml
+	 * @return
+	 */
+	public String retrievePwd(String requestXml){
+		return appService.retrievePwd(requestXml);
+	}
 	
 	/**
 	 * 登录
@@ -26,6 +61,24 @@ public class AppServicePublish extends ServletEndpointSupport {
 	}
 	
 	/**
+	 * 获取此用户最近一次发布信息
+	 * @param requestXml
+	 * @return
+	 */
+	public String getLastWork(String requestXml){
+		return appService.getLastWork(requestXml);
+	}
+	
+	/**
+	 * 发布招工信息
+	 * @param requestXml
+	 * @return
+	 */
+	public String publishWork(String requestXml){
+		return appService.publishWork(requestXml);
+	}
+	
+	/**
 	 * 查询招工信息
 	 * @param requestXml
 	 * @return
@@ -34,17 +87,14 @@ public class AppServicePublish extends ServletEndpointSupport {
 		return appService.getWorkList(requestXml);
 	}
 	
-	public String getWorkDetailList(String requestXml){
-		return appService.getWorkDetailList(requestXml);
-	}
 	
 	/**
-	 * 招工基本信息
+	 * 招工详情
 	 * @param requestXml
 	 * @return
 	 */
-	public String getWorkInfoById(String requestXml){
-		return appService.getWorkInfoById(requestXml);
+	public String getWorkDetail(String requestXml){
+		return appService.getWorkDetail(requestXml);
 	}
 	
 	/**
@@ -126,5 +176,86 @@ public class AppServicePublish extends ServletEndpointSupport {
 	 */
 	public String queryWXPayResult(String requestXml){
 		return appService.queryWXPayResult(requestXml);
+	}
+	
+	/**
+	 * 发起微信支付
+	 * @param requestXml
+	 * @return
+	 */
+	public String wxPay(String requestXml){
+		return appService.wxPay(requestXml);
+	}
+	
+	/**
+	 * 获取工种列表，用于发布招工信息
+	 * @param requestXml
+	 * @return
+	 */
+	public String getWorkKindList(String requestXml){
+		return appService.getWorkKindList(requestXml);
+	}
+	
+	/**
+	 * 报名详情
+	 * @param requestXml
+	 * @return
+	 */
+	public String getSignDetail(String requestXml){
+		return appService.getSignDetail(requestXml);
+	}
+	
+	/**
+	 * 我的发布
+	 * @param requestXml
+	 * @return
+	 */
+	public String getMyPublishList(String requestXml){
+		return appService.getMyPublishList(requestXml);
+	}
+	
+	/**
+	 * 发布详情
+	 * @param requestXml
+	 * @return
+	 */
+	public String getPublishDetail(String requestXml){
+		return appService.getPublishDetail(requestXml);
+	}
+	
+	/**
+	 * 关闭发布
+	 * @param requestXml
+	 * @return
+	 */
+	public String closePublish(String requestXml){
+		return appService.closePublish(requestXml);
+	}
+	
+	/**
+	 * 取消关闭发布
+	 * @param requestXml
+	 * @return
+	 */
+	public String cancelClosePublish(String requestXml){
+		return appService.cancelClosePublish(requestXml);
+	}
+	
+	/**
+	 * 违规记录列表
+	 * @param requestXml
+	 * @return
+	 */
+	public String getMyBadRecordList(String requestXml){
+		return appService.getMyBadRecordList(requestXml);
+	}
+	
+	/**
+	 * 置顶
+	 * @param requestXml
+	 * @return
+	 */
+	public String toTopWorkHire(String requestXml) {
+		return appService.toTopWorkHire(requestXml);
 	}
 }

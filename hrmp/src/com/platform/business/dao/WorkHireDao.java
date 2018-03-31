@@ -5,6 +5,7 @@ import java.util.List;
 import com.platform.business.bo.WorkHireQueryBo;
 import com.platform.business.bo.WorkHireVisitBo;
 import com.platform.business.bo.WorkSignBo;
+import com.platform.business.pojo.BadRecord;
 import com.platform.business.pojo.WorkHire;
 import com.platform.business.pojo.WorkHireVisit;
 import com.platform.business.pojo.WorkSign;
@@ -16,6 +17,8 @@ public interface WorkHireDao {
 	
 	public WorkHire saveWorkHire(WorkHire wh);
 	
+	public WorkHire getLastWorkHire(String loginName,String empTypeId);
+	
 	public WorkSign getWorkSign(String id);
 	
 	public WorkHireVisit getWorkHireVisit(String id);
@@ -25,6 +28,14 @@ public interface WorkHireDao {
 	public WorkSign saveWorkSign(WorkSign ws);
 	
 	public WorkHireVisit saveWorkHireVisit(WorkHireVisit v);
+	
+	/**
+	 * 查询已关闭招工列表
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page getClosedWorkHireList(WorkHireQueryBo bo,Page page);
 	
 	/**
 	 * 取消工人其他报名信息
@@ -45,9 +56,13 @@ public interface WorkHireDao {
 	
 	public Page getWorkHireList(WorkHireQueryBo bo,Page page);
 	
-	public List<Object[]> getWorkKindList(WorkHireQueryBo bo);
-	
-	public Page getWorkKindList(WorkHireQueryBo bo,Page page);
+	/**
+	 * 查询我发布的招工信息
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page getMyWorkHireList(String userId,WorkHireQueryBo bo,Page page);
 	
 	/**
 	 * 查询我的工作
@@ -56,6 +71,12 @@ public interface WorkHireDao {
 	 * @return
 	 */
 	public Page getWorkSignList(WorkHireQueryBo bo,Page page);
+	
+	/**
+	 * 查找所有未支付报名订单
+	 * @return
+	 */
+	public List<WorkSign> getNoPayList();
 	
 	/**
 	 * 查询回访记录
@@ -69,4 +90,31 @@ public interface WorkHireDao {
 	 * @param ws
 	 */
 	public void deleteWorkSign(WorkSign ws);
+	
+	/**
+	 * 保持不良记录
+	 * @param br
+	 * @return
+	 */
+	public BadRecord saveBadRecord(BadRecord br);
+	
+	/**
+	 * 查询我的不良记录
+	 * @param userId
+	 * @return
+	 */
+	public Page getMyBadRecordList(String userId,Page page);
+	
+	/**
+	 * 关闭超时招工
+	 */
+	public void closeOverTimePublish();
+	
+	/**
+	 * 置顶
+	 * @param id
+	 * @return
+	 */
+	public WorkHire toTopWorkHire(String id);
+	
 }

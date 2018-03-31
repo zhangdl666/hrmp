@@ -7,6 +7,7 @@ public interface MobileMessageService {
 	 * @param mobile 手机号码（最多1000个），多个用英文逗号(,)隔开，不可为空
 	 * @param content
 	 * @return
+	 * @throws Exception 
 	 */
-	public String sendMessage(String mobile,String content);
+	public String sendMessage(String mobile,String content) throws Exception;
 }

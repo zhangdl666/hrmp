@@ -1,6 +1,7 @@
 package com.platform.business.dao;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.platform.business.bo.WorkHireQueryBo;
 import com.platform.business.bo.WorkHireVisitBo;
 import com.platform.business.bo.WorkSignBo;
+import com.platform.business.pojo.BadRecord;
 import com.platform.business.pojo.WorkHire;
 import com.platform.business.pojo.WorkHireView;
 import com.platform.business.pojo.WorkHireVisit;
 import com.platform.business.pojo.WorkSign;
+import com.platform.core.ApplicationUtil;
 import com.platform.core.bo.Page;
 import com.platform.organization.pojo.OrgUser;
 
@@ -62,7 +65,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	@Override
 	public List<WorkSignBo> getWorkSignList(String workHireId) {
 		String hql = "select wh,ws,u from WorkHireView wh,WorkSign ws,OrgUser u where wh.id = ws.workHireId and ws.empId = u.id " +
-				"and ws.confirmResult != 'noPass' and ws.confirmResult != 'cancel' and wh.id = ? order by ws.signTime";
+				"and ws.validStatus = '1' and wh.id = ? order by ws.signTime";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, workHireId);
 		List<Object[]> list = query.list();
@@ -87,8 +90,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	
 	@Override
 	public int getWorkSignNum(String workHireId) {
-		String hql = "select sum(ws.num) from WorkHireView wh,WorkSign ws,OrgUser u where wh.id = ws.workHireId and ws.empId = u.id " +
-				"and ws.confirmResult != 'noPass' and ws.confirmResult != 'cancel' and wh.id = ?";
+		String hql = "select sum(ws.num) from WorkSign ws where ws.validStatus = '1' and ws.workHireId = ?";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, workHireId);
 		Object obj = query.uniqueResult();
@@ -103,13 +105,23 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	@Override
 	public Page getWorkHireList(WorkHireQueryBo bo,Page page) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" from WorkHireView w where actualSignNum < hireNum");
+		if("CB".equals(bo.getEmpTypeId())) {
+			sb.append(" from WorkHireView w where 1=1");
+		}else {
+			sb.append(" from WorkHireView w where actualSignNum < hireNum");
+		}
 		
 		HashMap<Integer, Object> params = new HashMap<Integer, Object>();
 		int paramIndex = 0;
 		if(bo.getId()!=null && !bo.getId().equals("")){
 			sb.append(" and w.id = ?");
 			params.put(paramIndex, bo.getId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getEmpTypeId()!=null && !bo.getEmpTypeId().equals("")){
+			sb.append(" and w.empTypeId = ?");
+			params.put(paramIndex, bo.getEmpTypeId());
 			paramIndex = paramIndex + 1;
 		}
 		
@@ -131,6 +143,14 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			paramIndex = paramIndex + 1;
 		}
 		
+		if(bo.getPublisherCompanyId()!=null && !bo.getPublisherCompanyId().equals("")){
+			sb.append(" and w.publisherCompanyId = ?");
+			params.put(paramIndex, bo.getPublisherCompanyId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		
+		
 		if(bo.getCreateTimeFrom()!=null){
 			sb.append(" and w.createTime > ?");
 			params.put(paramIndex, bo.getCreateTimeFrom());
@@ -146,12 +166,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		if(bo.getTitle()!=null && !bo.getTitle().equals("")){
 			sb.append(" and w.title like ?");
 			params.put(paramIndex, "%" + bo.getTitle() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getWorkCompany()!=null && !bo.getWorkCompany().equals("")){
-			sb.append(" and w.workCompany like ?");
-			params.put(paramIndex, "%" + bo.getWorkCompany() + "%");
 			paramIndex = paramIndex + 1;
 		}
 		
@@ -185,30 +199,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			paramIndex = paramIndex + 1;
 		}
 		
-		if(bo.getPlanStartTimeFrom()!=null){
-			sb.append(" and w.planStartTime > ?");
-			params.put(paramIndex, bo.getPlanStartTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanStartTimeEnd()!=null){
-			sb.append(" and w.planStartTime < ?");
-			params.put(paramIndex, bo.getPlanStartTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeFrom()!=null){
-			sb.append(" and w.planEndTime > ?");
-			params.put(paramIndex, bo.getPlanEndTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeEnd()!=null){
-			sb.append(" and w.planEndTime < ?");
-			params.put(paramIndex, bo.getPlanEndTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
 		if(bo.getStatus()!=null && !bo.getStatus().equals("")){
 			sb.append(" and w.status = ?");
 			params.put(paramIndex, bo.getStatus());
@@ -226,7 +216,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			params.put(paramIndex, bo.getNotSignUserId());
 			paramIndex = paramIndex + 1;
 		}
-		sb.append(" order by w.createTime desc ");
+		sb.append(" order by w.publishTime desc ");
 		
 		String sql = sb.toString();
 		Query query = sessionFactory.getCurrentSession().createQuery(sql);
@@ -248,145 +238,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		page.setTotalRowSize(count.intValue());
 		
 		return page;
-	}
-	
-	@Override
-	public List<Object[]> getWorkKindList(WorkHireQueryBo bo) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("select w.workKind,sum(w.hireNum) from WorkHireView w where actualSignNum < hireNum");
-		
-		HashMap<Integer, Object> params = new HashMap<Integer, Object>();
-		int paramIndex = 0;
-		if(bo.getId()!=null && !bo.getId().equals("")){
-			sb.append(" and w.id = ?");
-			params.put(paramIndex, bo.getId());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getBusinessNumber()!=null && !bo.getBusinessNumber().equals("")){
-			sb.append(" and w.businessNumber like ?");
-			params.put(paramIndex, "%" + bo.getBusinessNumber() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPublisherId()!=null && !bo.getPublisherId().equals("")){
-			sb.append(" and w.publisherId = ?");
-			params.put(paramIndex, bo.getPublisherId());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPublisherName()!=null && !bo.getPublisherName().equals("")){
-			sb.append(" and w.publisherName like ?");
-			params.put(paramIndex, "%" + bo.getPublisherName() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getCreateTimeFrom()!=null){
-			sb.append(" and w.createTime > ?");
-			params.put(paramIndex, bo.getCreateTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getCreateTimeEnd()!=null){
-			sb.append(" and w.createTime < ?");
-			params.put(paramIndex, bo.getCreateTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getTitle()!=null && !bo.getTitle().equals("")){
-			sb.append(" and w.title like ?");
-			params.put(paramIndex, "%" + bo.getTitle() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getWorkCompany()!=null && !bo.getWorkCompany().equals("")){
-			sb.append(" and w.workCompany like ?");
-			params.put(paramIndex, "%" + bo.getWorkCompany() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPublishTimeFrom()!=null){
-			sb.append(" and w.publishTime > ?");
-			params.put(paramIndex, bo.getPublishTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPublishTimeEnd()!=null){
-			sb.append(" and w.publishTime < ?");
-			params.put(paramIndex, bo.getPublishTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getWorkArea()!=null && !bo.getWorkArea().equals("")){
-			sb.append(" and w.workArea like ?");
-			params.put(paramIndex, "%" + bo.getWorkArea() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getWorkDescri()!=null && !bo.getWorkDescri().equals("")){
-			sb.append(" and w.workDescri like ?");
-			params.put(paramIndex, "%" + bo.getWorkDescri() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getWorkKind()!=null && !bo.getWorkKind().equals("")){
-			sb.append(" and w.workKind = ?");
-			params.put(paramIndex, bo.getWorkKind());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanStartTimeFrom()!=null){
-			sb.append(" and w.planStartTime > ?");
-			params.put(paramIndex, bo.getPlanStartTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanStartTimeEnd()!=null){
-			sb.append(" and w.planStartTime < ?");
-			params.put(paramIndex, bo.getPlanStartTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeFrom()!=null){
-			sb.append(" and w.planEndTime > ?");
-			params.put(paramIndex, bo.getPlanEndTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeEnd()!=null){
-			sb.append(" and w.planEndTime < ?");
-			params.put(paramIndex, bo.getPlanEndTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getStatus()!=null && !bo.getStatus().equals("")){
-			sb.append(" and w.status = ?");
-			params.put(paramIndex, bo.getStatus());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getSignUserId()!=null && !bo.getSignUserId().equals("")){
-			sb.append(" and exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.empId = ?)");
-			params.put(paramIndex, bo.getSignUserId());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getNotSignUserId()!=null && !bo.getNotSignUserId().equals("")){
-			sb.append(" and not exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.empId = ?)");
-			params.put(paramIndex, bo.getNotSignUserId());
-			paramIndex = paramIndex + 1;
-		}
-		sb.append(" group by w.workKind order by w.workKind ");
-		
-		String sql = sb.toString();
-		Query query = sessionFactory.getCurrentSession().createQuery(sql);
-		setQueryParameter(query,params);
-		List<Object[]> list = query.list();
-		
-		if(list == null || list.size() ==0) {
-			return null;
-		}
-		return list;
 	}
 	
 	// 设置query参数
@@ -460,12 +311,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			paramIndex = paramIndex + 1;
 		}
 		
-		if(bo.getWorkCompany()!=null && !bo.getWorkCompany().equals("")){
-			sb.append(" and w.workCompany like ?");
-			params.put(paramIndex, "%" + bo.getWorkCompany() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
 		if(bo.getPublishTimeFrom()!=null){
 			sb.append(" and w.publishTime > ?");
 			params.put(paramIndex, bo.getPublishTimeFrom());
@@ -493,30 +338,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		if(bo.getWorkKind()!=null && !bo.getWorkKind().equals("")){
 			sb.append(" and w.workKind like ?");
 			params.put(paramIndex, "%" + bo.getWorkKind() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanStartTimeFrom()!=null){
-			sb.append(" and w.planStartTime > ?");
-			params.put(paramIndex, bo.getPlanStartTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanStartTimeEnd()!=null){
-			sb.append(" and w.planStartTime < ?");
-			params.put(paramIndex, bo.getPlanStartTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeFrom()!=null){
-			sb.append(" and w.planEndTime > ?");
-			params.put(paramIndex, bo.getPlanEndTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeEnd()!=null){
-			sb.append(" and w.planEndTime < ?");
-			params.put(paramIndex, bo.getPlanEndTimeEnd());
 			paramIndex = paramIndex + 1;
 		}
 		
@@ -626,17 +447,59 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		
 		return (WorkHireVisit)query.uniqueResult();
 	}
+	
+	@Override
+	public void deleteWorkSign(WorkSign ws) {
+		if(ws==null ||ws.getId()==null) {
+			return;
+		}
+		sessionFactory.getCurrentSession().delete(ws);
+	}
 
 	@Override
-	public Page getWorkKindList(WorkHireQueryBo bo, Page page) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("select w.workKind,sum(w.hireNum) from WorkHireView w where actualSignNum < hireNum");
+	public List<WorkSign> getNoPayList() {
+		if(sessionFactory==null) {
+			sessionFactory = (SessionFactory) ApplicationUtil.getBean("sessionFactory");
+		}
+		String hql = "From WorkSign s where validStatus = '1' and payStatus = '0'";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		return query.list();
+	}
+
+	@Override
+	public WorkHire getLastWorkHire(String loginName, String empTypeId) {
+		String hql = "from WorkHire d where exists(select u.id from OrgUser u where u.id = d.publisherId and u.loginName = ?) and d.empTypeId = ? order by createTime desc";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, loginName);
+		query.setString(1, empTypeId);
 		
+		List<WorkHire> list = query.list();
+		if(list==null || list.size()==0) {
+			return null;
+		}
+		
+		return list.get(0);
+	}
+
+	@Override
+	public Page getMyWorkHireList(String userId,WorkHireQueryBo bo, Page page) {
 		HashMap<Integer, Object> params = new HashMap<Integer, Object>();
 		int paramIndex = 0;
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from WorkHireView w where publisherId = ?");
+		params.put(paramIndex, userId);
+		paramIndex = paramIndex + 1;
+		
 		if(bo.getId()!=null && !bo.getId().equals("")){
 			sb.append(" and w.id = ?");
 			params.put(paramIndex, bo.getId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getEmpTypeId()!=null && !bo.getEmpTypeId().equals("")){
+			sb.append(" and w.empTypeId = ?");
+			params.put(paramIndex, bo.getBusinessNumber());
 			paramIndex = paramIndex + 1;
 		}
 		
@@ -646,15 +509,9 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			paramIndex = paramIndex + 1;
 		}
 		
-		if(bo.getPublisherId()!=null && !bo.getPublisherId().equals("")){
-			sb.append(" and w.publisherId = ?");
-			params.put(paramIndex, bo.getPublisherId());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPublisherName()!=null && !bo.getPublisherName().equals("")){
-			sb.append(" and w.publisherName like ?");
-			params.put(paramIndex, "%" + bo.getPublisherName() + "%");
+		if(bo.getEmpTypeId()!=null && !bo.getEmpTypeId().equals("")){
+			sb.append(" and w.empTypeId = ?");
+			params.put(paramIndex, bo.getEmpTypeId());
 			paramIndex = paramIndex + 1;
 		}
 		
@@ -673,12 +530,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		if(bo.getTitle()!=null && !bo.getTitle().equals("")){
 			sb.append(" and w.title like ?");
 			params.put(paramIndex, "%" + bo.getTitle() + "%");
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getWorkCompany()!=null && !bo.getWorkCompany().equals("")){
-			sb.append(" and w.workCompany like ?");
-			params.put(paramIndex, "%" + bo.getWorkCompany() + "%");
 			paramIndex = paramIndex + 1;
 		}
 		
@@ -707,38 +558,179 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		}
 		
 		if(bo.getWorkKind()!=null && !bo.getWorkKind().equals("")){
-			sb.append(" and w.workKind = ?");
-			params.put(paramIndex, bo.getWorkKind());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanStartTimeFrom()!=null){
-			sb.append(" and w.planStartTime > ?");
-			params.put(paramIndex, bo.getPlanStartTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanStartTimeEnd()!=null){
-			sb.append(" and w.planStartTime < ?");
-			params.put(paramIndex, bo.getPlanStartTimeEnd());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeFrom()!=null){
-			sb.append(" and w.planEndTime > ?");
-			params.put(paramIndex, bo.getPlanEndTimeFrom());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getPlanEndTimeEnd()!=null){
-			sb.append(" and w.planEndTime < ?");
-			params.put(paramIndex, bo.getPlanEndTimeEnd());
+			sb.append(" and w.workKind like ?");
+			params.put(paramIndex, "%" + bo.getWorkKind() + "%");
 			paramIndex = paramIndex + 1;
 		}
 		
 		if(bo.getStatus()!=null && !bo.getStatus().equals("")){
 			sb.append(" and w.status = ?");
 			params.put(paramIndex, bo.getStatus());
+			paramIndex = paramIndex + 1;
+		}
+		
+		sb.append(" order by w.createTime desc ");
+		
+		String sql = sb.toString();
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
+		setQueryParameter(query,params);
+		query.setFirstResult(page.getCurrentPageOffset());
+		query.setMaxResults(page.getPageSize());
+		List<WorkHire> list = query.list();
+		
+		if(list == null || list.size() ==0) {
+			return page;
+		}
+		page.setResult(list);
+		
+		//取记录总数
+		String countSql = "select count(w) " + sql;
+		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
+		setQueryParameter(countQuery, params);
+		Long count = (Long) countQuery.uniqueResult();
+		page.setTotalRowSize(count.intValue());
+		
+		return page;
+	}
+
+	@Override
+	public BadRecord saveBadRecord(BadRecord br) {
+		sessionFactory.getCurrentSession().saveOrUpdate(br);
+		return br;
+	}
+
+	@Override
+	public Page getMyBadRecordList(String userId,Page page) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from BadRecord b where b.badUserId = ? ");
+		
+		sb.append(" order by b.recordTime desc ");
+		
+		String sql = sb.toString();
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
+		query.setString(0, userId);
+		query.setFirstResult(page.getCurrentPageOffset());
+		query.setMaxResults(page.getPageSize());
+		List<BadRecord> list = query.list();
+		
+		if(list == null || list.size() ==0) {
+			return page;
+		}
+		page.setResult(list);
+		
+		//取记录总数
+		String countSql = "select count(b) " + sql.substring(sql.indexOf("from"),sql.indexOf("order"));
+		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
+		countQuery.setString(0, userId);
+		Long count = (Long) countQuery.uniqueResult();
+		page.setTotalRowSize(count.intValue());
+		
+		return page;
+	}
+
+	@Override
+	public void closeOverTimePublish() {
+		String hql = "update WorkHire d set d.status = 'closed',d.closeTime = sysdate " +
+				"where d.empTypeId != 'CQ' and d.status != 'closed' and d.empDate < sysdate - 12/24";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.executeUpdate();
+		
+		hql = "update WorkHire d set d.status = 'closed',d.closeTime = sysdate " +
+				"where d.empTypeId = 'CQ' and d.status != 'closed' and d.empDate < sysdate - 30";
+		Query query2 = sessionFactory.getCurrentSession().createQuery(hql);
+		query2.executeUpdate();
+	}
+
+	@Override
+	public Page getClosedWorkHireList(WorkHireQueryBo bo, Page page) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from WorkHireView w where status = 'closed' ");
+		
+		HashMap<Integer, Object> params = new HashMap<Integer, Object>();
+		int paramIndex = 0;
+		if(bo.getId()!=null && !bo.getId().equals("")){
+			sb.append(" and w.id = ?");
+			params.put(paramIndex, bo.getId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getEmpTypeId()!=null && !bo.getEmpTypeId().equals("")){
+			sb.append(" and w.empTypeId = ?");
+			params.put(paramIndex, bo.getEmpTypeId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getBusinessNumber()!=null && !bo.getBusinessNumber().equals("")){
+			sb.append(" and w.businessNumber like ?");
+			params.put(paramIndex, "%" + bo.getBusinessNumber() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublisherId()!=null && !bo.getPublisherId().equals("")){
+			sb.append(" and w.publisherId = ?");
+			params.put(paramIndex, bo.getPublisherId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublisherName()!=null && !bo.getPublisherName().equals("")){
+			sb.append(" and w.publisherName like ?");
+			params.put(paramIndex, "%" + bo.getPublisherName() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublisherCompanyId()!=null && !bo.getPublisherCompanyId().equals("")){
+			sb.append(" and w.publisherCompanyId = ?");
+			params.put(paramIndex, bo.getPublisherCompanyId());
+			paramIndex = paramIndex + 1;
+		}
+		
+		
+		
+		if(bo.getCreateTimeFrom()!=null){
+			sb.append(" and w.createTime > ?");
+			params.put(paramIndex, bo.getCreateTimeFrom());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getCreateTimeEnd()!=null){
+			sb.append(" and w.createTime < ?");
+			params.put(paramIndex, bo.getCreateTimeEnd());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getTitle()!=null && !bo.getTitle().equals("")){
+			sb.append(" and w.title like ?");
+			params.put(paramIndex, "%" + bo.getTitle() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublishTimeFrom()!=null){
+			sb.append(" and w.publishTime > ?");
+			params.put(paramIndex, bo.getPublishTimeFrom());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getPublishTimeEnd()!=null){
+			sb.append(" and w.publishTime < ?");
+			params.put(paramIndex, bo.getPublishTimeEnd());
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getWorkArea()!=null && !bo.getWorkArea().equals("")){
+			sb.append(" and w.workArea like ?");
+			params.put(paramIndex, "%" + bo.getWorkArea() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getWorkDescri()!=null && !bo.getWorkDescri().equals("")){
+			sb.append(" and w.workDescri like ?");
+			params.put(paramIndex, "%" + bo.getWorkDescri() + "%");
+			paramIndex = paramIndex + 1;
+		}
+		
+		if(bo.getWorkKind()!=null && !bo.getWorkKind().equals("")){
+			sb.append(" and w.workKind like ?");
+			params.put(paramIndex, "%" + bo.getWorkKind() + "%");
 			paramIndex = paramIndex + 1;
 		}
 		
@@ -753,16 +745,14 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			params.put(paramIndex, bo.getNotSignUserId());
 			paramIndex = paramIndex + 1;
 		}
-		sb.append(" group by w.workKind order by w.workKind ");
+		sb.append(" order by w.publishTime desc ");
 		
 		String sql = sb.toString();
 		Query query = sessionFactory.getCurrentSession().createQuery(sql);
 		setQueryParameter(query,params);
-		
-		
 		query.setFirstResult(page.getCurrentPageOffset());
 		query.setMaxResults(page.getPageSize());
-		List<Object[]> list = query.list();
+		List<WorkHire> list = query.list();
 		
 		if(list == null || list.size() ==0) {
 			return page;
@@ -770,7 +760,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		page.setResult(list);
 		
 		//取记录总数
-		String countSql = "select count(w.workKind) " + sql.substring(sql.indexOf("from"));
+		String countSql = "select count(w) " + sql;
 		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
 		setQueryParameter(countQuery, params);
 		Long count = (Long) countQuery.uniqueResult();
@@ -780,11 +770,14 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	}
 
 	@Override
-	public void deleteWorkSign(WorkSign ws) {
-		if(ws==null ||ws.getId()==null) {
-			return;
+	public WorkHire toTopWorkHire(String id) {
+		WorkHire wh = getWorkHire(id);
+		if(wh==null) {
+			return null;
 		}
-		sessionFactory.getCurrentSession().delete(ws);
+		wh.setPublishTime(Calendar.getInstance().getTime());
+		this.saveWorkHire(wh);
+		return wh;
 	}
 
 }
