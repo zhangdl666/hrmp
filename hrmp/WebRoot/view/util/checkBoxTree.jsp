@@ -61,7 +61,8 @@
         		ids = ids + nodes[i].id + ",";
         	}
         }
-        window.returnValue = ids + ";" + names;
+        var v = ids + ";" + names;
+        window.opener.setParticipant(v);
         window.close();
 	}
 //-->

@@ -40,7 +40,7 @@
 				</s:iterator>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="../navbar/"><s:property
+				<li><a href="#"><s:property
 							value="#session.currentUsername" /> </a>
 				</li>
 				<li><a href="security/logout.action">退出</a>

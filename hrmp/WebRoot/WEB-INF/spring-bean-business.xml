@@ -1,18 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans default-autowire="autodetect">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task-3.0.xsd 
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.2.xsd" default-autowire="byName">
 	<bean id="businessMessageDao" class="com.platform.business.dao.BusinessMessageDaoImpl"></bean>
+	<bean id="businessMIdentifyCodeDao" class="com.platform.business.dao.BusinessMIdentifyCodeDaoImpl"></bean>
 	<bean id="businessNumberDao" class="com.platform.business.dao.BusinessNumberDaoImpl"></bean>
 	<bean id="businessOpinionDao" class="com.platform.business.dao.BusinessOpinionDaoImpl"></bean>
+	<bean id="businessUnitPriceDao" class="com.platform.business.dao.BusinessUnitPriceDaoImpl"></bean>
+	<bean id="businessWorkKindDefDao" class="com.platform.business.dao.BusinessWorkKindDefDaoImpl"></bean>
+	<bean id="mobileMessageDao" class="com.platform.business.dao.MobileMessageDaoImpl"></bean>
 	<bean id="workHireDao" class="com.platform.business.dao.WorkHireDaoImpl"></bean>
 	
 	<bean id="businessMessageService" class="com.platform.business.service.BusinessMessageServiceImpl"></bean>
+	<bean id="businessMIdentifyCodeService" class="com.platform.business.service.BusinessMIdentifyCodeServiceImpl"></bean>
 	<bean id="businessNumberService" class="com.platform.business.service.BusinessNumberServiceImpl"></bean>
 	<bean id="businessOpinionService" class="com.platform.business.service.BusinessOpinionServiceImpl"></bean>
-	<bean id="workHireService" class="com.platform.business.service.WorkHireServiceImpl"></bean>
+	<bean id="businessUnitPriceService" class="com.platform.business.service.BusinessUnitPriceServiceImpl"></bean>
+	<bean id="businessWorkKindDefService" class="com.platform.business.service.BusinessWorkKindDefServiceImpl"></bean>
 	<bean id="mobileMessageService" class="com.platform.business.service.MobileMessageServiceImpl"></bean>
+	<bean id="workHireService" class="com.platform.business.service.WorkHireServiceImpl"></bean>
 	
 	<bean id="appService" class="com.platform.app.service.AppServiceImpl"></bean>
+	<bean id="appPushService" class="com.platform.app.push.AppPushServiceImpl"></bean>
 	
+	<bean id="signJob" class="com.platform.business.action.WorkSignJob"></bean>
+	<task:scheduled-tasks scheduler="signJob-schedule">
+	    <task:scheduled ref="signJob" method="queryWxPayResult" cron="0 0/1 * * * ?" />
+	</task:scheduled-tasks>
+	<task:scheduler id="signJob-schedule" pool-size="15"/>
 </beans>

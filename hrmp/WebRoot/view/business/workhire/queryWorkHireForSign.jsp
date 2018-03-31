@@ -100,6 +100,7 @@
 						<thead>
 							<tr>
 								<th>序号</th>
+								<th>单号</th>
 								<th>工种</th>
 								<th>工作描述</th>
 								<th>发布时间</th>
@@ -111,13 +112,13 @@
 						</thead>
 						<tbody>
 							<s:if test="workHireList==null || workHireList.size==0">
-								<tr><td colspan="8">未找到任何数据！</td></tr>
+								<tr><td colspan="9">未找到任何数据！</td></tr>
 							</s:if>
 							<s:else>
 								<s:iterator value="workHireList" status="st">
 									<tr>
 										<td><s:property value='#st.index+1' /></td>
-										<td><a href="javascript:viewWorkHire('<s:property value='id' />')"><s:property value='title' /></a></td>
+										<td><a href="javascript:viewWorkHire('<s:property value='id' />')"><s:property value='businessNumber' /></a></td>
 										<td><s:property value='workKind' /></td>
 										<td><s:property value='salary' /><s:property value='workDescri' /></td>
 										<td><s:date name="publishTime" format="yyyy-MM-dd HH:mm:ss"></s:date></td>

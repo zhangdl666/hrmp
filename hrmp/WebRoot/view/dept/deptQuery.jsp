@@ -15,7 +15,7 @@
 
 <link rel="icon" href="image/favicon.ico">
 
-<title>部门管理</title>
+<title>组织机构管理</title>
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 
@@ -53,7 +53,7 @@
 			</div>
 			<div class="panel-body">
 				<div class="row">
-					<div class="col-md-1" align="right">部门名称</div>
+					<div class="col-md-1" align="right">名称</div>
 					<div class="col-md-2">
 						<input type="text" name="deptName" value="${deptName }" />
 					</div>
@@ -78,8 +78,8 @@
 						<thead>
 							<tr>
 								<th>序号</th>
-								<th>部门名称</th>
-								<th>部门路径</th>
+								<th>名称</th>
+								<th>路径</th>
 								<th>标识</th>
 								<th>操作</th>
 							</tr>

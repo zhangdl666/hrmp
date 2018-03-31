@@ -51,8 +51,8 @@
 		<s:hidden name="delId" id="delId"></s:hidden>
 		<s:if test="role.id!=null">
 			<s:hidden name="role.id"></s:hidden>
-			<s:hidden name="role.validstatus"></s:hidden>
 		</s:if>
+		<s:hidden name="role.validstatus"></s:hidden>
 		<s:hidden name="role.deptId"></s:hidden>
 		<div class="panel panel-primary">
 			<div class="panel-heading">
@@ -110,6 +110,7 @@ function closeWin(){
 var mess = "${message}";
 if(mess!=null && mess!="") {
 	alert(mess);
+	closeWin();
 }
 
 function initValidator() {
@@ -151,14 +152,14 @@ function showUserTree() {
 	var checkedIds = "";
 	var rId = document.getElementById("roleId").value;
 	var _url = "organization/selectUsersForRole.action?roleId=" + rId + "&&checkedIds=" + checkedIds;
-	window.showModalDialog(_url,"dialogWidth=50px;dialogHeight=100px");
+	window.open(_url,"dialogWidth=50px;dialogHeight=100px");
 }
 
 function showMenuTree() {
 	var checkedIds = "";
 	var rId = document.getElementById("roleId").value;
 	var _url = "organization/selectMenusForRole.action?roleId=" + rId + "&&checkedIds=" + checkedIds;
-	window.showModalDialog(_url,"dialogWidth=50px;dialogHeight=100px");
+	window.open(_url,"dialogWidth=50px;dialogHeight=100px");
 }
 $(document).ready(initValidator());
 

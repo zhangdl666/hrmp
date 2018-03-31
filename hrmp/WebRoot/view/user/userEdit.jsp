@@ -45,19 +45,24 @@
 
 <BODY>
 	<form action="organization/saveUser.action" method="post" class="form-horizontal" id="editForm">
-		<s:hidden name="deptId"></s:hidden>
 		<s:if test="user.id!=null">
 			<s:hidden name="user.id"></s:hidden>
 			<s:hidden name="user.pwd"></s:hidden>
-			<s:hidden name="user.createTime"></s:hidden>
-			<s:hidden name="user.pwdUpdateTime"></s:hidden>
-			<s:hidden name="user.validstatus"></s:hidden>
 		</s:if>
-		<s:hidden name="user.deptId"></s:hidden>
+		<s:hidden name="user.createTime"></s:hidden>
+		<s:hidden name="user.pwdUpdateTime"></s:hidden>
+		<s:hidden name="user.validstatus"></s:hidden>
+		<s:hidden name="user.deptId" id="deptId"></s:hidden>
 		<fieldset>
         	<legend>基本信息</legend>
+        	<div class="form-group">
+				<label class="col-md-2 control-label">组织机构</label>
+				<div class="col-md-4">
+					<s:property value="dept.deptName"></s:property>
+				</div>
+			</div>
 			<div class="form-group">
-				<label class="col-md-2 control-label">登录名</label>
+				<label class="col-md-2 control-label">手机号</label>
 				<div class="col-md-4">
 					<s:if test="user.id!=null">
 						<s:hidden name="user.loginName"></s:hidden>
@@ -89,40 +94,11 @@
 							<s:password name="user.confirmPwd" class="form-control"></s:password>
 						</div>
 				</div>
-			
 			</s:else>
 			<div class="form-group">
-				<label class="col-md-2 control-label">性别</label>
+				<label class="col-md-2 control-label">用户类型</label>
 				<div class="col-md-4">
-					<s:select class="form-control" list="#{'':'','M':'男','F':'女' }" listKey="key" listValue="value" name="user.gender" ></s:select>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-md-2 control-label">用户分类</label>
-				<div class="col-md-4">
-					<s:select class="form-control" list="#{'':'','badCredit':'不良信用','Normal':'普通用户','VIP':'VIP用户' }" listKey="key" listValue="value" name="user.userKind"></s:select>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-md-2 control-label">出生日期</label>
-				<div class="col-md-4">
-					<s:textfield name="user.birthday" id="datepickerstart" class="form-control">
-						<s:param name="value">
-							<s:date name="user.birthday" format="yyyy-MM-dd" />
-						</s:param>
-					</s:textfield>（YYYY-MM-DD）
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-md-2 control-label">手机号</label>
-				<div class="col-md-4">
-					<s:textfield name="user.mobile" class="form-control"></s:textfield>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="col-md-2 control-label">工种</label>
-				<div class="col-md-4">
-					<s:textarea name="user.workKind" class="form-control"></s:textarea>
+					<s:select class="form-control" list="#{'':'','manager':'公司员工','register':'注册用户' }" listKey="key" listValue="value" name="user.userKind"></s:select>
 				</div>
 			</div>
 			<div class="form-group">
@@ -158,6 +134,7 @@ function closeWin(){
 var mess = "${message}";
 if(mess!=null && mess!="") {
 	alert(mess);
+	closeWin();
 }
 
 function initValidator() {
@@ -171,13 +148,12 @@ function initValidator() {
       },
       fields: {
     	  "user.loginName": {
-              validators: {
+    		  validators: {
                   notEmpty: {
-                      message: '登录名不能为空'
+                      message: '手机号不能为空'
                   },
-                  regexp: {
-                      regexp: /^[a-zA-Z0-9_]+$/,
-                      message: '登录名只能包含大写、小写、数字和下划线'
+                  numeric: {
+                      message: '手机号必须为数字'
                   }
               }
           },
@@ -210,38 +186,10 @@ function initValidator() {
                   }
               }
           },
-          "user.gender": {
-              validators: {
-                  notEmpty: {
-                      message: '性别不能为空'
-                  }
-              }
-          },
           "user.userKind": {
               validators: {
                   notEmpty: {
-                      message: '用户分类不能为空'
-                  }
-              }
-          },
-          "user.birthday": {
-              validators: {
-                  notEmpty: {
-                      message: '出生日期不能为空'
-                  },
-                  date: {
-                      format: 'YYYY-MM-DD',
-                      message: '日期格式不正确，应为YYYY-MM-DD格式。以2016年1月1日为例，应填写：2016-1-1'
-                  }
-              }
-          },
-          "user.mobile": {
-              validators: {
-                  notEmpty: {
-                      message: '手机号不能为空'
-                  },
-                  numeric: {
-                      message: '手机号必须为数字'
+                      message: '用户类型不能为空'
                   }
               }
           }
@@ -266,38 +214,10 @@ function initValidatorForExistsUser() {
                   }
               }
           },
-          "user.gender": {
-              validators: {
-                  notEmpty: {
-                      message: '性别不能为空'
-                  }
-              }
-          },
           "user.userKind": {
               validators: {
                   notEmpty: {
-                      message: '用户分类不能为空'
-                  }
-              }
-          },
-          "user.birthday": {
-              validators: {
-                  notEmpty: {
-                      message: '出生日期不能为空'
-                  },
-                  date: {
-                      format: 'YYYY-MM-DD',
-                      message: '日期格式不正确，应为YYYY-MM-DD格式。以2016年1月1日为例，应填写：2016-1-1'
-                  }
-              }
-          },
-          "user.mobile": {
-              validators: {
-                  notEmpty: {
-                      message: '手机号不能为空'
-                  },
-                  numeric: {
-                      message: '手机号必须为数字'
+                      message: '用户类型不能为空'
                   }
               }
           }
@@ -310,19 +230,20 @@ function selectRoles() {
 	var checkedIds = document.getElementById("roleIds").value;
 	var dId = document.getElementById("deptId").value;
 	var _url = "organization/selectRoles.action?deptId=" + dId + "&&checkedIds=" + checkedIds;
-	var returnData = window.showModalDialog(_url,"dialogWidth=50px;dialogHeight=100px");
-	if (!(returnData == undefined)){
-        setParticipant(returnData, "roleIds", "roleNames");
-    }
+	var returnData = window.open(_url,"dialogWidth=50px;dialogHeight=100px");
+	//alert(returnData);
+	//if (!(returnData == undefined)){
+    //    setParticipant(returnData, "roleIds", "roleNames");
+    //}
 }
 
-function setParticipant(val, id, name) {
+function setParticipant(val) {
     if (val != null && val != '') {
         var aRetValue = val.split(";");
         var ids = aRetValue[0];
         var names = aRetValue[1];
-        document.getElementById(id).value = ids;
-        document.getElementById(name).value = names;
+        document.getElementById("roleIds").value = ids;
+        document.getElementById("roleNames").value = names;
     }
 }
 

@@ -42,7 +42,7 @@
 			cache : false,
 			type : 'POST',
 			dataType : "json",
-			url : "organization/getDeptTree.action?deptId=000",//请求的action路径   
+			url : "organization/getDeptTree.action",//请求的action路径   
 			error : function() {//请求失败处理函数   
 				alert('请求失败');
 			},

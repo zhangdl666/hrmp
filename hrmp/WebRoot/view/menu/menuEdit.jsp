@@ -102,6 +102,7 @@ function closeWin(){
 var mess = "${message}";
 if(mess!=null && mess!="") {
 	alert(mess);
+	closeWin();
 }
 
 function initValidator() {

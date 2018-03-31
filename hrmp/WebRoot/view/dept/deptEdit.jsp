@@ -15,7 +15,7 @@
 
 <link rel="icon" href="image/favicon.ico">
 
-<title>部门编辑</title>
+<title>组织机构编辑</title>
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <link href="css/bootstrapValidator.css" rel="stylesheet">
@@ -58,7 +58,13 @@
 			</div>
 			<div class="panel-body">
 				<div class="form-group">
-					<label class="col-md-2 control-label">部门名称</label>
+					<label class="col-md-2 control-label">父组织名称</label>
+					<div class="col-md-4">
+						<s:textfield name="parentDept.deptName" class="form-control"></s:textfield>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-2 control-label">名称</label>
 					<div class="col-md-4">
 						<s:textfield name="dept.deptName" class="form-control"></s:textfield>
 					</div>
@@ -90,6 +96,7 @@ function closeWin(){
 var mess = "${message}";
 if(mess!=null && mess!="") {
 	alert(mess);
+	closeWin();
 }
 
 function initValidator() {

@@ -83,18 +83,14 @@
 							<tr>
 								<th>序号</th>
 								<th>姓名</th>
-								<th>登录名</th>
-								<th>性别</th>
-								<th>年龄</th>
-								<th>电话</th>
-								<th>工种</th>
-								<th>备注</th>
+								<th>手机号</th>
+								<th>用户类型</th>
 								<th>操作</th>
 							</tr>
 						</thead>
 						<tbody>
 							<s:if test="userList==null || userList.size==0">
-								<tr><td colspan="9">未找到任何数据！</td></tr>
+								<tr><td colspan="4">未找到任何数据！</td></tr>
 							</s:if>
 							<s:else>
 								<s:iterator value="userList" status="st">
@@ -102,11 +98,7 @@
 										<td><s:property value='#st.index+1' /></td>
 										<td><a href="javascript:viewUser('<s:property value='id' />')"><s:property value='userName' /></a></td>
 										<td><s:property value='loginName' /></td>
-										<td><s:if test="gender==F">女</s:if><s:else>男</s:else></td>
-										<td><s:property value='age' /></td>
-										<td><s:property value='mobile' /></td>
-										<td><s:property value='workKind' /></td>
-										<td><s:property value='remark' /></td>
+										<td><s:if test="userKind=='manager'">公司员工</s:if><s:else>注册用户</s:else></td>
 										<td><a href="javascript:deleteUser('<s:property value='id' />')">删除</a></td>
 									</tr>
 								</s:iterator>

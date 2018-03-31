@@ -2,6 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans default-autowire="autodetect">
+	<bean id="applicationUtil" class="com.platform.core.ApplicationUtil"></bean>
 	<bean id="orgDeptDao" class="com.platform.organization.dao.OrgDeptDaoImpl"></bean>
 	<bean id="orgMenuDao" class="com.platform.organization.dao.OrgMenuDaoImpl"></bean>
 	<bean id="orgRoleDao" class="com.platform.organization.dao.OrgRoleDaoImpl"></bean>
