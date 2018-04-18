@@ -326,11 +326,6 @@ public class WorkHireAction extends BaseAction {
 			}
 		}
 		
-		//承包施工：没有人数限制，默认其为10000，避免招工查询时被条件actualSignNum < hireNum过滤掉
-		if("CB".equals(workHire.getEmpTypeId())) {
-			workHire.setHireNum(10000);
-		}
-		
 		workHireService.saveWorkHire(workHire);
 		//记录办理记录
 		if(isNew) {
