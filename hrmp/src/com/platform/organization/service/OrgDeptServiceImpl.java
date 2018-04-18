@@ -8,14 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.platform.core.bo.Page;
 import com.platform.organization.dao.OrgDeptDao;
 import com.platform.organization.pojo.OrgDept;
-import com.platform.organization.pojo.OrgDeptView;
 
 public class OrgDeptServiceImpl implements OrgDeptService {
 	private final Logger logger = Logger.getLogger(OrgDeptServiceImpl.class);
-	
+
 	@Autowired
 	private OrgDeptDao orgDeptDao;
-	
 
 	public OrgDeptDao getOrgDeptDao() {
 		return orgDeptDao;
@@ -46,15 +44,13 @@ public class OrgDeptServiceImpl implements OrgDeptService {
 	}
 
 	@Override
-	public List<OrgDeptView> queryDepts(String deptName, String parentDeptId,
-			boolean isContainChildDept) {
-		return orgDeptDao.queryDepts(deptName, parentDeptId, isContainChildDept);
+	public List<OrgDept> queryDepts(String deptName, String parentDeptId) {
+		return orgDeptDao.queryDepts(deptName, parentDeptId);
 	}
 
 	@Override
-	public Page queryDepts(String deptName, String parentDeptId,
-			boolean isContainChildDept, Page page) {
-		return orgDeptDao.queryDepts(deptName, parentDeptId, isContainChildDept, page);
+	public Page queryDepts(String deptName, String parentDeptId, Page page) {
+		return orgDeptDao.queryDepts(deptName, parentDeptId, page);
 	}
 
 }

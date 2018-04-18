@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.platform.core.bo.Page;
 import com.platform.organization.bo.OrgMenuBo;
 import com.platform.organization.pojo.OrgMenu;
-import com.platform.organization.pojo.OrgMenuView;
 
 public class OrgMenuDaoImpl implements OrgMenuDao {
 
@@ -41,6 +40,7 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 		sb.append("  order by parent_id, order_");
 		String sql = sb.toString();
 		Query query = null;
+		userId = "000";
 		if("000".equals(userId)) {
 			String adminSql = "select m.id,m.menuname,m.parent_id,m.url_,m.order_,m.remark from org_menu m where m.validstatus = '1' ";
 			query = sessionFactory.getCurrentSession().createSQLQuery(adminSql);
@@ -63,7 +63,7 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 			bo.setParentId(o[2]==null?null:(String)o[2]);
 			//bo.setMenuPath(o[3]==null?null:(String)o[3]);
 			bo.setMenuUrl(o[3]==null?null:(String)o[3]);
-			bo.setMenuIndex(o[4]==null?null:((BigDecimal)o[4]).intValue());
+			bo.setMenuIndex(o[4]==null?null:((Number)o[4]).intValue());
 			bo.setRemark(o[5]==null?null:(String)o[5]);
 			list.add(bo);
 		}
@@ -148,9 +148,9 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 	}
 
 	@Override
-	public List<OrgMenuView> queryMenus(String menuName, String url,String parentMenuId,boolean isContainChildMenu) {
+	public List<OrgMenu> queryMenus(String menuName, String url,String parentMenuId) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select {m.*} from v_org_menu m");
+		sb.append(" select {m.*} from org_menu m");
 		sb.append("  where m.validstatus = '1'");
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
 		int paramIndex = 0;
@@ -167,15 +167,7 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 		}
 		
 		if(parentMenuId != null && !"".equals(parentMenuId)){
-			if(isContainChildMenu) {
-				sb.append("    and m.parent_Id in (select d.id");
-				sb.append("                        from org_menu d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parent_id)");
-			}else {
-				sb.append("    and m.parent_Id = ? ");
-			}
+			sb.append("    and m.parent_Id = ? ");
 			params.put(paramIndex, parentMenuId);
 			paramIndex = paramIndex + 1;
 			
@@ -184,10 +176,10 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 		sb.append(" order by m.menuName");
 		
 		String sql = sb.toString();
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("m",OrgMenuView.class);
+		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("m",OrgMenu.class);
 		setQueryParameter(query,params);
 		
-		List<OrgMenuView> list = query.list();
+		List<OrgMenu> list = query.list();
 		if(list==null || list.size()==0) {
 			return null;
 		}
@@ -210,9 +202,9 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 	}
 
 	@Override
-	public Page queryMenus(String menuName, String url,String parentMenuId,boolean isContainChildMenu, Page page) {
+	public Page queryMenus(String menuName, String url,String parentMenuId,Page page) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select {m.*} from v_org_menu m");
+		sb.append(" select {m.*} from org_menu m");
 		sb.append("  where m.validstatus = '1'");
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
 		int paramIndex = 0;
@@ -229,15 +221,7 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 		}
 		
 		if(parentMenuId != null && !"".equals(parentMenuId)){
-			if(isContainChildMenu) {
-				sb.append("    and m.parent_Id in (select d.id");
-				sb.append("                        from org_menu d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parent_id)");
-			}else {
-				sb.append("    and m.parent_Id = ? ");
-			}
+			sb.append("    and m.parent_Id = ? ");
 			params.put(paramIndex, parentMenuId);
 			paramIndex = paramIndex + 1;
 			
@@ -246,7 +230,7 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 		sb.append(" order by m.menuName");
 		
 		String sql = sb.toString();
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("m",OrgMenuView.class);
+		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("m",OrgMenu.class);
 		setQueryParameter(query,params);
 		query.setFirstResult(page.getCurrentPageOffset());
 		query.setMaxResults(page.getPageSize());
@@ -263,7 +247,7 @@ public class OrgMenuDaoImpl implements OrgMenuDao {
 		String countSql = "select count(1) " + sql.substring(sql.indexOf("from") - 1);
 		Query countQuery = sessionFactory.getCurrentSession().createSQLQuery(countSql);
 		setQueryParameter(countQuery, params);
-		BigDecimal count = (BigDecimal)countQuery.uniqueResult();
+		Number count = (Number)countQuery.uniqueResult();
 		page.setTotalRowSize(count.intValue());
 		
 		return page;

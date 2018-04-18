@@ -35,7 +35,7 @@ public interface WorkHireDao {
 	 * @param page
 	 * @return
 	 */
-	public Page getClosedWorkHireList(WorkHireQueryBo bo,Page page);
+	public Page queryClosedWorkHireList(WorkHireQueryBo bo,Page page);
 	
 	/**
 	 * 取消工人其他报名信息
@@ -116,5 +116,29 @@ public interface WorkHireDao {
 	 * @return
 	 */
 	public WorkHire toTopWorkHire(String id);
+	
+	/**
+	 * 查询可报名临时招工
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page queryLSWorkHireForSign(String loginName,Page page);
+	
+	/**
+	 * 查询可报名长期招工
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page queryCQWorkHireForSign(String loginName,Page page);
+	
+	/**
+	 * 查询可报名承包施工
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page queryCBWorkHireForSign(String loginName,Page page);
 	
 }

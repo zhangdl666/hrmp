@@ -61,6 +61,11 @@ public class WorkHireServiceImpl implements WorkHireService {
 		if(WorkHire.WORK_HIRE_STATUS_PUBLISHING.equals(wh.getStatus())) {
 			wh.setPublishTime(Calendar.getInstance().getTime());
 		}
+		
+		//承包施工：没有人数限制，默认其为10000，避免招工查询时被条件actualSignNum < hireNum过滤掉
+		if("CB".equals(wh.getEmpTypeId())) {
+			wh.setHireNum(10000);
+		}
 		return workHireDao.saveWorkHire(wh);
 	}
 
@@ -236,13 +241,28 @@ public class WorkHireServiceImpl implements WorkHireService {
 	}
 
 	@Override
-	public Page getClosedWorkHireList(WorkHireQueryBo bo, Page page) {
-		return workHireDao.getClosedWorkHireList(bo, page);
+	public Page queryClosedWorkHireList(WorkHireQueryBo bo, Page page) {
+		return workHireDao.queryClosedWorkHireList(bo, page);
 	}
 
 	@Override
 	public WorkHire toTopWorkHire(String id) {
 		return workHireDao.toTopWorkHire(id);
+	}
+
+	@Override
+	public Page queryLSWorkHireForSign(String loginName, Page page) {
+		return workHireDao.queryLSWorkHireForSign(loginName, page);
+	}
+
+	@Override
+	public Page queryCQWorkHireForSign(String loginName, Page page) {
+		return workHireDao.queryCQWorkHireForSign(loginName, page);
+	}
+
+	@Override
+	public Page queryCBWorkHireForSign(String loginName, Page page) {
+		return workHireDao.queryCBWorkHireForSign(loginName, page);
 	}
 
 

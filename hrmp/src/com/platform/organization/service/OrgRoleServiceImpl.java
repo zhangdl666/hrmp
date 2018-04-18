@@ -70,15 +70,13 @@ public class OrgRoleServiceImpl implements OrgRoleService {
 	}
 
 	@Override
-	public List<OrgRoleBo> queryRoles(String roleName, String departmentId,
-			boolean isContainParentDept, boolean isContainChildDept) {
-		return orgRoleDao.queryRoles(roleName, departmentId, isContainParentDept, isContainChildDept);
+	public List<OrgRoleBo> queryRoles(String roleName, String departmentId) {
+		return orgRoleDao.queryRoles(roleName, departmentId);
 	}
 
 	@Override
-	public Page queryRoles(String roleName, String departmentId,
-			boolean isContainParentDept, boolean isContainChildDept, Page page) {
-		return orgRoleDao.queryRoles(roleName, departmentId, isContainParentDept, isContainChildDept,page);
+	public Page queryRoles(String roleName, String departmentId,Page page) {
+		return orgRoleDao.queryRoles(roleName, departmentId, page);
 	}
 
 	@Override

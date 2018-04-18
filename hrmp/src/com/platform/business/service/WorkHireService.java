@@ -62,9 +62,34 @@ public interface WorkHireService {
 	 * 查询正在招工列表
 	 * @param bo
 	 * @param page
+	 * @deprecated
 	 * @return
 	 */
 	public Page getWorkHireList(WorkHireQueryBo bo,Page page);
+	
+	/**
+	 * 查询可报名临时招工
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page queryLSWorkHireForSign(String loginName,Page page);
+	
+	/**
+	 * 查询可报名长期招工
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page queryCQWorkHireForSign(String loginName,Page page);
+	
+	/**
+	 * 查询可报名承包施工
+	 * @param bo
+	 * @param page
+	 * @return
+	 */
+	public Page queryCBWorkHireForSign(String loginName,Page page);
 	
 	/**
 	 * 查询已关闭招工列表
@@ -72,7 +97,7 @@ public interface WorkHireService {
 	 * @param page
 	 * @return
 	 */
-	public Page getClosedWorkHireList(WorkHireQueryBo bo,Page page);
+	public Page queryClosedWorkHireList(WorkHireQueryBo bo,Page page);
 	
 	/**
 	 * 查询我发布的招工信息

@@ -20,7 +20,7 @@ public interface OrgUserService {
 	 * @param isContainChildDept
 	 * @return
 	 */
-	public List<OrgUserBo> queryUsers(String userName,String loginName,String departmentId,boolean isContainChildDept);
+	public List<OrgUserBo> queryUsers(String userName,String loginName,String departmentId);
 	
 	/**
 	 * 用户分页查询
@@ -30,7 +30,7 @@ public interface OrgUserService {
 	 * @param isContainChildDept
 	 * @return
 	 */
-	public Page queryUsers(String userName,String loginName,String departmentId,boolean isContainChildDept,Page page);
+	public Page queryUsers(String userName,String loginName,String departmentId,Page page);
 	
 	public List<OrgUser> getUserListByRoleId(String roleId);
 

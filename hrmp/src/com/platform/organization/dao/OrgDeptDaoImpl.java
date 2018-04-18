@@ -1,6 +1,5 @@
 package com.platform.organization.dao;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.platform.core.bo.Page;
 import com.platform.organization.pojo.OrgDept;
-import com.platform.organization.pojo.OrgDeptView;
 
 public class OrgDeptDaoImpl implements OrgDeptDao {
 	
@@ -34,15 +32,6 @@ public class OrgDeptDaoImpl implements OrgDeptDao {
 	}
 	
 	@Override
-	public OrgDeptView getOrgDeptView(String id) {
-		String hql = "from OrgDeptView d where d.id = ?";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		query.setString(0, id);
-		
-		return (OrgDeptView)query.uniqueResult();
-	}
-
-	@Override
 	public OrgDept saveDept(OrgDept dept) {
 		sessionFactory.getCurrentSession().saveOrUpdate(dept);
 		return dept;
@@ -58,71 +47,55 @@ public class OrgDeptDaoImpl implements OrgDeptDao {
 	}
 
 	@Override
-	public List<OrgDeptView> queryDepts(String deptName,String parentDeptId,boolean isContainChildDept) {
+	public List<OrgDept> queryDepts(String deptName,String parentDeptId) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select {dept.*} from v_org_dept dept ");
+		sb.append(" select dept from OrgDept dept ");
 		sb.append(" where dept.validstatus = '1'");
 		
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
 		int paramIndex = 0;
 		if(deptName != null && !"".equals(deptName)){
-			sb.append(" and dept.DEPTNAME like ?");
+			sb.append(" and dept.deptName like ?");
 			params.put(paramIndex, "%" + deptName + "%");
 			paramIndex = paramIndex + 1;
 		}
 		if(parentDeptId != null && !"".equals(parentDeptId)){
-			if(isContainChildDept) {
-				sb.append("    and dept.parentId in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parentid)");
-			}else {
-				sb.append("    and dept.parentId = ? ");
-			}
+			sb.append("    and dept.parentId = ? ");
 			params.put(paramIndex, parentDeptId);
 			paramIndex = paramIndex + 1;
 			
 		}
-		sb.append(" order by dept.DEPTNAME");
+		sb.append(" order by dept.deptName");
 		String sql = sb.toString();
 		
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("dept",OrgDeptView.class);
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
 		setQueryParameter(query,params);
 		return query.list();
 	}
 	
 	@Override
-	public Page queryDepts(String deptName,String parentDeptId,boolean isContainChildDept,Page page) {
+	public Page queryDepts(String deptName,String parentDeptId,Page page) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select {dept.*} from v_org_dept dept ");
+		sb.append(" select dept from OrgDept dept ");
 		sb.append(" where dept.validstatus = '1'");
 		
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
 		int paramIndex = 0;
 		if(deptName != null && !"".equals(deptName)){
-			sb.append(" and dept.DEPTNAME like ?");
+			sb.append(" and dept.deptName like ?");
 			params.put(paramIndex, "%" + deptName + "%");
 			paramIndex = paramIndex + 1;
 		}
 		if(parentDeptId != null && !"".equals(parentDeptId)){
-			if(isContainChildDept) {
-				sb.append("    and dept.id in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parentid)");
-			}else {
-				sb.append("    and dept.parentid = ? ");
-			}
+			sb.append("    and dept.parentId = ? ");
 			params.put(paramIndex, parentDeptId);
 			paramIndex = paramIndex + 1;
 			
 		}
-		sb.append(" order by dept.DEPTNAME");
+		sb.append(" order by dept.deptName");
 		String sql = sb.toString();
 		
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("dept",OrgDeptView.class);
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
 		setQueryParameter(query,params);
 		query.setFirstResult(page.getCurrentPageOffset());
 		query.setMaxResults(page.getPageSize());
@@ -136,10 +109,10 @@ public class OrgDeptDaoImpl implements OrgDeptDao {
 		page.setResult(list);
 		
 		//取记录总数
-		String countSql = "select count(1) " + sql.substring(sql.indexOf("from") - 1);
-		Query countQuery = sessionFactory.getCurrentSession().createSQLQuery(countSql);
+		String countSql = "select count(dept) " + sql.substring(sql.indexOf("from") - 1);
+		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
 		setQueryParameter(countQuery, params);
-		BigDecimal count = (BigDecimal)countQuery.uniqueResult();
+		Number count = (Number)countQuery.uniqueResult();
 		page.setTotalRowSize(count.intValue());
 		
 		return page;
@@ -161,23 +134,30 @@ public class OrgDeptDaoImpl implements OrgDeptDao {
 
 	@Override
 	public OrgDept getDirectCompany(String deptId) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(" select {d.*} from org_dept d");
-		sb.append(" where d.validstatus = '1' and d.dept_flag = 'com'");
-		sb.append(" start with d.id = ? ");
-		sb.append(" connect by prior parentid = id");
-		sb.append(" and rownum = 1");
 		
-		String sql = sb.toString();
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("d",OrgDept.class);
-		query.setString(0, deptId);
-		
-		List<OrgDept> list = query.list();
-		if(list == null || list.size() ==0) {
-			return null;
+		OrgDept dept = getOrgDept(deptId);
+		if(dept == null) {
+			 return null;
 		}
 		
-		return list.get(0);
+		if(dept.getDeptFlag().equals("com")) {
+			return dept;
+		}
+		
+		int i=0;//最多循环10次，避免死循环
+		while(true) {
+			i++;
+			OrgDept parentDept = getOrgDept(dept.getParentId());
+			if(parentDept == null) {
+				return null;
+			}
+			if(parentDept.getDeptFlag().equals("com")) {
+				return parentDept;
+			}
+			if(i>10) {
+				return null;
+			}
+		}
 	}
-
+	
 }

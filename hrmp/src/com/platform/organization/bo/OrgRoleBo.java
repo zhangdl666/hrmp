@@ -1,6 +1,6 @@
 package com.platform.organization.bo;
 
-import com.platform.organization.pojo.OrgDeptView;
+import com.platform.organization.pojo.OrgDept;
 
 public class OrgRoleBo {
 
@@ -8,7 +8,7 @@ public class OrgRoleBo {
 	
 	private String roleName;
 	
-	private OrgDeptView dept;
+	private OrgDept dept;
 	
 	private String validstatus;
 	
@@ -28,11 +28,12 @@ public class OrgRoleBo {
 		this.roleName = roleName;
 	}
 
-	public OrgDeptView getDept() {
+
+	public OrgDept getDept() {
 		return dept;
 	}
 
-	public void setDept(OrgDeptView dept) {
+	public void setDept(OrgDept dept) {
 		this.dept = dept;
 	}
 

@@ -1,6 +1,5 @@
 package com.platform.organization.dao;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.platform.core.bo.Page;
 import com.platform.organization.bo.OrgRoleBo;
-import com.platform.organization.pojo.OrgDeptView;
+import com.platform.organization.pojo.OrgDept;
 import com.platform.organization.pojo.OrgRole;
 
 public class OrgRoleDaoImpl implements OrgRoleDao {
@@ -49,7 +48,7 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 		}
 		Object[] obj = list.get(0);
 		OrgRole role = (OrgRole)obj[0];
-		OrgDeptView dept = (OrgDeptView)obj[1];
+		OrgDept dept = (OrgDept)obj[1];
 		
 		OrgRoleBo bo = new OrgRoleBo();
 		bo.setId(role.getId());
@@ -79,9 +78,9 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 
 
 	@Override
-	public List<OrgRoleBo> queryRoles(String roleName,String departmentId,boolean isContainParentDept,boolean isContainChildDept) {
+	public List<OrgRoleBo> queryRoles(String roleName,String departmentId) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select r.id,r.rolename,d.id deptid,d.deptname,d.dept_flag,d.parentid,d.createtime,d.dept_id_path,d.dept_name_path,d.validstatus ");
+		sb.append(" select r.id,r.rolename,d.id deptid,d.deptname,d.dept_flag,d.parentid,d.createtime,d.validstatus ");
 		sb.append("   from org_role r,v_org_dept d");
 		sb.append("  where r.dept_id = d.id and r.validstatus = '1'");
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
@@ -92,33 +91,10 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 			paramIndex = paramIndex + 1;
 		}
 		if(departmentId != null && !"".equals(departmentId)){
-			if(isContainParentDept) {
-				sb.append("    and r.dept_id in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior parentid = id)");
-				
-				params.put(paramIndex, departmentId);
-				paramIndex = paramIndex + 1;
-			}
-			if(isContainChildDept) {
-				sb.append("    and r.dept_id in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parentid)");
-				
-				params.put(paramIndex, departmentId);
-				paramIndex = paramIndex + 1;
-			}
 			
-			//既不包含上级部门，也不包含下级部门
-			if(isContainParentDept==false && isContainChildDept==false) {
-				sb.append("    and r.dept_id = ? ");
-				params.put(paramIndex, departmentId);
-				paramIndex = paramIndex + 1;
-			}
+			sb.append("    and r.dept_id = ? ");
+			params.put(paramIndex, departmentId);
+			paramIndex = paramIndex + 1;
 		}
 		sb.append(" order by r.ROLENAME");
 		
@@ -138,15 +114,15 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 			bo.setId(o[0]==null?null:(String)o[0]);
 			bo.setRoleName(o[1]==null?null:(String)o[1]);
 			
-			OrgDeptView dept = new OrgDeptView();
+			OrgDept dept = new OrgDept();
 			dept.setId(o[2]==null?null:(String)o[2]);
 			dept.setDeptName(o[3]==null?null:(String)o[3]);
 			dept.setDeptFlag(o[4]==null?null:(String)o[4]);
 			dept.setParentId(o[5]==null?null:(String)o[5]);
 			dept.setCreateTime(o[6]==null?null:(Date)o[6]);
-			dept.setDeptIdPath(o[7]==null?null:(String)o[7]);
-			dept.setDeptNamePath(o[8]==null?null:(String)o[8]);
-			dept.setValidstatus(o[9]==null?null:(String)o[9]);
+//			dept.setDeptIdPath(o[7]==null?null:(String)o[7]);
+//			dept.setDeptNamePath(o[8]==null?null:(String)o[8]);
+			dept.setValidstatus(o[7]==null?null:(String)o[7]);
 			
 			bo.setDept(dept);
 			result.add(bo);
@@ -155,10 +131,10 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 		return result;
 	}
 	
-	public Page queryRoles(String roleName,String departmentId,boolean isContainParentDept,boolean isContainChildDept,Page page) {
+	public Page queryRoles(String roleName,String departmentId,Page page) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select r.id,r.rolename,dept.id deptid,dept.deptname,dept.dept_flag,dept.parentid,dept.createtime,dept.dept_id_path,dept.dept_name_path,dept.validstatus ");
-		sb.append("   from org_role r,v_org_dept dept");
+		sb.append(" select r.id,r.rolename,dept.id deptid,dept.deptname,dept.dept_flag,dept.parentid,dept.createtime,dept.validstatus ");
+		sb.append("   from org_role r,org_dept dept");
 		sb.append("  where r.dept_id = dept.id and r.validstatus = '1'");
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
 		int paramIndex = 0;
@@ -168,33 +144,9 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 			paramIndex = paramIndex + 1;
 		}
 		if(departmentId != null && !"".equals(departmentId)){
-			if(isContainParentDept) {
-				sb.append("    and r.dept_id in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior parentid = id)");
-				
-				params.put(paramIndex, departmentId);
-				paramIndex = paramIndex + 1;
-			}
-			if(isContainChildDept) {
-				sb.append("    and r.dept_id in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parentid)");
-				
-				params.put(paramIndex, departmentId);
-				paramIndex = paramIndex + 1;
-			}
-			
-			//既不包含上级部门，也不包含下级部门
-			if(isContainParentDept==false && isContainChildDept==false) {
-				sb.append("    and r.dept_id = ? ");
-				params.put(paramIndex, departmentId);
-				paramIndex = paramIndex + 1;
-			}
+			sb.append("    and r.dept_id = ? ");
+			params.put(paramIndex, departmentId);
+			paramIndex = paramIndex + 1;
 		}
 		sb.append(" order by r.ROLENAME");
 		
@@ -217,15 +169,15 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 			bo.setId(o[0]==null?null:(String)o[0]);
 			bo.setRoleName(o[1]==null?null:(String)o[1]);
 			
-			OrgDeptView dept = new OrgDeptView();
+			OrgDept dept = new OrgDept();
 			dept.setId(o[2]==null?null:(String)o[2]);
 			dept.setDeptName(o[3]==null?null:(String)o[3]);
 			dept.setDeptFlag(o[4]==null?null:(String)o[4]);
 			dept.setParentId(o[5]==null?null:(String)o[5]);
 			dept.setCreateTime(o[6]==null?null:(Date)o[6]);
-			dept.setDeptIdPath(o[7]==null?null:(String)o[7]);
-			dept.setDeptNamePath(o[8]==null?null:(String)o[8]);
-			dept.setValidstatus(o[9]==null?null:(String)o[9]);
+//			dept.setDeptIdPath(o[7]==null?null:(String)o[7]);
+//			dept.setDeptNamePath(o[8]==null?null:(String)o[8]);
+			dept.setValidstatus(o[7]==null?null:(String)o[7]);
 			
 			bo.setDept(dept);
 			result.add(bo);
@@ -237,7 +189,7 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 		String countSql = "select count(1) " + sql.substring(sql.indexOf("from") - 1);
 		Query countQuery = sessionFactory.getCurrentSession().createSQLQuery(countSql);
 		setQueryParameter(countQuery, params);
-		BigDecimal count = (BigDecimal)countQuery.uniqueResult();
+		Number count = (Number)countQuery.uniqueResult();
 		page.setTotalRowSize(count.intValue());
 		
 		return page;

@@ -24,9 +24,7 @@ import com.platform.organization.bo.OrgUserBo;
 import com.platform.organization.bo.OrgUserRoleBo;
 import com.platform.organization.bo.TreeNode;
 import com.platform.organization.pojo.OrgDept;
-import com.platform.organization.pojo.OrgDeptView;
 import com.platform.organization.pojo.OrgMenu;
-import com.platform.organization.pojo.OrgMenuView;
 import com.platform.organization.pojo.OrgRole;
 import com.platform.organization.pojo.OrgRoleMenu;
 import com.platform.organization.pojo.OrgUser;
@@ -68,7 +66,7 @@ public class OrganizationAction extends ActionSupport {
 	private String roleId;
 	private OrgRole role;
 	private List<OrgRoleBo> roleList;
-	private List<OrgMenuView> menuList;
+	private List<OrgMenu> menuList;
 	private List<OrgRoleMenuBo> roleMenuBoList;
 	private List<OrgUserRoleBo> userRoleBoList;
 	private String delId;
@@ -76,7 +74,7 @@ public class OrganizationAction extends ActionSupport {
 	private String deptName;
 	private OrgDept dept;
 	private OrgDept parentDept;
-	private List<OrgDeptView> deptList;
+	private List<OrgDept> deptList;
 
 	private String menuId;
 	private String menuName;
@@ -244,11 +242,12 @@ public class OrganizationAction extends ActionSupport {
 	}
 
 
-	public List<OrgMenuView> getMenuList() {
+
+	public List<OrgMenu> getMenuList() {
 		return menuList;
 	}
 
-	public void setMenuList(List<OrgMenuView> menuList) {
+	public void setMenuList(List<OrgMenu> menuList) {
 		this.menuList = menuList;
 	}
 
@@ -348,11 +347,13 @@ public class OrganizationAction extends ActionSupport {
 		this.dept = dept;
 	}
 
-	public List<OrgDeptView> getDeptList() {
+
+
+	public List<OrgDept> getDeptList() {
 		return deptList;
 	}
 
-	public void setDeptList(List<OrgDeptView> deptList) {
+	public void setDeptList(List<OrgDept> deptList) {
 		this.deptList = deptList;
 	}
 
@@ -392,7 +393,7 @@ public class OrganizationAction extends ActionSupport {
         /*设置字符集为'UTF-8'*/
         response.setCharacterEncoding("UTF-8"); 
         PrintWriter writer = response.getWriter();
-		List<OrgDeptView> deptList = orgDeptService.queryDepts(null, deptId, true);
+		List<OrgDept> deptList = orgDeptService.queryDepts(null, deptId);
 		if(deptList==null || deptList.size()==0) {
 			writer.write("");
 			return null;
@@ -400,7 +401,7 @@ public class OrganizationAction extends ActionSupport {
 		
 		List<TreeNode> treeNodes = new ArrayList<TreeNode>(); 
 		for(int i=0; i<deptList.size(); i++) {
-			OrgDeptView dept = deptList.get(i);
+			OrgDept dept = deptList.get(i);
 			TreeNode tn = new TreeNode();
 			tn.setId(dept.getId());
 			tn.setName(dept.getDeptName());
@@ -425,7 +426,7 @@ public class OrganizationAction extends ActionSupport {
 		if(page.getPageSize()==0) {
 			page.setPageSize(10);
 		}
-		page = orgUserService.queryUsers(userName, loginName, deptId, true, page);
+		page = orgUserService.queryUsers(userName, loginName, deptId, page);
 		userList = page.getResult();
 		return SUCCESS;
 	}
@@ -441,7 +442,7 @@ public class OrganizationAction extends ActionSupport {
 		}else {
 			message = "删除失败";
 		}
-		page = orgUserService.queryUsers(userName, loginName, deptId, true, page);
+		page = orgUserService.queryUsers(userName, loginName, deptId, page);
 		userList = page.getResult();
 		return SUCCESS;
 	}
@@ -491,7 +492,7 @@ public class OrganizationAction extends ActionSupport {
 	
 	//选择角色
 	public String selectRoles(){
-		List<OrgRoleBo> roles = orgRoleService.queryRoles(null, deptId, false, false);
+		List<OrgRoleBo> roles = orgRoleService.queryRoles(null, deptId);
 		treeNodeData = "";
 		List<String> checkIdList = new ArrayList<String>();
 		if(checkedIds != null && !"".equals(checkedIds)) {
@@ -534,7 +535,7 @@ public class OrganizationAction extends ActionSupport {
 		if(page.getPageSize()==0) {
 			page.setPageSize(10);
 		}
-		page = orgRoleService.queryRoles(roleName, deptId, false, true, page);
+		page = orgRoleService.queryRoles(roleName, deptId, page);
 		roleList = page.getResult();
 		return SUCCESS;
 	}
@@ -546,7 +547,7 @@ public class OrganizationAction extends ActionSupport {
 		}else {
 			message = "删除失败";
 		}
-		page = orgRoleService.queryRoles(roleName, deptId, false, true, page);
+		page = orgRoleService.queryRoles(roleName, deptId, page);
 		roleList = page.getResult();
 		return SUCCESS;
 	}
@@ -596,8 +597,8 @@ public class OrganizationAction extends ActionSupport {
 		String roleDeptId = role.getDeptId();
 		
 		//先查询部门数据
-		List<OrgDeptView> depts = orgDeptService.queryDepts(null, roleDeptId, true);
-		List<OrgUserBo> users = orgUserService.queryUsers(null, null, roleDeptId, true);
+		List<OrgDept> depts = orgDeptService.queryDepts(null, roleDeptId);
+		List<OrgUserBo> users = orgUserService.queryUsers(null, null, roleDeptId);
 		
 		List<TreeNode> treeNodes = new ArrayList<TreeNode>(); 
 		treeNodeData = "";
@@ -606,7 +607,7 @@ public class OrganizationAction extends ActionSupport {
 		List<String> checkIdList = new ArrayList<String>();
 		if(depts!=null && depts.size()>0) {
 			for(int i=0;i<depts.size();i++) {
-				OrgDeptView d = depts.get(i);
+				OrgDept d = depts.get(i);
 				TreeNode tnDept = new TreeNode();
 				tnDept.setId(d.getId());
 				tnDept.setName(d.getDeptName());
@@ -704,7 +705,7 @@ public class OrganizationAction extends ActionSupport {
 	
 	//为角色添加菜单
 	public String selectMenusForRole(){
-		List<OrgMenuView> mList = orgMenuService.queryMenus(null, null, null, true);
+		List<OrgMenu> mList = orgMenuService.queryMenus(null, null, null);
 		
 		List<TreeNode> treeNodes = new ArrayList<TreeNode>(); 
 		treeNodeData = "";
@@ -716,7 +717,7 @@ public class OrganizationAction extends ActionSupport {
 		}
 		if(mList!=null && mList.size()>0) {
 			for(int i=0; i<mList.size(); i++) {
-				OrgMenuView menu = mList.get(i);
+				OrgMenu menu = mList.get(i);
 				TreeNode tn = new TreeNode();
 				tn.setId(menu.getId());
 				tn.setName(menu.getMenuName());
@@ -759,16 +760,16 @@ public class OrganizationAction extends ActionSupport {
 		if(page.getPageSize()==0) {
 			page.setPageSize(10);
 		}
-		page = orgDeptService.queryDepts(deptName, deptId, true,page);
+		page = orgDeptService.queryDepts(deptName, deptId,page);
 		deptList = page.getResult();
 		return SUCCESS;
 	}
 	
 	public String delDept() {
-		List<OrgDeptView> list = orgDeptService.queryDepts(null, deptId, false);
+		List<OrgDept> list = orgDeptService.queryDepts(null, deptId);
 		if(list!=null && list.size()>0) {
 			message = "存在下级组织机构，不允许删除！";
-			page = orgDeptService.queryDepts(deptName, deptId, true,page);
+			page = orgDeptService.queryDepts(deptName, deptId,page);
 			deptList = page.getResult();
 			return SUCCESS;
 		}
@@ -778,7 +779,7 @@ public class OrganizationAction extends ActionSupport {
 		}else {
 			message = "删除失败";
 		}
-		page = orgDeptService.queryDepts(deptName, deptId, true,page);
+		page = orgDeptService.queryDepts(deptName, deptId,page);
 		deptList = page.getResult();
 		return SUCCESS;
 	}
@@ -819,7 +820,7 @@ public class OrganizationAction extends ActionSupport {
         /*设置字符集为'UTF-8'*/
         response.setCharacterEncoding("UTF-8"); 
         PrintWriter writer = response.getWriter();
-        List<OrgMenuView> mList = orgMenuService.queryMenus(null, null, null, true);
+        List<OrgMenu> mList = orgMenuService.queryMenus(null, null, null);
 		if(mList==null || mList.size()==0) {
 			writer.write("");
 			return null;
@@ -827,7 +828,7 @@ public class OrganizationAction extends ActionSupport {
 		
 		List<TreeNode> treeNodes = new ArrayList<TreeNode>(); 
 		for(int i=0; i<mList.size(); i++) {
-			OrgMenuView m = mList.get(i);
+			OrgMenu m = mList.get(i);
 			TreeNode tn = new TreeNode();
 			tn.setId(m.getId());
 			tn.setName(m.getMenuName());
@@ -856,7 +857,7 @@ public class OrganizationAction extends ActionSupport {
 		if(page.getPageSize()==0) {
 			page.setPageSize(10);
 		}
-		page = orgMenuService.queryMenus(menuName, menuUrl,menuId,true, page);
+		page = orgMenuService.queryMenus(menuName, menuUrl,menuId, page);
 		menuList = page.getResult();
 		return SUCCESS;
 	}
@@ -868,7 +869,7 @@ public class OrganizationAction extends ActionSupport {
 		}else {
 			message = "删除失败";
 		}
-		page = orgMenuService.queryMenus(menuName, menuUrl,menuId,true, page);
+		page = orgMenuService.queryMenus(menuName, menuUrl,menuId, page);
 		menuList = page.getResult();
 		return SUCCESS;
 	}

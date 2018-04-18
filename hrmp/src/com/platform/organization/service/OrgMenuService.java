@@ -5,7 +5,6 @@ import java.util.List;
 import com.platform.core.bo.Page;
 import com.platform.organization.bo.OrgMenuBo;
 import com.platform.organization.pojo.OrgMenu;
-import com.platform.organization.pojo.OrgMenuView;
 
 public interface OrgMenuService {
 
@@ -23,7 +22,7 @@ public interface OrgMenuService {
 	
 	public boolean delMenu(String id);
 
-	public List<OrgMenuView> queryMenus(String menuName, String url,String parentMenuId,boolean isContainChildMenu);
+	public List<OrgMenu> queryMenus(String menuName, String url,String parentMenuId);
 
-	public Page queryMenus(String menuName, String url,String parentMenuId,boolean isContainChildMenu, Page page);
+	public Page queryMenus(String menuName, String url,String parentMenuId, Page page);
 }

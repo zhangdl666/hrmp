@@ -25,8 +25,7 @@ public interface OrgRoleService {
 	 *            是否查询子部门下的角色
 	 * @return
 	 */
-	public List<OrgRoleBo> queryRoles(String roleName, String departmentId,
-			boolean isContainParentDept, boolean isContainChildDept);
+	public List<OrgRoleBo> queryRoles(String roleName, String departmentId);
 
 	/**
 	 * 角色分页查询
@@ -43,8 +42,7 @@ public interface OrgRoleService {
 	 *            分页
 	 * @return
 	 */
-	public Page queryRoles(String roleName, String departmentId,
-			boolean isContainParentDept, boolean isContainChildDept, Page page);
+	public Page queryRoles(String roleName, String departmentId, Page page);
 
 	public List<OrgRole> getRoleListByUserId(String userId);
 

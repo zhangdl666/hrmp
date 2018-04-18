@@ -1,8 +1,6 @@
 package com.platform.organization.dao;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.platform.core.bo.Page;
 import com.platform.organization.bo.OrgUserBo;
-import com.platform.organization.pojo.OrgDeptView;
+import com.platform.organization.pojo.OrgDept;
 import com.platform.organization.pojo.OrgUser;
 
 public class OrgUserDaoImpl implements OrgUserDao {
@@ -66,10 +64,10 @@ public class OrgUserDaoImpl implements OrgUserDao {
 
 
 	@Override
-	public List<OrgUserBo> queryUsers(String userName,String loginName,String departmentId,boolean isContainChildDept) {
+	public List<OrgUserBo> queryUsers(String userName,String loginName,String departmentId) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select {u.*},{dept.*}");
-		sb.append("   from org_user u,v_org_dept dept ");
+		sb.append("   from org_user u,org_dept dept ");
 		sb.append("  where u.dept_id = dept.id and u.validstatus = '1'");
 		
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
@@ -85,22 +83,14 @@ public class OrgUserDaoImpl implements OrgUserDao {
 			paramIndex = paramIndex + 1;
 		}
 		if(departmentId != null && !"".equals(departmentId)){
-			if(isContainChildDept) {
-				sb.append("    and u.dept_id in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parentid)");
-			}else {
-				sb.append("    and u.dept_id = ? ");
-			}
+			sb.append("    and u.dept_id = ? ");
 			params.put(paramIndex, departmentId);
 			paramIndex = paramIndex + 1;
 		}
 		sb.append(" order by u.loginname");
 		
 		String sql = sb.toString();
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("u",OrgUser.class).addEntity("dept",OrgDeptView.class);
+		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("u",OrgUser.class).addEntity("dept",OrgDept.class);
 		setQueryParameter(query,params);
 		
 		List<Object[]> list = query.list();
@@ -112,7 +102,7 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		for(int i=0;i<list.size();i++) {
 			Object[] o = list.get(i);
 			OrgUserBo bo = transToBo((OrgUser)o[0]);
-			bo.setDept((OrgDeptView)o[1]);
+			bo.setDept((OrgDept)o[1]);
 			result.add(bo);
 		}
 		
@@ -120,10 +110,10 @@ public class OrgUserDaoImpl implements OrgUserDao {
 	}
 	
 	@Override
-	public Page queryUsers(String userName,String loginName,String departmentId,boolean isContainChildDept,Page page) {
+	public Page queryUsers(String userName,String loginName,String departmentId,Page page) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select {u.*},{dept.*}");
-		sb.append("   from org_user u,v_org_dept dept ");
+		sb.append("   from org_user u,org_dept dept ");
 		sb.append("  where u.dept_id = dept.id and u.validstatus = '1'");
 		
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
@@ -139,22 +129,14 @@ public class OrgUserDaoImpl implements OrgUserDao {
 			paramIndex = paramIndex + 1;
 		}
 		if(departmentId != null && !"".equals(departmentId)){
-			if(isContainChildDept) {
-				sb.append("    and u.dept_id in (select d.id");
-				sb.append("                        from org_dept d");
-				sb.append("                       where d.validstatus = '1'");
-				sb.append("                       start with d.id = ?");
-				sb.append("                      connect by prior id = parentid)");
-			}else {
-				sb.append("    and u.dept_id = ? ");
-			}
+			sb.append("    and u.dept_id = ? ");
 			params.put(paramIndex, departmentId);
 			paramIndex = paramIndex + 1;
 		}
 		sb.append(" order by u.loginname");
 		
 		String sql = sb.toString();
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("u",OrgUser.class).addEntity("dept",OrgDeptView.class);
+		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("u",OrgUser.class).addEntity("dept",OrgDept.class);
 		setQueryParameter(query,params);
 		query.setFirstResult(page.getCurrentPageOffset());
 		query.setMaxResults(page.getPageSize());
@@ -168,7 +150,7 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		for(int i=0;i<list.size();i++) {
 			Object[] o = list.get(i);
 			OrgUserBo bo = transToBo((OrgUser)o[0]);
-			bo.setDept((OrgDeptView)o[1]);
+			bo.setDept((OrgDept)o[1]);
 			result.add(bo);
 		}
 		page.setResult(result);
@@ -177,7 +159,7 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from") - 1);
 		Query countQuery = sessionFactory.getCurrentSession().createSQLQuery(countSql);
 		setQueryParameter(countQuery, params);
-		BigDecimal count = (BigDecimal)countQuery.uniqueResult();
+		Number count = (Number)countQuery.uniqueResult();
 		page.setTotalRowSize(count.intValue());
 		
 		return page;
@@ -242,7 +224,7 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		sb.append(" order by u.loginname");
 		
 		String sql = sb.toString();
-		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("u",OrgUser.class).addEntity("dept",OrgDeptView.class);
+		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql).addEntity("u",OrgUser.class).addEntity("dept",OrgDept.class);
 		setQueryParameter(query,params);
 		
 		List<Object[]> list = query.list();
@@ -254,7 +236,7 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		for(int i=0;i<list.size();i++) {
 			Object[] o = list.get(i);
 			OrgUserBo bo = transToBo((OrgUser)o[0]);
-			bo.setDept((OrgDeptView)o[1]);
+			bo.setDept((OrgDept)o[1]);
 			result.add(bo);
 		}
 		

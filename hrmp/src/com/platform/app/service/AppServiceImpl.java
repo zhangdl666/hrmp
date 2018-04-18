@@ -51,7 +51,6 @@ import com.platform.core.pojo.SysConfig;
 import com.platform.core.service.SysConfigService;
 import com.platform.organization.bo.OrgRoleBo;
 import com.platform.organization.pojo.OrgDept;
-import com.platform.organization.pojo.OrgDeptView;
 import com.platform.organization.pojo.OrgUser;
 import com.platform.organization.service.OrgDeptService;
 import com.platform.organization.service.OrgRoleService;
@@ -179,11 +178,11 @@ public class AppServiceImpl implements AppService{
 		ReqMsg reqMsg = (ReqMsg) xstream.fromXML(requestXml);
 		
 		List<Province> provinceList = new ArrayList<Province>();
-		List<OrgDeptView> comList = orgDeptService.queryDepts(null, "000", false);
+		List<OrgDept> comList = orgDeptService.queryDepts(null, "000");
 		
 		for(int i=0;i<comList.size();i++) {
-			OrgDeptView d = comList.get(i);
-			List<OrgDeptView> deptList = orgDeptService.queryDepts(null, d.getId(), false);
+			OrgDept d = comList.get(i);
+			List<OrgDept> deptList = orgDeptService.queryDepts(null, d.getId());
 			Province p = transDeptToCity(d,deptList);
 			provinceList.add(p);
 		}
@@ -201,7 +200,7 @@ public class AppServiceImpl implements AppService{
 		return outputMarshal(rspMsg);
 	}
 	
-	private Province transDeptToCity(OrgDeptView com,List<OrgDeptView> deptList){
+	private Province transDeptToCity(OrgDept com,List<OrgDept> deptList){
 		if(com == null) {
 			return null;
 		}
@@ -215,7 +214,7 @@ public class AppServiceImpl implements AppService{
 		
 		prov.setCityList(new ArrayList<City>());
 		for(int i=0; i<deptList.size();i++) {
-			OrgDeptView v = deptList.get(i);
+			OrgDept v = deptList.get(i);
 			City c = new City();
 			c.setCityId(v.getId());
 			c.setCityName(v.getDeptName());
@@ -289,14 +288,14 @@ public class AppServiceImpl implements AppService{
 		}
 		
 		//获取用户部门ID
-		List<OrgDeptView> list = orgDeptService.queryDepts("注册用户", user.getOrgId(), false);
+		List<OrgDept> list = orgDeptService.queryDepts("注册用户", user.getOrgId());
 		if(list==null || list.size()==0) {
 			logger.info(l + " 注册>>---------工作地点值不对，" + user.getOrgId());
 			return error(loginName, identifyCode, l,"4000", "工作地点值不对，" + user.getOrgId());
 		}
 		
 		//获取用户角色id
-		List<OrgRoleBo> rl = orgRoleService.queryRoles("注册用户", list.get(0).getId(), false, false);
+		List<OrgRoleBo> rl = orgRoleService.queryRoles("注册用户", list.get(0).getId());
 		if(rl==null || rl.size()==0) {
 			logger.info(l + " 注册>>---------未找到匹配的角色");
 			return error(loginName, identifyCode, l,"4000", "未找到匹配的角色");
@@ -670,11 +669,11 @@ public class AppServiceImpl implements AppService{
 			OrgUser loginUser = orgUserService.getUserByLoginName(loginName);
 			OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
 			h = new WorkHire();
-			String businessNumber = businessNumberService.getNumber("W");
-			h.setBusinessNumber(businessNumber);
+//			String businessNumber = businessNumberService.getNumber("W");
+//			h.setBusinessNumber(businessNumber);
 			h.setCreateTime(Calendar.getInstance().getTime());
 			h.setPublisherId(loginUser.getId());
-			h.setPublisherName(loginUser.getUserName());
+			h.setPublisherName(loginUser.getUserName() + "（" + loginUser.getLoginName() + "）");
 			h.setPublisherCompanyId(company.getId());
 			h.setPublisherCompanyName(company.getDeptName());
 			h.setStatus(WorkHire.WORK_HIRE_STATUS_PUBLISHING);//发布状态
@@ -704,6 +703,17 @@ public class AppServiceImpl implements AppService{
 			h.setEmpDate(calendar.getTime());
 		}
 		h.setCondition(work.getCondition());
+		
+		//app传过来的值为“面议”或填写的其他内容，此处做一处理
+		if(work.getPayMode()!=null) {
+			if("面议".equals(work.getPayMode())) {
+				h.setPayMode("1");
+				h.setPayModeRemark(null);
+			}else {
+				h.setPayMode("0");
+				h.setPayModeRemark(work.getPayMode());
+			}
+		}
 		h.setPayMode(work.getPayMode());
 		h.setPayModeRemark(work.getPayModeRemark());
 		h.setWorkArea(work.getWorkArea());
@@ -714,7 +724,7 @@ public class AppServiceImpl implements AppService{
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
-		rspDetail.setBusinessNumber(h.getBusinessNumber());
+		rspDetail.setBusinessNumber(h.getBusinessNumber() + "");
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
 		rspMsg.setRspDesc("成功");
@@ -764,22 +774,26 @@ public class AppServiceImpl implements AppService{
 		page.setCurrentPage(pageNo);
 		page.setPageSize(pageSize);
 		
-		WorkHireQueryBo workHireQueryBo = new WorkHireQueryBo();
 		
-		//设置查询条件，用于数据隔离
-		OrgUser loginUser = orgUserService.getUserByLoginName(loginName);
-		OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
-		workHireQueryBo.setEmpTypeId(empTypeId);
-		workHireQueryBo.setStatus(WorkHire.WORK_HIRE_STATUS_PUBLISHING);
-		workHireQueryBo.setNotSignUserId(loginUser.getId());
-		workHireQueryBo.setPublisherCompanyId(company.getId());
 		
 		Page p = null;
-		if(empTypeId.equals("FINISH")) {
-			workHireQueryBo.setEmpTypeId(null);
-			p = workHireService.getClosedWorkHireList(workHireQueryBo,page);
+		if(empTypeId.equals("LS")) {
+			p = workHireService.queryLSWorkHireForSign(loginName, page);
+		}else if(empTypeId.equals("CQ")) {
+			p = workHireService.queryCQWorkHireForSign(loginName, page);
+		}else if(empTypeId.equals("CB")) {
+			p = workHireService.queryCBWorkHireForSign(loginName, page);
 		}else {
-			p = workHireService.getWorkHireList(workHireQueryBo,page);
+			WorkHireQueryBo workHireQueryBo = new WorkHireQueryBo();
+			//设置查询条件，用于数据隔离
+			OrgUser loginUser = orgUserService.getUserByLoginName(loginName);
+			OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
+			workHireQueryBo.setEmpTypeId(empTypeId);
+			workHireQueryBo.setStatus(WorkHire.WORK_HIRE_STATUS_PUBLISHING);
+			workHireQueryBo.setNotSignUserId(loginUser.getId());
+			workHireQueryBo.setPublisherCompanyId(company.getId());
+			workHireQueryBo.setEmpTypeId(null);
+			p = workHireService.queryClosedWorkHireList(workHireQueryBo,page);
 		}
 		
 		List<WorkHireView> workKindList = p.getResult();
@@ -838,6 +852,7 @@ public class AppServiceImpl implements AppService{
 		
 		StringBuffer sb = new StringBuffer();
 		if("LS".equals(wh.getEmpTypeId())) {
+			sb.append("临时工：");
 			sb.append(wh.getWorkKind());
 			sb.append(wh.getHireNum());
 			
@@ -861,6 +876,7 @@ public class AppServiceImpl implements AppService{
 			sb.append("，工作地点：");
 			sb.append(wh.getWorkArea());
 		}else if("CQ".equals(wh.getEmpTypeId())) {
+			sb.append("长期工：");
 			sb.append(wh.getWorkKind());
 			sb.append(wh.getHireNum());
 			
@@ -882,6 +898,7 @@ public class AppServiceImpl implements AppService{
 			sb.append("，工作地点：");
 			sb.append(wh.getWorkArea());
 		}else if("CB".equals(wh.getEmpTypeId())) {
+			sb.append("承包施工：");
 			sb.append("条件要求：");
 			sb.append(wh.getCondition());
 			
@@ -1897,6 +1914,11 @@ public class AppServiceImpl implements AppService{
 			work.setUnitPrice("5");
 		}
 		
+		//长期工显示发布人及联系方式
+		if("CQ".equals(wh.getEmpTypeId())) {
+			work.setPublisherName(wh.getPublisherName());
+		}
+		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
 		rspDetail.setWork(work);
@@ -2173,23 +2195,23 @@ public class AppServiceImpl implements AppService{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 		work.setId(wh.getId());
-		work.setBusinessNumber(wh.getBusinessNumber());
+		work.setBusinessNumber(wh.getBusinessNumber() + "");
 		work.setEmpTypeId(wh.getEmpTypeId());
 		work.setSex(wh.getSex());
 		work.setSalary(wh.getSalary());
 		work.setSalaryRemark(wh.getSalaryRemark());
 		work.setAge(wh.getAge());
-		if("true".equals(wh.getAm())) {
+		if("true".equals(wh.getAm()) || "1".equals(wh.getAm())) {
 			work.setAm("1");
 			work.setAmStart(wh.getAmStart());
 			work.setAmEnd(wh.getAmEnd());
 		}
-		if("true".equals(wh.getPm())) {
+		if("true".equals(wh.getPm()) || "1".equals(wh.getPm())) {
 			work.setPm("1");
 			work.setPmStart(wh.getPmStart());
 			work.setPmEnd(wh.getPmEnd());
 		}
-		if("true".equals(wh.getNight())) {
+		if("true".equals(wh.getNight()) || "1".equals(wh.getNight())) {
 			work.setNight("1");
 			work.setNightStart(wh.getNightStart());
 			work.setNightEnd(wh.getNightEnd());
@@ -2199,8 +2221,14 @@ public class AppServiceImpl implements AppService{
 			work.setEmpDate(sdf2.format(wh.getEmpDate()));
 		}
 		work.setCondition(wh.getCondition());
-		work.setPayMode(wh.getPayMode());
-		work.setPayModeRemark(wh.getPayModeRemark());
+		
+		if(wh.getPayMode()!=null) {
+			if("1".equals(wh.getPayMode())) {
+				work.setPayMode("面议");
+			}else{
+				work.setPayMode(wh.getPayModeRemark());
+			}
+		}
 		work.setWorkArea(wh.getWorkArea());
 		work.setCloseTime(wh.getCloseTime()==null?"":sdf.format(wh.getCloseTime()));
 		work.setWorkDescri(wh.getWorkDescri());

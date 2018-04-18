@@ -2,7 +2,7 @@ package com.platform.organization.bo;
 
 import java.util.Date;
 
-import com.platform.organization.pojo.OrgDeptView;
+import com.platform.organization.pojo.OrgDept;
 public class OrgUserBo {
 
 	private String id;
@@ -23,7 +23,7 @@ public class OrgUserBo {
 	
 	private String workKind;
 	
-	private OrgDeptView dept;
+	private OrgDept dept;
 	
 	private Date createTime;
 	
@@ -107,11 +107,12 @@ public class OrgUserBo {
 		this.birthday = birthday;
 	}
 
-	public OrgDeptView getDept() {
+
+	public OrgDept getDept() {
 		return dept;
 	}
 
-	public void setDept(OrgDeptView dept) {
+	public void setDept(OrgDept dept) {
 		this.dept = dept;
 	}
 

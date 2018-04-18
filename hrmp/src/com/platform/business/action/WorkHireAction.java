@@ -3,14 +3,10 @@ package com.platform.business.action;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-
-import net.sf.json.JSONArray;
 
 import org.apache.log4j.Logger;
 import org.apache.struts2.ServletActionContext;
@@ -29,10 +25,7 @@ import com.platform.business.service.BusinessNumberService;
 import com.platform.business.service.BusinessOpinionService;
 import com.platform.business.service.WorkHireService;
 import com.platform.core.bo.Page;
-import com.platform.organization.bo.OrgUserBo;
-import com.platform.organization.bo.TreeNode;
 import com.platform.organization.pojo.OrgDept;
-import com.platform.organization.pojo.OrgDeptView;
 import com.platform.organization.pojo.OrgUser;
 import com.platform.organization.service.OrgDeptService;
 import com.platform.organization.service.OrgUserService;
@@ -256,8 +249,8 @@ public class WorkHireAction extends BaseAction {
 			OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
 			String empTypeId = req.getParameter("empTypeId");
 			workHire = new WorkHire();
-			String businessNumber = businessNumberService.getNumber("W");
-			workHire.setBusinessNumber(businessNumber);
+//			String businessNumber = businessNumberService.getNumber("W");
+//			workHire.setBusinessNumber(businessNumber);
 			workHire.setCreateTime(Calendar.getInstance().getTime());
 			workHire.setPublisherId(loginUser.getId());
 			workHire.setPublisherName(loginUser.getUserName() + "（" + loginUser.getLoginName() + "）");
@@ -331,6 +324,11 @@ public class WorkHireAction extends BaseAction {
 					return workHire.getEmpTypeId();
 				}
 			}
+		}
+		
+		//承包施工：没有人数限制，默认其为10000，避免招工查询时被条件actualSignNum < hireNum过滤掉
+		if("CB".equals(workHire.getEmpTypeId())) {
+			workHire.setHireNum(10000);
 		}
 		
 		workHireService.saveWorkHire(workHire);
@@ -884,52 +882,52 @@ public class WorkHireAction extends BaseAction {
 	}
 	
 	// 二次用工选择工人
-	public String selectUsersForSecondEmp() {
-		WorkHire wh = workHireService.getWorkHire(workHireId);
-
-		//先查询部门数据
-		List<OrgDeptView> depts = orgDeptService.queryDepts(null, wh.getPublisherCompanyId(),true);
-		List<OrgUserBo> users = orgUserService.queryUsers(null, null,wh.getPublisherCompanyId(), true);
-
-		List<TreeNode> treeNodes = new ArrayList<TreeNode>();
-		treeNodeData = "";
-
-		// 先放入部门节点
-		List<String> checkIdList = new ArrayList<String>();
-		if (depts != null && depts.size() > 0) {
-			for (int i = 0; i < depts.size(); i++) {
-				OrgDeptView d = depts.get(i);
-				TreeNode tnDept = new TreeNode();
-				tnDept.setId(d.getId());
-				tnDept.setName(d.getDeptName());
-				tnDept.setpId(d.getParentId());
-				tnDept.setParent(true);
-				treeNodes.add(tnDept);
-			}
-		}
-
-		// 再放入用户节点
-		if (checkedIds != null && !"".equals(checkedIds)) {
-			String[] s = checkedIds.split(",");
-			Collections.addAll(checkIdList, s);
-		}
-		if (users != null && users.size() > 0) {
-			for (int i = 0; i < users.size(); i++) {
-				OrgUserBo user = users.get(i);
-				TreeNode tn = new TreeNode();
-				tn.setId(user.getId());
-				tn.setName(user.getUserName());
-				tn.setpId(user.getDept().getId());
-				if (checkIdList.contains(user.getId())) {
-					tn.setChecked(true);
-				}
-				treeNodes.add(tn);
-			}
-			JSONArray jsonArray = JSONArray.fromObject(treeNodes);
-			treeNodeData = jsonArray.toString();
-		}
-		return SUCCESS;
-	}
+//	public String selectUsersForSecondEmp() {
+//		WorkHire wh = workHireService.getWorkHire(workHireId);
+//
+//		//先查询部门数据
+//		List<OrgDept> depts = orgDeptService.queryDepts(null, wh.getPublisherCompanyId());
+//		List<OrgUserBo> users = orgUserService.queryUsers(null, null,wh.getPublisherCompanyId(), true);
+//
+//		List<TreeNode> treeNodes = new ArrayList<TreeNode>();
+//		treeNodeData = "";
+//
+//		// 先放入部门节点
+//		List<String> checkIdList = new ArrayList<String>();
+//		if (depts != null && depts.size() > 0) {
+//			for (int i = 0; i < depts.size(); i++) {
+//				OrgDept d = depts.get(i);
+//				TreeNode tnDept = new TreeNode();
+//				tnDept.setId(d.getId());
+//				tnDept.setName(d.getDeptName());
+//				tnDept.setpId(d.getParentId());
+//				tnDept.setParent(true);
+//				treeNodes.add(tnDept);
+//			}
+//		}
+//
+//		// 再放入用户节点
+//		if (checkedIds != null && !"".equals(checkedIds)) {
+//			String[] s = checkedIds.split(",");
+//			Collections.addAll(checkIdList, s);
+//		}
+//		if (users != null && users.size() > 0) {
+//			for (int i = 0; i < users.size(); i++) {
+//				OrgUserBo user = users.get(i);
+//				TreeNode tn = new TreeNode();
+//				tn.setId(user.getId());
+//				tn.setName(user.getUserName());
+//				tn.setpId(user.getDept().getId());
+//				if (checkIdList.contains(user.getId())) {
+//					tn.setChecked(true);
+//				}
+//				treeNodes.add(tn);
+//			}
+//			JSONArray jsonArray = JSONArray.fromObject(treeNodes);
+//			treeNodeData = jsonArray.toString();
+//		}
+//		return SUCCESS;
+//	}
 	
 	
 	

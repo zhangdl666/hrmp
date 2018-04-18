@@ -26,7 +26,7 @@ public class WorkHire {
 	private String id;
 	
 	@Column(name="BUSINESS_NUMBER")
-	private String businessNumber;
+	private Integer businessNumber;
 	
 	@Column(name="PUBLISHER_ID")
 	private String publisherId;
@@ -120,7 +120,7 @@ public class WorkHire {
 	private String workArea;
 	
 	/* 承包施工-条件要求 */
-	@Column(name="CONDITION")
+	@Column(name="CONDITION_")
 	private String condition;
 	
 	/* 承包施工-付款方式，1：面议；0：其他 */
@@ -143,7 +143,7 @@ public class WorkHire {
 	@Column(name="HIRE_NUM")
 	private int hireNum;
 	
-	@Column(name="STATUS")
+	@Column(name="STATUS_")
 	private String status;//noPublish：草稿，publishing：正在招工，closed：已关闭；delete：删除
 
 	public String getId() {
@@ -162,11 +162,12 @@ public class WorkHire {
 		this.salary = salary;
 	}
 
-	public String getBusinessNumber() {
+	
+	public Integer getBusinessNumber() {
 		return businessNumber;
 	}
 
-	public void setBusinessNumber(String businessNumber) {
+	public void setBusinessNumber(Integer businessNumber) {
 		this.businessNumber = businessNumber;
 	}
 

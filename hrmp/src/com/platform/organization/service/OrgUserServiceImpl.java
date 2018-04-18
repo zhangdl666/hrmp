@@ -110,14 +110,14 @@ public class OrgUserServiceImpl implements OrgUserService {
 
 	@Override
 	public List<OrgUserBo> queryUsers(String userName, String loginName,
-			String departmentId, boolean isContainChildDept) {
-		return orgUserDao.queryUsers(userName, loginName, departmentId, isContainChildDept);
+			String departmentId) {
+		return orgUserDao.queryUsers(userName, loginName, departmentId);
 	}
 
 	@Override
 	public Page queryUsers(String userName, String loginName,
-			String departmentId, boolean isContainChildDept, Page page) {
-		return orgUserDao.queryUsers(userName, loginName, departmentId, isContainChildDept, page);
+			String departmentId, Page page) {
+		return orgUserDao.queryUsers(userName, loginName, departmentId, page);
 	}
 
 	@Override

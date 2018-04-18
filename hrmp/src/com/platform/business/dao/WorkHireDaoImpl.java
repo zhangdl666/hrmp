@@ -22,11 +22,20 @@ import com.platform.business.pojo.WorkHireVisit;
 import com.platform.business.pojo.WorkSign;
 import com.platform.core.ApplicationUtil;
 import com.platform.core.bo.Page;
+import com.platform.organization.dao.OrgDeptDao;
+import com.platform.organization.dao.OrgUserDao;
+import com.platform.organization.pojo.OrgDept;
 import com.platform.organization.pojo.OrgUser;
 
 public class WorkHireDaoImpl implements WorkHireDao  {
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	@Autowired
+	private OrgUserDao orgUserDao;
+	
+	@Autowired
+	private OrgDeptDao orgDeptDao;
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
@@ -642,7 +651,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	}
 
 	@Override
-	public Page getClosedWorkHireList(WorkHireQueryBo bo, Page page) {
+	public Page queryClosedWorkHireList(WorkHireQueryBo bo, Page page) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from WorkHireView w where status = 'closed' ");
 		
@@ -683,8 +692,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			params.put(paramIndex, bo.getPublisherCompanyId());
 			paramIndex = paramIndex + 1;
 		}
-		
-		
 		
 		if(bo.getCreateTimeFrom()!=null){
 			sb.append(" and w.createTime > ?");
@@ -778,6 +785,120 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		wh.setPublishTime(Calendar.getInstance().getTime());
 		this.saveWorkHire(wh);
 		return wh;
+	}
+
+	@Override
+	public Page queryLSWorkHireForSign(String loginName, Page page) {
+		OrgUser loginUser = orgUserDao.getUserByLoginName(loginName);
+		if(loginUser == null) {
+			return null;
+		}
+		
+		OrgDept company = orgDeptDao.getDirectCompany(loginUser.getDeptId());
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from WorkHireView w where actualSignNum < hireNum");
+		sb.append(" and not exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.validStatus = '1' and ws.empId = '" + loginUser.getId() + "')");
+		sb.append(" and w.empTypeId = 'LS'");
+		sb.append(" and w.publisherCompanyId = '" + company.getId() + "'");
+		sb.append(" and w.status = '" + WorkHire.WORK_HIRE_STATUS_PUBLISHING + "'");
+		sb.append(" order by w.publishTime desc ");
+		
+		
+		String sql = sb.toString();
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
+		query.setFirstResult(page.getCurrentPageOffset());
+		query.setMaxResults(page.getPageSize());
+		List<WorkHire> list = query.list();
+		
+		if(list == null || list.size() ==0) {
+			return page;
+		}
+		page.setResult(list);
+		
+		//取记录总数
+		String countSql = "select count(w) " + sql;
+		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
+		Long count = (Long) countQuery.uniqueResult();
+		page.setTotalRowSize(count.intValue());
+		
+		return page;
+	}
+
+	@Override
+	public Page queryCQWorkHireForSign(String loginName, Page page) {
+		OrgUser loginUser = orgUserDao.getUserByLoginName(loginName);
+		if(loginUser == null) {
+			return null;
+		}
+		
+		OrgDept company = orgDeptDao.getDirectCompany(loginUser.getDeptId());
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from WorkHireView w where actualSignNum < hireNum");
+		sb.append(" and not exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.validStatus = '1' and ws.empId = '" + loginUser.getId() + "')");
+		sb.append(" and w.empTypeId = 'CQ'");
+		sb.append(" and w.publisherCompanyId = '" + company.getId() + "'");
+		sb.append(" and w.status = '" + WorkHire.WORK_HIRE_STATUS_PUBLISHING + "'");
+		sb.append(" order by w.publishTime desc ");
+		
+		
+		String sql = sb.toString();
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
+		query.setFirstResult(page.getCurrentPageOffset());
+		query.setMaxResults(page.getPageSize());
+		List<WorkHire> list = query.list();
+		
+		if(list == null || list.size() ==0) {
+			return page;
+		}
+		page.setResult(list);
+		
+		//取记录总数
+		String countSql = "select count(w) " + sql;
+		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
+		Long count = (Long) countQuery.uniqueResult();
+		page.setTotalRowSize(count.intValue());
+		
+		return page;
+	}
+
+	@Override
+	public Page queryCBWorkHireForSign(String loginName, Page page) {
+		OrgUser loginUser = orgUserDao.getUserByLoginName(loginName);
+		if(loginUser == null) {
+			return null;
+		}
+		
+		OrgDept company = orgDeptDao.getDirectCompany(loginUser.getDeptId());
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from WorkHireView w");
+		sb.append(" where not exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.validStatus = '1' and ws.empId = '" + loginUser.getId() + "')");
+		sb.append(" and w.empTypeId = 'CB'");
+		sb.append(" and w.publisherCompanyId = '" + company.getId() + "'");
+		sb.append(" and w.status = '" + WorkHire.WORK_HIRE_STATUS_PUBLISHING + "'");
+		sb.append(" order by w.publishTime desc ");
+		
+		
+		String sql = sb.toString();
+		Query query = sessionFactory.getCurrentSession().createQuery(sql);
+		query.setFirstResult(page.getCurrentPageOffset());
+		query.setMaxResults(page.getPageSize());
+		List<WorkHire> list = query.list();
+		
+		if(list == null || list.size() ==0) {
+			return page;
+		}
+		page.setResult(list);
+		
+		//取记录总数
+		String countSql = "select count(w) " + sql;
+		Query countQuery = sessionFactory.getCurrentSession().createQuery(countSql);
+		Long count = (Long) countQuery.uniqueResult();
+		page.setTotalRowSize(count.intValue());
+		
+		return page;
 	}
 
 }
