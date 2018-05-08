@@ -136,6 +136,14 @@ public class WorkHireView {
 	@Column(name="ACTUAL_SIGN_NUM")
 	private int actualSignNum;
 	
+	/* 联系人名称 */
+	@Column(name="CONTACT_USER")
+	private String contactUser;
+	
+	/* 联系人电话 */
+	@Column(name="CONTACT_USER_PHONE")
+	private String contactUserPhone;
+	
 	public String getId() {
 		return id;
 	}
@@ -399,5 +407,21 @@ public class WorkHireView {
 
 	public void setPayModeRemark(String payModeRemark) {
 		this.payModeRemark = payModeRemark;
+	}
+
+	public String getContactUser() {
+		return contactUser;
+	}
+
+	public void setContactUser(String contactUser) {
+		this.contactUser = contactUser;
+	}
+
+	public String getContactUserPhone() {
+		return contactUserPhone;
+	}
+
+	public void setContactUserPhone(String contactUserPhone) {
+		this.contactUserPhone = contactUserPhone;
 	}
 }

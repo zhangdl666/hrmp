@@ -580,8 +580,13 @@ public class AppServiceImpl implements AppService{
 				work.setNightEnd(h.getNightEnd());
 			}
 			work.setCondition(h.getCondition());
-			work.setPayMode(h.getPayMode());
-			work.setPayModeRemark(h.getPayModeRemark());
+			if(h.getPayMode()!=null) {
+				if("1".equals(h.getPayMode())) {
+					work.setPayMode("面议");
+				}else{
+					work.setPayMode(h.getPayModeRemark());
+				}
+			}
 			work.setWorkArea(h.getWorkArea());
 			work.setWorkDescri(h.getWorkDescri());
 		}
@@ -714,10 +719,10 @@ public class AppServiceImpl implements AppService{
 				h.setPayModeRemark(work.getPayMode());
 			}
 		}
-		h.setPayMode(work.getPayMode());
-		h.setPayModeRemark(work.getPayModeRemark());
 		h.setWorkArea(work.getWorkArea());
 		h.setWorkDescri(work.getWorkDescri());
+		h.setContactUser(work.getContactUser());
+		h.setContactUserPhone(work.getContactUserPhone());
 		
 		h = workHireService.saveWorkHire(h);
 		
@@ -778,19 +783,20 @@ public class AppServiceImpl implements AppService{
 		
 		Page p = null;
 		if(empTypeId.equals("LS")) {
+			logger.debug("LS");
 			p = workHireService.queryLSWorkHireForSign(loginName, page);
 		}else if(empTypeId.equals("CQ")) {
+			logger.debug("CQ");
 			p = workHireService.queryCQWorkHireForSign(loginName, page);
 		}else if(empTypeId.equals("CB")) {
+			logger.debug("CB");
 			p = workHireService.queryCBWorkHireForSign(loginName, page);
 		}else {
+			logger.debug("---------" + empTypeId);
 			WorkHireQueryBo workHireQueryBo = new WorkHireQueryBo();
 			//设置查询条件，用于数据隔离
 			OrgUser loginUser = orgUserService.getUserByLoginName(loginName);
 			OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
-			workHireQueryBo.setEmpTypeId(empTypeId);
-			workHireQueryBo.setStatus(WorkHire.WORK_HIRE_STATUS_PUBLISHING);
-			workHireQueryBo.setNotSignUserId(loginUser.getId());
 			workHireQueryBo.setPublisherCompanyId(company.getId());
 			workHireQueryBo.setEmpTypeId(null);
 			p = workHireService.queryClosedWorkHireList(workHireQueryBo,page);
@@ -812,6 +818,8 @@ public class AppServiceImpl implements AppService{
 		}
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
+		rspDetail.setPageNo(p.getCurrentPage() + "");
+		rspDetail.setTotalPage(p.getTotalPage() + "");
 		rspDetail.setWorkList(workList);
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
@@ -1334,6 +1342,8 @@ public class AppServiceImpl implements AppService{
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
+		rspDetail.setPageNo(page.getCurrentPage() + "");
+		rspDetail.setTotalPage(page.getTotalPage() + "");
 		rspDetail.setMsgList(msgList);
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
@@ -1483,6 +1493,8 @@ public class AppServiceImpl implements AppService{
 		}
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
+		rspDetail.setPageNo(page.getCurrentPage() + "");
+		rspDetail.setTotalPage(page.getTotalPage() + "");
 		rspDetail.setWorkList(workList);
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
@@ -1583,6 +1595,7 @@ public class AppServiceImpl implements AppService{
 		SysConfig s = sysConfigService.getSysConfigByCFGId("1");
 		AndroidVersion ver = new AndroidVersion();
 		ver.setVersion(s.getVal1());
+		ver.setVersionCode(s.getVal5());
 		ver.setVersionPath(s.getVal2());
 		ver.setIsForceUpdate(s.getVal3());
 		ver.setVersionDesc(s.getVal9());
@@ -1755,7 +1768,6 @@ public class AppServiceImpl implements AppService{
 					try {
 						mobileMessageService.sendMessage(emp.getLoginName(), "【仁禾劳务】" + worker.getUserName() + "(" + worker.getLoginName() + ")已报名，请知晓！");
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}else {
@@ -1802,9 +1814,9 @@ public class AppServiceImpl implements AppService{
 			return error(loginName, identifyCode, l,"4000", "reqDetail节点不存在");
 		}
 		
-		String workId = reqDetail.getWorkId();
+		String workSignId = reqDetail.getWorkId();
 		OrgUser emp = orgUserService.getUserByLoginName(loginName);
-		WorkSign ws = workHireService.getWorkSign(workId, emp.getId());
+		WorkSign ws = workHireService.getWorkSign(workSignId);
 		if(ws == null) {
 			logger.info(l + " 发起微信支付>>---- -----未找到报名信息");
 			return error(loginName, identifyCode, l,"4000", "未找到报名信息");
@@ -1815,11 +1827,7 @@ public class AppServiceImpl implements AppService{
 			return error(loginName, identifyCode, l,"4000", "报名已经支付，请勿重复支付");
 		}
 		
-		WorkHire workHire = workHireService.getWorkHire(workId);
-		if(workHire == null) {
-			logger.info(l + " 发起微信支付>>---- -----未找到招工信息，请检查参数workId是否有误，workId：" + workId);
-			return error(loginName, identifyCode, l,"4000", "未找到招工信息，请检查参数workId是否有误，workId：" + workId);
-		}
+		WorkHire workHire = workHireService.getWorkHire(ws.getWorkHireId());
 		
 		if(!workHire.getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
 			logger.info(l + " 发起微信支付>>---- -----招工信息不处于发布状态（status:" + workHire.getStatus() + "）");
@@ -1916,7 +1924,8 @@ public class AppServiceImpl implements AppService{
 		
 		//长期工显示发布人及联系方式
 		if("CQ".equals(wh.getEmpTypeId())) {
-			work.setPublisherName(wh.getPublisherName());
+			work.setContactUser(wh.getContactUser());
+			work.setContactUserPhone(wh.getContactUserPhone());
 		}
 		
 		RspMsg rspMsg = new RspMsg();
@@ -2026,28 +2035,35 @@ public class AppServiceImpl implements AppService{
 		work.setNum("" + ws.getNum());
 		work.setUnitPrice("" + ws.getUnitPrice());
 		work.setPayFee("" + ws.getTotalMoney());
-		work.setPayStatus(ws.getPayStatus());
-		//判断是否可以取消报名
-		if(!wh.getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
-			work.setCanCancelSign("0");
-		}else {
+		//判断是否可以取消报名 1：可以取消报名；		0：不可以取消报名	
+		if(wh.getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
 			if(ws.getValidStatus().equals("1")) {
-				if("1".equals(ws.getPayStatus())){//已支付成功
-					work.setCanCancelSign("1");
-				}else {
-					work.setCanCancelSign("2");//待支付
-				}
+				work.setCanCancelSign("1");
 			}else {
 				work.setCanCancelSign("0");
 			}
-			
-			//支付成功，显示联系人及电话
-			if("1".equals(ws.getPayStatus())){//已支付成功
-				//显示发布人信息
-				work.setPublisherName(wh.getPublisherName());
-				work.setPublisherCompanyName(wh.getPublisherCompanyName());
-				work.setPublishTime(wh.getPublishTime()==null?"":sdf.format(wh.getPublishTime()));
+		}else {
+			work.setCanCancelSign("0");
+		}
+		
+		//支付状态 0：未支付		1：已支付；		2：订单取消
+		work.setPayStatus(ws.getPayStatus());
+		if(ws.getPayStatus().equals("1")) {
+			work.setPayStatus("1");
+		}else {
+			if(ws.getValidStatus().equals("1")) {
+				work.setPayStatus("0");
+			}else {
+				work.setPayStatus("2");
 			}
+		}
+
+		//支付成功，显示联系人及电话
+		if("1".equals(ws.getPayStatus())){//已支付成功
+			//显示发布人信息
+			work.setContactUser(wh.getContactUser());
+			work.setContactUserPhone(wh.getContactUserPhone());
+			work.setPublishTime(wh.getPublishTime()==null?"":sdf.format(wh.getPublishTime()));
 		}
 		
 		RspMsg rspMsg = new RspMsg();
@@ -2128,6 +2144,8 @@ public class AppServiceImpl implements AppService{
 		}
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
+		rspDetail.setPageNo(page.getCurrentPage() + "");
+		rspDetail.setTotalPage(page.getTotalPage() + "");
 		rspDetail.setWorkList(workList);
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
@@ -2174,6 +2192,8 @@ public class AppServiceImpl implements AppService{
 		}
 		
 		Work work = transWorkHire(wh);
+		work.setContactUser(wh.getContactUser());
+		work.setContactUserPhone(wh.getContactUserPhone());
 
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
@@ -2235,6 +2255,19 @@ public class AppServiceImpl implements AppService{
 		work.setWorkKind(wh.getWorkKind());
 		work.setHireNum("" + wh.getHireNum());
 		work.setStatus(wh.getStatus());
+		
+		List<WorkSignBo> signList = workHireService.getWorkSignList(wh.getId());
+		if(signList==null || signList.size()==0) {
+			return work;
+		}
+		
+		//拼接报名用户
+		String signUsers = "";
+		for(int i=0;i<signList.size();i++) {
+			WorkSignBo bo = signList.get(i);
+			signUsers = signUsers + bo.getEmp().getUserName() + "（" + bo.getEmp().getLoginName() + "）；";
+		}
+		work.setSignUsers(signUsers);
 		return work;
 	}
 
@@ -2273,25 +2306,9 @@ public class AppServiceImpl implements AppService{
 			return error(loginName, identifyCode, l,"4000", "未找到发布信息");
 		}
 		
-		if("closed".equals(wh.getStatus())) {
+		if(WorkHire.WORK_HIRE_STATUS_CLOSED.equals(wh.getStatus())) {
 			logger.info(l + " 关闭发布>>---- -----已经关闭，请勿重复操作");
 			return error(loginName, identifyCode, l,"4000", "已经关闭，请勿重复操作");
-		}
-		
-		boolean isHaveSign = false;//是否已有工人报名
-		List<WorkSignBo> signList = workHireService.getWorkSignList(workId);
-		if(signList!=null && signList.size()>0) {//已有用户报名
-			isHaveSign = true;
-		}
-		
-		//若当前状态不是closing，则验证是否已有工人报名
-		if(!WorkHire.WORK_HIRE_STATUS_CLOSING.equals(wh.getStatus())) {
-			if(isHaveSign) {//已有用户报名
-				logger.info(l + " 关闭发布>>---- -----已有工人报名，此时关闭可能会影响您的信誉，确认关闭吗？");
-				wh.setStatus(WorkHire.WORK_HIRE_STATUS_CLOSING);
-				workHireService.saveWorkHire(wh);
-				return error(loginName, identifyCode, l,"2000", "已有工人报名，此时关闭可能会影响您的信誉，确认关闭吗？");
-			}
 		}
 		
 		wh.setStatus(WorkHire.WORK_HIRE_STATUS_CLOSED);
@@ -2302,14 +2319,18 @@ public class AppServiceImpl implements AppService{
 		businessOpinionService.saveBusinessOpinion(wh.getId(),emp,"关闭招工","关闭招工");
 		
 		//发送消息通知客服
-		if(isHaveSign) {
-			try {
-				businessMessageService.notifyAdminAsClosePublish(wh, emp);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//		boolean isHaveSign = false;//是否已有工人报名
+//		List<WorkSignBo> signList = workHireService.getWorkSignList(workId);
+//		if(signList!=null && signList.size()>0) {//已有用户报名
+//			isHaveSign = true;
+//		}
+//		if(isHaveSign) {
+//			try {
+//				businessMessageService.notifyAdminAsClosePublish(wh, emp);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
@@ -2322,10 +2343,10 @@ public class AppServiceImpl implements AppService{
 	}
 
 	@Override
-	public String cancelClosePublish(String requestXml) {
+	public String querySignCount(String requestXml) {
 		Calendar calendar = Calendar.getInstance();
 		long l = calendar.getTimeInMillis();
-		logger.info(l + " 取消关闭发布>>请求报文---------" + requestXml);
+		logger.info(l + " 查询报名人数>>请求报文---------" + requestXml);
 		
 		XStream xstream = new XStream();
 		xstream.alias("reqMsg", ReqMsg.class);
@@ -2339,34 +2360,26 @@ public class AppServiceImpl implements AppService{
 		
 		//检查报文完整性
 		if(loginName == null || "".equals(loginName)) {
-			logger.info(l + " 取消关闭发布>>---------operater值不允许为空");
+			logger.info(l + " 查询报名人数>>---------operater值不允许为空");
 			return error(loginName, identifyCode, l,"4000", "用户名不允许为空");
 		}
 		
 		if(reqDetail == null) {
-			logger.info(l + " 取消关闭发布>>---- -----reqDetail节点不存在");
+			logger.info(l + " 查询报名人数>>---- -----reqDetail节点不存在");
 			return error(loginName, identifyCode, l,"4000", "reqDetail节点不存在");
 		}
 		
 		String workId = reqDetail.getWorkId();
-		OrgUser emp = orgUserService.getUserByLoginName(loginName);
-		WorkHire wh = workHireService.getWorkHire(workId);
-		if(wh == null) {
-			logger.info(l + " 取消关闭发布>>---- -----未找到发布信息");
-			return error(loginName, identifyCode, l,"4000", "未找到发布信息");
-		}
 		
-		if(!WorkHire.WORK_HIRE_STATUS_CLOSING.equals(wh.getStatus())) {
-			logger.info(l + " 取消关闭发布>>---- -----当前状态不是closing，无法取消");
-			return error(loginName, identifyCode, l,"4000", "当前状态不是closing，无法取消");
-		}
-		
-		wh.setStatus(WorkHire.WORK_HIRE_STATUS_PUBLISHING);
-		wh.setCloseTime(null);
-		workHireService.saveWorkHire(wh);
+		List<WorkSignBo> signs = workHireService.getWorkSignList(workId);
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
+		if(signs == null || signs.size()==0) {
+			rspDetail.setSignCount("0");
+		}else {
+			rspDetail.setSignCount(signs.size() + "");
+		}
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
 		rspMsg.setRspDesc("成功");
@@ -2423,6 +2436,8 @@ public class AppServiceImpl implements AppService{
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
+		rspDetail.setPageNo(page.getCurrentPage() + "");
+		rspDetail.setTotalPage(page.getTotalPage() + "");
 		rspDetail.setBadRecordList(targetList);
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
@@ -2464,6 +2479,8 @@ public class AppServiceImpl implements AppService{
 			return error(loginName, identifyCode, l,"4000", "密码不允许为空");
 		}
 		WorkHire wh = workHireService.toTopWorkHire(workId);
+		wh.setPublishTime(calendar.getTime());
+		workHireService.saveWorkHire(wh);
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();

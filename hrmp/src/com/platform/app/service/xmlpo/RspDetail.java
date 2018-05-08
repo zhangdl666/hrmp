@@ -4,6 +4,15 @@ import java.util.List;
 
 
 public class RspDetail {
+	
+	private String pageNo;
+	
+	private String totalPage;
+	
+	/**
+	 * 报名人数
+	 */
+	private String signCount;
 
 	/**
 	 * 用户id
@@ -184,6 +193,30 @@ public class RspDetail {
 
 	public void setBadRecordList(List<BadRecord> badRecordList) {
 		this.badRecordList = badRecordList;
+	}
+
+	public String getPageNo() {
+		return pageNo;
+	}
+
+	public void setPageNo(String pageNo) {
+		this.pageNo = pageNo;
+	}
+
+	public String getTotalPage() {
+		return totalPage;
+	}
+
+	public void setTotalPage(String totalPage) {
+		this.totalPage = totalPage;
+	}
+
+	public String getSignCount() {
+		return signCount;
+	}
+
+	public void setSignCount(String signCount) {
+		this.signCount = signCount;
 	}
 
 }

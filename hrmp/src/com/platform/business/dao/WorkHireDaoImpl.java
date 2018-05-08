@@ -31,11 +31,25 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	@Autowired
 	private SessionFactory sessionFactory;
 	
-	@Autowired
 	private OrgUserDao orgUserDao;
 	
-	@Autowired
 	private OrgDeptDao orgDeptDao;
+
+	public OrgUserDao getOrgUserDao() {
+		return orgUserDao;
+	}
+
+	public void setOrgUserDao(OrgUserDao orgUserDao) {
+		this.orgUserDao = orgUserDao;
+	}
+
+	public OrgDeptDao getOrgDeptDao() {
+		return orgDeptDao;
+	}
+
+	public void setOrgDeptDao(OrgDeptDao orgDeptDao) {
+		this.orgDeptDao = orgDeptDao;
+	}
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
@@ -234,9 +248,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		query.setMaxResults(page.getPageSize());
 		List<WorkHire> list = query.list();
 		
-		if(list == null || list.size() ==0) {
-			return page;
-		}
 		page.setResult(list);
 		
 		//取记录总数
@@ -587,9 +598,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		query.setMaxResults(page.getPageSize());
 		List<WorkHire> list = query.list();
 		
-		if(list == null || list.size() ==0) {
-			return page;
-		}
 		page.setResult(list);
 		
 		//取记录总数
@@ -622,9 +630,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		query.setMaxResults(page.getPageSize());
 		List<BadRecord> list = query.list();
 		
-		if(list == null || list.size() ==0) {
-			return page;
-		}
 		page.setResult(list);
 		
 		//取记录总数
@@ -741,17 +746,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			paramIndex = paramIndex + 1;
 		}
 		
-		if(bo.getSignUserId()!=null && !bo.getSignUserId().equals("")){
-			sb.append(" and exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.empId = ?)");
-			params.put(paramIndex, bo.getSignUserId());
-			paramIndex = paramIndex + 1;
-		}
-		
-		if(bo.getNotSignUserId()!=null && !bo.getNotSignUserId().equals("")){
-			sb.append(" and not exists(select 1 from WorkSign ws where ws.workHireId = w.id and ws.empId = ?)");
-			params.put(paramIndex, bo.getNotSignUserId());
-			paramIndex = paramIndex + 1;
-		}
 		sb.append(" order by w.publishTime desc ");
 		
 		String sql = sb.toString();
@@ -761,9 +755,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		query.setMaxResults(page.getPageSize());
 		List<WorkHire> list = query.list();
 		
-		if(list == null || list.size() ==0) {
-			return page;
-		}
 		page.setResult(list);
 		
 		//取记录总数
@@ -811,9 +802,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		query.setMaxResults(page.getPageSize());
 		List<WorkHire> list = query.list();
 		
-		if(list == null || list.size() ==0) {
-			return page;
-		}
 		page.setResult(list);
 		
 		//取记录总数
@@ -849,9 +837,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		query.setMaxResults(page.getPageSize());
 		List<WorkHire> list = query.list();
 		
-		if(list == null || list.size() ==0) {
-			return page;
-		}
 		page.setResult(list);
 		
 		//取记录总数
@@ -887,9 +872,6 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		query.setMaxResults(page.getPageSize());
 		List<WorkHire> list = query.list();
 		
-		if(list == null || list.size() ==0) {
-			return page;
-		}
 		page.setResult(list);
 		
 		//取记录总数

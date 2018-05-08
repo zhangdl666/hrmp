@@ -34,6 +34,9 @@ public class Page {
      * @return ×ÜÒ³Êý
      */
     public int getTotalPage(){
+    	if(totalRowSize == 0) {
+    		return 1;
+    	}
         int totalPage = (totalRowSize % pageSize == 0)? (totalRowSize / pageSize): (totalRowSize / pageSize) + 1;
         return totalPage;
     }

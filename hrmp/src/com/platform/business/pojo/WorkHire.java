@@ -17,7 +17,6 @@ public class WorkHire {
 	public static final String WORK_HIRE_STATUS_DELETE = "delete";
 	public static final String WORK_HIRE_STATUS_PUBLISHING = "publishing";
 	public static final String WORK_HIRE_STATUS_CLOSED = "closed";
-	public static final String WORK_HIRE_STATUS_CLOSING = "closing";
 	
 	@Id
 	@GeneratedValue(generator="system-uuid")
@@ -130,6 +129,14 @@ public class WorkHire {
 	/* 承包施工-付款方式-其他付款方式 */
 	@Column(name="PAYMODE_REMARK")
 	private String payModeRemark;
+	
+	/* 联系人名称 */
+	@Column(name="CONTACT_USER")
+	private String contactUser;
+	
+	/* 联系人电话 */
+	@Column(name="CONTACT_USER_PHONE")
+	private String contactUserPhone;
 	
 	@Column(name="WORK_KIND")
 	private String workKind;
@@ -405,6 +412,22 @@ public class WorkHire {
 
 	public void setPayModeRemark(String payModeRemark) {
 		this.payModeRemark = payModeRemark;
+	}
+
+	public String getContactUser() {
+		return contactUser;
+	}
+
+	public void setContactUser(String contactUser) {
+		this.contactUser = contactUser;
+	}
+
+	public String getContactUserPhone() {
+		return contactUserPhone;
+	}
+
+	public void setContactUserPhone(String contactUserPhone) {
+		this.contactUserPhone = contactUserPhone;
 	}
 	
 	

@@ -3,6 +3,7 @@ package com.platform.app.service.xmlpo;
 public class AndroidVersion {
 
 	private String version;
+	private String versionCode;
 	private String versionPath;
 	private String versionDesc;
 	private String isForceUpdate;
@@ -30,4 +31,11 @@ public class AndroidVersion {
 	public void setIsForceUpdate(String isForceUpdate) {
 		this.isForceUpdate = isForceUpdate;
 	}
+	public String getVersionCode() {
+		return versionCode;
+	}
+	public void setVersionCode(String versionCode) {
+		this.versionCode = versionCode;
+	}
+	
 }

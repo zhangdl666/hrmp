@@ -237,8 +237,8 @@ public class AppServicePublish extends ServletEndpointSupport {
 	 * @param requestXml
 	 * @return
 	 */
-	public String cancelClosePublish(String requestXml){
-		return appService.cancelClosePublish(requestXml);
+	public String querySignCount(String requestXml){
+		return appService.querySignCount(requestXml);
 	}
 	
 	/**
@@ -255,7 +255,7 @@ public class AppServicePublish extends ServletEndpointSupport {
 	 * @param requestXml
 	 * @return
 	 */
-	public String toTopWorkHire(String requestXml) {
+	public String toTop(String requestXml) {
 		return appService.toTopWorkHire(requestXml);
 	}
 }

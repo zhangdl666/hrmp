@@ -1,6 +1,5 @@
 package com.platform.app.service.xmlpo;
 
-import java.util.Date;
 
 
 public class Work {
@@ -145,6 +144,17 @@ public class Work {
 	
 	/*是否能关闭发布	1：可以关闭发布；0：不可以关闭发布*/
 	private String canClosePublish;
+	
+	/* 联系人名称 */
+	private String contactUser;
+	
+	/* 联系人电话 */
+	private String contactUserPhone;
+	
+	/**
+	 * 报名人，多个用“；”隔开
+	 */
+	private String signUsers;
 	
 	
 	public String getSignTime() {
@@ -519,6 +529,30 @@ public class Work {
 
 	public void setCanClosePublish(String canClosePublish) {
 		this.canClosePublish = canClosePublish;
+	}
+
+	public String getContactUser() {
+		return contactUser;
+	}
+
+	public void setContactUser(String contactUser) {
+		this.contactUser = contactUser;
+	}
+
+	public String getContactUserPhone() {
+		return contactUserPhone;
+	}
+
+	public void setContactUserPhone(String contactUserPhone) {
+		this.contactUserPhone = contactUserPhone;
+	}
+
+	public String getSignUsers() {
+		return signUsers;
+	}
+
+	public void setSignUsers(String signUsers) {
+		this.signUsers = signUsers;
 	}
 
 	

@@ -175,11 +175,11 @@ public interface AppService {
 	public String closePublish(String requestXml);
 	
 	/**
-	 * 取消关闭发布
+	 * 查询报名人数
 	 * @param requestXml
 	 * @return
 	 */
-	public String cancelClosePublish(String requestXml);
+	public String querySignCount(String requestXml);
 	
 	/**
 	 * 违规记录列表

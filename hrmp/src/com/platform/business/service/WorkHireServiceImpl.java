@@ -144,14 +144,6 @@ public class WorkHireServiceImpl implements WorkHireService {
 		
 		for(int i=0;i<signs.size();i++) {
 			WorkSign s = signs.get(i);
-			Date signTime = s.getSignTime();
-			Date nowTime = Calendar.getInstance().getTime();
-			long hours = (nowTime.getTime() - signTime.getTime())/1000/60/60;
-			if(hours > 0.5){//超过0.5小时未支付，取消其订单
-				s.setValidStatus("0");
-				s.setRemark("超时未支付，取消订单");
-				this.saveWorkSign(s);
-			}
 			
 			//查询微信支付结果
 			boolean isPay = isPaySuccess(s.getId());
@@ -159,6 +151,15 @@ public class WorkHireServiceImpl implements WorkHireService {
 	        	logger.info("微信支付成功，workSignId：" + s.getId());
 	        	s.setPayStatus("1");
 	        	this.saveWorkSign(s);
+	        }else {
+	        	Date signTime = s.getSignTime();
+	        	Date nowTime = Calendar.getInstance().getTime();
+	        	long hours = (nowTime.getTime() - signTime.getTime())/1000/60/60;
+	        	if(hours > 0.5){//超过0.5小时未支付，取消其订单
+	        		s.setValidStatus("0");
+	        		s.setRemark("超时未支付，取消订单");
+	        		this.saveWorkSign(s);
+	        	}
 	        }
 	        
 	        logger.info("workSignId：" + s.getId() + "支付结果：" + isPay);
