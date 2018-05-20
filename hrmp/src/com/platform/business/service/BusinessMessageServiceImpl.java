@@ -86,7 +86,7 @@ public class BusinessMessageServiceImpl implements BusinessMessageService {
 			this.businessMessageDao.saveMessage(msg);
 			
 			//发送短信
-			mobileMessageService.sendMessage(admin.getLoginName(), "【仁禾劳务】通知：工单" + wh.getBusinessNumber() + "异常关闭，请知晓！");
+//			mobileMessageService.sendMessage(admin.getLoginName(), "【仁禾劳务】通知：工单" + wh.getBusinessNumber() + "异常关闭，请知晓！");
 		}
 		
 	}

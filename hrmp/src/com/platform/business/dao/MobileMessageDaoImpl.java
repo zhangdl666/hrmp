@@ -13,6 +13,10 @@ public class MobileMessageDaoImpl implements MobileMessageDao {
 	@Autowired
 	private SessionFactory sessionFactory;
 	
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+	
 	@Override
 	public MMobileMessage saveMobileMessage(MMobileMessage message) {
 		sessionFactory.getCurrentSession().save(message);

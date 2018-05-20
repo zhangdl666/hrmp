@@ -276,7 +276,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 
 	@Override
 	public WorkSign getWorkSign(String workHireId, String empId) {
-		String hql = "from WorkSign d where d.workHireId = ? and empId = ?";
+		String hql = "from WorkSign d where d.workHireId = ? and empId = ? and validStatus = '1'";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, workHireId);
 		query.setString(1, empId);
@@ -291,7 +291,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	@Override
 	public Page getWorkSignList(WorkHireQueryBo bo, Page page) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("select w,ws,u from WorkHireView w,WorkSign ws,OrgUser u where w.id = ws.workHireId and ws.empId = u.id ");
+		sb.append("select w,ws,u from WorkHireView w,WorkSign ws,OrgUser u where w.id = ws.workHireId and ws.empId = u.id and ws.validStatus = '1'");
 		
 		HashMap<Integer, Object> params = new HashMap<Integer, Object>();
 		int paramIndex = 0;

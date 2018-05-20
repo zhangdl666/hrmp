@@ -132,15 +132,13 @@ public class AppServiceImpl implements AppService{
 		//生成短信验证码
 		MIdentifyCode code = businessMIdentifyCodeService.generateMIdentifyCode(loginName, identifyCodeType);
 		
-		String msg = "";
-		if("regedit".equals(identifyCodeType)){
-			msg = "【仁禾劳务】您的注册验证码" + code.getIdentifyCode() + "，有效期5分钟，切勿告知他人！";
-		}else if("pwd".equals(identifyCodeType)) {
-			msg = "【仁禾劳务】您正在找回密码，验证码" + code.getIdentifyCode() + "，有效期5分钟，切勿告知他人！";
-			
-		}
+		String[] params = {code.getIdentifyCode()};
 		try {
-			//mobileMessageService.sendMessage(loginName, msg);
+			if("regedit".equals(identifyCodeType)){
+				mobileMessageService.sendRegiteValidateCode(loginName, params);
+			}else if("pwd".equals(identifyCodeType)) {
+				mobileMessageService.sendPwdValidateCode(loginName, params);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return error(loginName, null, l,"4000", "验证码发送失败！");
@@ -1255,6 +1253,7 @@ public class AppServiceImpl implements AppService{
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		ws.setRemark(loginName + "主动取消报名 " + sdf.format(calendar.getTime()));
+		ws.setValidStatus("0");
 		workHireService.saveWorkSign(ws);
 		
 		//发送消息
@@ -1464,30 +1463,30 @@ public class AppServiceImpl implements AppService{
 				work.setUnitPrice("" + bo.getWorkSign().getUnitPrice());
 				work.setPayFee("" + bo.getWorkSign().getTotalMoney());
 				work.setPayStatus(bo.getWorkSign().getPayStatus());
-				//判断是否可以取消报名
-				if(!bo.getWorkHire().getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
-					work.setCanCancelSign("0");
-				}else {
-					WorkSign ws = bo.getWorkSign();
-					if(ws == null){
-						work.setCanCancelSign("0");
+				
+				//判断是否可以取消报名 1：可以取消报名；		0：不可以取消报名	
+				if(bo.getWorkHire().getStatus().equals(WorkHire.WORK_HIRE_STATUS_PUBLISHING)) {
+					if(bo.getWorkSign().getValidStatus().equals("1")) {
+						work.setCanCancelSign("1");
 					}else {
-						if(!ws.getValidStatus().equals("0")) {
-							if("1".equals(ws.getPayStatus())){//已支付成功
-								work.setCanCancelSign("1");
-							}else {
-								work.setCanCancelSign("2");//待支付
-							}
-						}else {
-							work.setCanCancelSign("0");
-						}
-						
-						//支付成功，显示联系人及电话
-						if("1".equals(ws.getPayStatus())){//已支付成功
-							work.setWorkDescri(work.getWorkDescri() + " ，联系人：" + bo.getWorkHire().getPublisherName());
-						}
+						work.setCanCancelSign("0");
+					}
+				}else {
+					work.setCanCancelSign("0");
+				}
+				
+				//支付状态 0：未支付		1：已支付；		2：订单取消
+				work.setPayStatus(bo.getWorkSign().getPayStatus());
+				if(bo.getWorkSign().getPayStatus().equals("1")) {
+					work.setPayStatus("1");
+				}else {
+					if(bo.getWorkSign().getValidStatus().equals("1")) {
+						work.setPayStatus("0");
+					}else {
+						work.setPayStatus("2");
 					}
 				}
+				
 				workList.add(work);
 			}
 		}
@@ -1764,12 +1763,12 @@ public class AppServiceImpl implements AppService{
 					rspDetail.setPayStatus("1");
 					rspDetail.setPayDescri("支付成功");
 					//发送短信通知招工方
-					OrgUser worker = orgUserService.getUser(ws.getEmpId());
-					try {
-						mobileMessageService.sendMessage(emp.getLoginName(), "【仁禾劳务】" + worker.getUserName() + "(" + worker.getLoginName() + ")已报名，请知晓！");
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+//					OrgUser worker = orgUserService.getUser(ws.getEmpId());
+//					try {
+//						mobileMessageService.sendMessage(emp.getLoginName(), "【仁禾劳务】" + worker.getUserName() + "(" + worker.getLoginName() + ")已报名，请知晓！");
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
 				}else {
 					rspDetail.setPayStatus("0");
 					rspDetail.setPayDescri("待支付");
