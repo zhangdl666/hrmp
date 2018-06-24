@@ -81,7 +81,7 @@ public class OrgRoleDaoImpl implements OrgRoleDao {
 	public List<OrgRoleBo> queryRoles(String roleName,String departmentId) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select r.id,r.rolename,d.id deptid,d.deptname,d.dept_flag,d.parentid,d.createtime,d.validstatus ");
-		sb.append("   from org_role r,v_org_dept d");
+		sb.append("   from org_role r,org_dept d");
 		sb.append("  where r.dept_id = d.id and r.validstatus = '1'");
 		HashMap<Integer, String> params = new HashMap<Integer, String>();
 		int paramIndex = 0;

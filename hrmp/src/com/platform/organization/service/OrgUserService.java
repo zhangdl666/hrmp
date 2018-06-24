@@ -23,6 +23,12 @@ public interface OrgUserService {
 	public List<OrgUserBo> queryUsers(String userName,String loginName,String departmentId);
 	
 	/**
+	 * 查询注册用户数
+	 * @return
+	 */
+	public int getRegisterUserCount();
+	
+	/**
 	 * 用户分页查询
 	 * @param userName
 	 * @param loginName

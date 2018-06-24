@@ -417,7 +417,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	@Override
 	public boolean cancelOtherWorkSign(String workSignId, String userId,
 			String remark) {
-		String hql = "update WorkSign d set d.confirmResult='cancel',d.confirmTime=sysdate,d.confirmDescri = ? " +
+		String hql = "update WorkSign d set d.confirmResult='cancel',d.confirmTime=now(),d.confirmDescri = ? " +
 				"where d.id != ? and d.empId = ? and d.confirmResult = 'approving'";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, remark);
@@ -644,13 +644,13 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 
 	@Override
 	public void closeOverTimePublish() {
-		String hql = "update WorkHire d set d.status = 'closed',d.closeTime = sysdate " +
-				"where d.empTypeId != 'CQ' and d.status != 'closed' and d.empDate < sysdate - 12/24";
+		String hql = "update WorkHire d set d.status = 'closed',d.closeTime = now() " +
+				"where d.empTypeId != 'CQ' and d.status != 'closed' and d.empDate < date_sub(NOW(),interval  12 hour)";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.executeUpdate();
 		
-		hql = "update WorkHire d set d.status = 'closed',d.closeTime = sysdate " +
-				"where d.empTypeId = 'CQ' and d.status != 'closed' and d.empDate < sysdate - 30";
+		hql = "update WorkHire d set d.status = 'closed',d.closeTime = now() " +
+				"where d.empTypeId = 'CQ' and d.status != 'closed' and d.empDate < date_sub(NOW(),interval  30 day)";
 		Query query2 = sessionFactory.getCurrentSession().createQuery(hql);
 		query2.executeUpdate();
 	}

@@ -76,6 +76,11 @@ public class Work {
 	 */
 	private String hireNum;
 	
+	/**
+	 * 实际已招工数量
+	 */
+	private String hireNumActural;
+	
 	private String status;//noPublish：草稿，publishing：正在招工，closed：已关闭；delete：删除
 	
 	/**
@@ -188,7 +193,7 @@ public class Work {
 	private String prepayId;
 	
 	/**
-	 * 报名人数
+	 * 报名人数（订单中的报名人数）
 	 */
 	private String num;
 	
@@ -555,5 +560,12 @@ public class Work {
 		this.signUsers = signUsers;
 	}
 
+	public String getHireNumActural() {
+		return hireNumActural;
+	}
+
+	public void setHireNumActural(String hireNumActural) {
+		this.hireNumActural = hireNumActural;
+	}
 	
 }

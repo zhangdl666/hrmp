@@ -44,4 +44,6 @@ public interface OrgUserDao {
 	 */
 	public List<OrgUserBo> getAdminUserList(String companyId);
 	
+	public int getRegisterUserCount();
+	
 }

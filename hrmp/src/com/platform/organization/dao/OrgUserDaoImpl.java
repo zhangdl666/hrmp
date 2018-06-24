@@ -243,6 +243,18 @@ public class OrgUserDaoImpl implements OrgUserDao {
 		return result;
 	}
 
+	@Override
+	public int getRegisterUserCount() {
+		String hql = "select count(u) from OrgUser u where u.validstatus='1' and u.userKind = 'register'";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		List<Number> list = query.list();
+		if(list == null || list.size()==0) {
+			return 0;
+		}
+		
+		return list.get(0).intValue();
+	}
+
 	
 
 }

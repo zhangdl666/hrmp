@@ -43,6 +43,10 @@ public class ReqDetail {
 	private String empTypeId;
 	
 	private Work work;
+	
+	private String keyword;
+	
+	private Advertisement advertisement;
 
 	public String getWorkKind() {
 		return workKind;
@@ -154,6 +158,22 @@ public class ReqDetail {
 
 	public void setWork(Work work) {
 		this.work = work;
+	}
+
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
+
+	public Advertisement getAdvertisement() {
+		return advertisement;
+	}
+
+	public void setAdvertisement(Advertisement advertisement) {
+		this.advertisement = advertisement;
 	}
 
 }

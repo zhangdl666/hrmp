@@ -194,4 +194,34 @@ public interface AppService {
 	 * @return
 	 */
 	public String toTopWorkHire(String requestXml);
+	
+	/**
+	 * 广告列表
+	 * @param requestXml
+	 * @return
+	 */
+	public String getAdvertisementList(String requestXml);
+	
+	/**
+	 * 我发布的广告
+	 * @param requestXml
+	 * @return
+	 */
+	public String getMyAdvertisementList(String requestXml);
+	
+	/**
+	 * 广告详情
+	 * @param requestXml
+	 * @return
+	 */
+	public String getAdvertisementDetail(String requestXml);
+	
+	/**
+	 * 发起微信支付（广告）
+	 * @param requestXml
+	 * @return
+	 */
+	public String wxPayAdvertisement(String requestXml);
+
+	public String publishAdvertisement(String requestXml);
 }

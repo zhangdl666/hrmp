@@ -63,6 +63,10 @@ public class RspDetail {
 	
 	private List<WorkKind> workKindList;
 	
+	private List<Advertisement> advertisementList;
+	
+	private Advertisement advertisement;
+	
 	private List<BadRecord> badRecordList;
 	
 	private WXPay wxPay;
@@ -217,6 +221,22 @@ public class RspDetail {
 
 	public void setSignCount(String signCount) {
 		this.signCount = signCount;
+	}
+
+	public List<Advertisement> getAdvertisementList() {
+		return advertisementList;
+	}
+
+	public void setAdvertisementList(List<Advertisement> advertisementList) {
+		this.advertisementList = advertisementList;
+	}
+
+	public Advertisement getAdvertisement() {
+		return advertisement;
+	}
+
+	public void setAdvertisement(Advertisement advertisement) {
+		this.advertisement = advertisement;
 	}
 
 }

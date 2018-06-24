@@ -17,6 +17,7 @@
 	<bean id="businessWorkKindDefDao" class="com.platform.business.dao.BusinessWorkKindDefDaoImpl"></bean>
 	<bean id="mobileMessageDao" class="com.platform.business.dao.MobileMessageDaoImpl"></bean>
 	<bean id="workHireDao" class="com.platform.business.dao.WorkHireDaoImpl"></bean>
+	<bean id="advertisementDao" class="com.platform.business.dao.AdvertisementDaoImpl"></bean>
 	
 	<bean id="businessMessageService" class="com.platform.business.service.BusinessMessageServiceImpl"></bean>
 	<bean id="businessMIdentifyCodeService" class="com.platform.business.service.BusinessMIdentifyCodeServiceImpl"></bean>
@@ -26,6 +27,7 @@
 	<bean id="businessWorkKindDefService" class="com.platform.business.service.BusinessWorkKindDefServiceImpl"></bean>
 	<bean id="mobileMessageService" class="com.platform.business.service.MobileMessageServiceImpl"></bean>
 	<bean id="workHireService" class="com.platform.business.service.WorkHireServiceImpl"></bean>
+	<bean id="advertisementService" class="com.platform.business.service.AdvertisementServiceImpl"></bean>
 	
 	<bean id="appService" class="com.platform.app.service.AppServiceImpl"></bean>
 	<bean id="appPushService" class="com.platform.app.push.AppPushServiceImpl"></bean>

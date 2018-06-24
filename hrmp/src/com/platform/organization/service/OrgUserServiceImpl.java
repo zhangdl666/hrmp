@@ -125,4 +125,9 @@ public class OrgUserServiceImpl implements OrgUserService {
 		return orgUserDao.getAdminUserList(companyId);
 	}
 
+	@Override
+	public int getRegisterUserCount() {
+		return orgUserDao.getRegisterUserCount();
+	}
+
 }

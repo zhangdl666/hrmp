@@ -258,4 +258,44 @@ public class AppServicePublish extends ServletEndpointSupport {
 	public String toTop(String requestXml) {
 		return appService.toTopWorkHire(requestXml);
 	}
+	
+	/**
+	 * 广告列表
+	 * @param requestXml
+	 * @return
+	 */
+	public String getAdvertisementList(String requestXml){
+		return appService.getAdvertisementList(requestXml);
+	}
+	
+	/**
+	 * 我发布的广告
+	 * @param requestXml
+	 * @return
+	 */
+	public String getMyAdvertisementList(String requestXml){
+		return appService.getMyAdvertisementList(requestXml);
+	}
+	
+	/**
+	 * 广告详情
+	 * @param requestXml
+	 * @return
+	 */
+	public String getAdvertisementDetail(String requestXml){
+		return appService.getAdvertisementDetail(requestXml);
+	}
+	
+	/**
+	 * 发起微信支付（广告）
+	 * @param requestXml
+	 * @return
+	 */
+	public String wxPayAdvertisement(String requestXml){
+		return appService.wxPayAdvertisement(requestXml);
+	}
+	
+	public String publishAdvertisement(String requestXml){
+		return appService.publishAdvertisement(requestXml);
+	}
 }

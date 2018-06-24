@@ -154,8 +154,8 @@ public class WorkHireServiceImpl implements WorkHireService {
 	        }else {
 	        	Date signTime = s.getSignTime();
 	        	Date nowTime = Calendar.getInstance().getTime();
-	        	long hours = (nowTime.getTime() - signTime.getTime())/1000/60/60;
-	        	if(hours > 0.5){//超过0.5小时未支付，取消其订单
+	        	long minutes = (nowTime.getTime() - signTime.getTime())/1000/60;
+	        	if(minutes > 5){//超过5分钟未支付，取消其订单
 	        		s.setValidStatus("0");
 	        		s.setRemark("超时未支付，取消订单");
 	        		this.saveWorkSign(s);
