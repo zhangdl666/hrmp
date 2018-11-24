@@ -194,6 +194,7 @@
 						<s:if test="workHire.status=='publishing'">
 							<button type="submit" class="btn btn-success" onclick="return workHireClose()">关闭</button>
 						</s:if>
+						<button type="submit" class="btn btn-success" onclick="return workHireBadRecord()">添加违规</button>
 					</div>
 				</div>
 			</s:if>
@@ -204,10 +205,12 @@
 	<ul id="myTab" class="nav nav-tabs">
 		<li class="active"><a href="#divSign" onclick="showTab('divSign')" data-toggle="tab">报名列表</a></li>
 		<li><a href="#divOpinion" onclick="showTab('divOpinion')" data-toggle="tab">处理记录</a></li>
+		<li><a href="#divBadRecord" onclick="showTab('divBadRecord')" data-toggle="tab">违规记录</a></li>
 	</ul>
 	<div id="myTabContent" class="tab-content">
 		<div class="tab-pane fade in active" id="divSign"></div>
 		<div class="tab-pane fade" id="divOpinion"></div>
+		<div class="tab-pane fade" id="divBadRecord"></div>
 	</div>
 </div>
 <script type="text/javascript">
@@ -317,6 +320,17 @@ function workHireDelete() {
 	return true;
 }
 
+function workHireBadRecord() {
+	var r = prompt("违规信息","");
+	if(r==null) {
+		return false;
+	}
+	document.getElementById("remark").value = r;
+	var _url = "business/addBadRecordForWorkHire.action";
+	document.getElementById("editForm").action = _url;
+	return true;
+}
+
 function workHireClose() {
 	var s = document.getElementById("status");
 	if(s.value == "closed") {
@@ -373,6 +387,8 @@ function showTab(tabId) {
 		_url = "business/viewWorkSigns.action?workHireId=${workHire.id}";
 	}else if(tabId=="divOpinion") {
 		_url = "business/viewOpinions.action?workHireId=${workHire.id}";
+	}else if(tabId=="divBadRecord") {
+		_url = "business/viewBadRecords.action?workHireId=${workHire.id}";
 	}else if(tabId=="divVisit") {
 		_url = "business/viewVisits.action?workHireId=${workHire.id}";
 	}

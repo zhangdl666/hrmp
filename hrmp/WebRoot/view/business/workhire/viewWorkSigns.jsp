@@ -107,17 +107,7 @@
 							<td><s:property value='workSign.confirmDescri' />
 							</td>
 							<td>
-								<s:if test="permission=='write'">
-									<s:if test="workSign.confirmResult=='approving'">
-										<!-- 
-										<a href="javascript:confirmSign('pass','<s:property value='workSign.id' />')">通过</a>
-										<a href="javascript:confirmSign('noPass','<s:property value='workSign.id' />')">不通过</a>
-										 -->
-									</s:if>
-									<s:elseif test="workSign.confirmResult=='pass'">
-										<a href="javascript:replaceEmp('<s:property value='workSign.id' />')">调换</a>
-									</s:elseif>
-								</s:if>
+								<a href="javascript:addBadRecordForEmp('<s:property value='workSign.id' />')">添加违规</a>
 							</td>
 						</tr>
 					</s:iterator>
@@ -132,14 +122,14 @@ function viewUser(id) {
 	window.open(_url);
 }
 
-function confirmSign(result,id){
-	var r = prompt("审核意见","");
+function addBadRecordForEmp(id){
+	var r = prompt("违规信息","");
 	if(r==null) {
 		return false;
 	}
 	document.getElementById("remark").value = r;
-	var _url = "business/confirmWorkSign.action?";
-	var params = "confirmResult=" + result + "&workSignId=" + id + "&workHireId=${workHireId}&remark=" + r;
+	var _url = "business/addBadRecordForWorkHireByAjax.action?";
+	var params = "&workSignId=" + id + "&workHireId=${workHireId}&remark=" + encodeURI(r);
 	queryByAjax("workSignDiv", _url, "post", params);
 }
 
