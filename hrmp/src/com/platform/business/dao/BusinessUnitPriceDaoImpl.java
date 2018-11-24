@@ -38,4 +38,32 @@ public class BusinessUnitPriceDaoImpl implements BusinessUnitPriceDao {
 		return list.get(0);
 	}
 
+	@Override
+	public UnitPrice getAdvertisementUnitPrice(String deptId, String months) {
+		String hql = "from UnitPrice b where b.deptId = ? and b.empTypeId = 'ADVER' and months = ?";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, deptId);
+		query.setString(1, months);
+		
+		List<UnitPrice> list = query.list();
+		if(list==null || list.size()==0) {
+			return null;
+		}
+		
+		return list.get(0);
+	}
+	
+	@Override
+	public List<UnitPrice> getAdvertisementUnitPriceList(String deptId) {
+		String hql = "from UnitPrice b where b.deptId = ? and b.empTypeId = 'ADVER'";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, deptId);
+		
+		List<UnitPrice> list = query.list();
+		if(list==null || list.size()==0) {
+			return null;
+		}
+		
+		return list;
+	}
 }

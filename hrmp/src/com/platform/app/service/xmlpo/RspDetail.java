@@ -65,11 +65,15 @@ public class RspDetail {
 	
 	private List<Advertisement> advertisementList;
 	
+	private List<UnitPrice> advertisementPriceList;
+	
 	private Advertisement advertisement;
 	
 	private List<BadRecord> badRecordList;
 	
 	private WXPay wxPay;
+	
+	private String remark;
 	
 	public WXPay getWxPay() {
 		return wxPay;
@@ -77,6 +81,14 @@ public class RspDetail {
 
 	public void setWxPay(WXPay wxPay) {
 		this.wxPay = wxPay;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	public AndroidVersion getAndroidVersion() {
@@ -237,6 +249,14 @@ public class RspDetail {
 
 	public void setAdvertisement(Advertisement advertisement) {
 		this.advertisement = advertisement;
+	}
+
+	public List<UnitPrice> getAdvertisementPriceList() {
+		return advertisementPriceList;
+	}
+
+	public void setAdvertisementPriceList(List<UnitPrice> advertisementPriceList) {
+		this.advertisementPriceList = advertisementPriceList;
 	}
 
 }

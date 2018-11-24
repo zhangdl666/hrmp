@@ -160,4 +160,6 @@ public interface WorkHireService {
 	 * @return
 	 */
 	public boolean isPaySuccess(String workSignId);
+	
+	public List<BadRecord> getBadRecordList(String workHireId);
 }

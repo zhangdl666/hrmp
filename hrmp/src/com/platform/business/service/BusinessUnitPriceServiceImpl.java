@@ -1,5 +1,7 @@
 package com.platform.business.service;
 
+import java.util.List;
+
 import com.platform.business.dao.BusinessUnitPriceDao;
 import com.platform.business.pojo.UnitPrice;
 
@@ -23,6 +25,16 @@ public class BusinessUnitPriceServiceImpl implements BusinessUnitPriceService{
 	@Override
 	public UnitPrice getUnitPrice(String deptId, String empTypeId) {
 		return businessUnitPriceDao.getUnitPrice(deptId, empTypeId);
+	}
+
+	@Override
+	public UnitPrice getAdvertisementUnitPrice(String deptId, String months) {
+		return businessUnitPriceDao.getAdvertisementUnitPrice(deptId, months);
+	}
+
+	@Override
+	public List<UnitPrice> getAdvertisementUnitPriceList(String deptId) {
+		return businessUnitPriceDao.getAdvertisementUnitPriceList(deptId);
 	}
 
 }

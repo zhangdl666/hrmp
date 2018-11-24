@@ -15,6 +15,7 @@ import com.platform.app.push.AppPushService;
 import com.platform.business.bo.WorkHireQueryBo;
 import com.platform.business.bo.WorkHireVisitBo;
 import com.platform.business.bo.WorkSignBo;
+import com.platform.business.pojo.BadRecord;
 import com.platform.business.pojo.BusinessOpinion;
 import com.platform.business.pojo.Message;
 import com.platform.business.pojo.WorkHire;
@@ -42,6 +43,7 @@ public class WorkHireAction extends BaseAction {
 	private List<WorkHire> workHireList;
 	private List<WorkSignBo> workSignList;
 	private List<BusinessOpinion> opinionList;
+	private List<BadRecord> badRecordList;
 	private List<WorkHireVisitBo> visitList;
 	private String treeNodeData;
 	private String checkedIds;
@@ -60,6 +62,14 @@ public class WorkHireAction extends BaseAction {
 	private BusinessNumberService businessNumberService;
 	private AppPushService appPushService;
 	
+	public List<BadRecord> getBadRecordList() {
+		return badRecordList;
+	}
+
+	public void setBadRecordList(List<BadRecord> badRecordList) {
+		this.badRecordList = badRecordList;
+	}
+
 	public OrgUserService getOrgUserService() {
 		return orgUserService;
 	}
@@ -522,6 +532,55 @@ public class WorkHireAction extends BaseAction {
 		return workHire.getEmpTypeId();
 	}
 	
+	/**
+	 * 添加违规记录
+	 * @return
+	 */
+	public String addBadRecordForWorkHire() {
+		OrgUser currentUser = getLoginUser();
+		String remark = getRequest().getParameter("remark");
+		
+		BadRecord br = new BadRecord();
+		br.setBadUserId(workHire.getPublisherId());
+		br.setDescri(remark);
+		br.setRecordTime(Calendar.getInstance().getTime());
+		br.setRecordUserId(currentUser.getId());
+		br.setRecordUserName(currentUser.getUserName());
+		br.setWorkSignId(workHire.getId());
+		workHireService.saveBadRecord(br);
+		
+		if(currentUser.getId().equals(workHire.getPublisherId())) {
+			permission = "write";
+		}else {
+			permission = "readonly";
+		}
+		
+		
+		return workHire.getEmpTypeId();
+	}
+	
+	/**
+	 * 添加违规记录
+	 * @return
+	 */
+	public String addBadRecordForWorkHireByAjax() {
+		OrgUser currentUser = getLoginUser();
+		String remark = getRequest().getParameter("remark");
+		String id = getRequest().getParameter("workHireId");
+		workHire = workHireService.getWorkHire(id);
+		
+		BadRecord br = new BadRecord();
+		br.setBadUserId(workHire.getPublisherId());
+		br.setDescri(remark);
+		br.setRecordTime(Calendar.getInstance().getTime());
+		br.setRecordUserId(currentUser.getId());
+		br.setRecordUserName(currentUser.getUserName());
+		br.setWorkSignId(workHire.getId());
+		workHireService.saveBadRecord(br);
+		
+		return viewWorkSigns();
+	}
+	
 	public void validateWorkHireClose() {
 		try {
 			PrintWriter pw = this.getResponse().getWriter();
@@ -627,6 +686,12 @@ public class WorkHireAction extends BaseAction {
 	//查看办理过程
 	public String viewOpinions() {
 		opinionList = businessOpinionService.getBusinessOpinionList(workHireId);
+		return SUCCESS;
+	}
+	
+	//查看违规记录
+	public String viewBadRecords() {
+		badRecordList = workHireService.getBadRecordList(workHireId);
 		return SUCCESS;
 	}
 	

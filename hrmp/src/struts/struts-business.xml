@@ -30,6 +30,11 @@
             <result name="CB">/view/business/workhire/viewWorkHire_CB.jsp</result>
             <result name="CQ">/view/business/workhire/viewWorkHire_CQ.jsp</result>
         </action>
+        <action name="addBadRecordForWorkHire" class="com.platform.business.action.WorkHireAction" method="addBadRecordForWorkHire">
+            <result name="LS">/view/business/workhire/viewWorkHire_LS.jsp</result>
+            <result name="CB">/view/business/workhire/viewWorkHire_CB.jsp</result>
+            <result name="CQ">/view/business/workhire/viewWorkHire_CQ.jsp</result>
+        </action>
         <action name="queryWorkHire" class="com.platform.business.action.WorkHireAction" method="queryWorkHire">
             <result name="success">/view/business/workhire/queryWorkHire.jsp</result>
         </action>
@@ -47,6 +52,9 @@
         </action>
         <action name="viewOpinions" class="com.platform.business.action.WorkHireAction" method="viewOpinions">
             <result name="success">/view/business/workhire/viewOpinions.jsp</result>
+        </action>
+        <action name="viewBadRecords" class="com.platform.business.action.WorkHireAction" method="viewBadRecords">
+            <result name="success">/view/business/workhire/viewBadRecords.jsp</result>
         </action>
         <action name="viewVisits" class="com.platform.business.action.WorkHireAction" method="viewVisits">
             <result name="success">/view/business/workhire/viewVisits.jsp</result>
@@ -68,6 +76,9 @@
             <result name="success">/view/business/workhire/queryWorkHireForSign.jsp</result>
         </action>
         <action name="confirmWorkSign" class="com.platform.business.action.WorkHireAction" method="confirmWorkSign">
+            <result name="success">/view/business/workhire/viewWorkSigns.jsp</result>
+        </action>
+        <action name="addBadRecordForWorkHireByAjax" class="com.platform.business.action.WorkHireAction" method="addBadRecordForWorkHireByAjax">
             <result name="success">/view/business/workhire/viewWorkSigns.jsp</result>
         </action>
         

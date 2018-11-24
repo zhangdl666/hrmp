@@ -883,4 +883,13 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		return page;
 	}
 
+	@Override
+	public List<BadRecord> getBadRecordList(String workHireId) {
+		String hql = "from BadRecord b where b.workSignId = ? order by b.recordTime";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, workHireId);
+		
+		return query.list();
+	}
+
 }

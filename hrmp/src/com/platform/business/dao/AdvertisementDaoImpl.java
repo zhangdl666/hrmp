@@ -78,7 +78,7 @@ public class AdvertisementDaoImpl implements AdvertisementDao {
 	public Page queryMyAdvertisementList(String userId,
 			Advertisement advertisement,String keyword, Page page) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("select d from Advertisement d,OrgUser o where d.publisherId = o.id and d.validStatus = '1' and d.payStatus = '1' ");
+		sb.append("select d from Advertisement d,OrgUser o where d.publisherId = o.id and d.validStatus = '1' ");
 		HashMap<Integer, Object> params = new HashMap<Integer, Object>();
 		int paramIndex = 0;
 		
@@ -87,14 +87,14 @@ public class AdvertisementDaoImpl implements AdvertisementDao {
 		paramIndex = paramIndex + 1;
 		
 		if (keyword != null && !keyword.equals("")) {
-			sb.append(" and d.title like ? or d.content like ? or d.contactUserPhone like ? or d.contactUser like ? ");
-			params.put(paramIndex, keyword);
+			sb.append(" and (d.title like ? or d.content like ? or d.contactUserPhone like ? or d.contactUser like ? )");
+			params.put(paramIndex,  "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
-			params.put(paramIndex, keyword);
+			params.put(paramIndex,  "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
-			params.put(paramIndex, keyword);
+			params.put(paramIndex,  "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
-			params.put(paramIndex, keyword);
+			params.put(paramIndex,  "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
 		}
 		sb.append(" order by d.createTime desc ");
@@ -135,14 +135,14 @@ public class AdvertisementDaoImpl implements AdvertisementDao {
 		sb.append(" and d.publisherCompanyId = '" + company.getId() + "'");
 		
 		if (keyword != null && !keyword.equals("")) {
-			sb.append(" and d.title like ? or d.content like ? or d.contactUserPhone like ? or d.contactUser like ? ");
-			params.put(paramIndex, keyword);
+			sb.append(" and (d.title like ? or d.content like ? or d.contactUserPhone like ? or d.contactUser like ?) ");
+			params.put(paramIndex, "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
-			params.put(paramIndex, keyword);
+			params.put(paramIndex,  "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
-			params.put(paramIndex, keyword);
+			params.put(paramIndex,  "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
-			params.put(paramIndex, keyword);
+			params.put(paramIndex,  "%" + keyword + "%");
 			paramIndex = paramIndex + 1;
 		}
 		sb.append(" order by d.createTime desc ");

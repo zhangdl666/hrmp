@@ -27,6 +27,9 @@ public class UnitPrice {
 	@Column(name="PRICE")
 	private Double price;
 
+	@Column(name="MONTHS")
+	private String months;
+	
 	public String getId() {
 		return id;
 	}
@@ -58,5 +61,15 @@ public class UnitPrice {
 	public void setPrice(Double price) {
 		this.price = price;
 	}
+
+	public String getMonths() {
+		return months;
+	}
+
+	public void setMonths(String months) {
+		this.months = months;
+	}
+
+	
 	
 }

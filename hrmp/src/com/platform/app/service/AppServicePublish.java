@@ -298,4 +298,18 @@ public class AppServicePublish extends ServletEndpointSupport {
 	public String publishAdvertisement(String requestXml){
 		return appService.publishAdvertisement(requestXml);
 	}
+	
+
+	public String getAdvertisementUnitPriceList(String requestXml){
+		return appService.getAdvertisementUnitPriceList(requestXml);
+	}
+	
+	/**
+	 * 获取临时工工种列表（二级）
+	 * @param requestXml
+	 * @return
+	 */
+	public String getLSWorkKindList(String requestXml) {
+		return appService.getLSWorkKindList(requestXml);
+	}
 }

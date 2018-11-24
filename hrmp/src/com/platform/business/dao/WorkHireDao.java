@@ -141,4 +141,6 @@ public interface WorkHireDao {
 	 */
 	public Page queryCBWorkHireForSign(String loginName,Page page);
 	
+	public List<BadRecord> getBadRecordList(String workHireId);
+	
 }

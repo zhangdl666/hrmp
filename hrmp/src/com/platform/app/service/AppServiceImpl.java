@@ -946,6 +946,7 @@ public class AppServiceImpl implements AppService{
 		stream.alias("workKind", WorkKind.class);
 		stream.alias("androidVersion", AndroidVersion.class);
 		stream.alias("advertisement", com.platform.app.service.xmlpo.Advertisement.class);
+		stream.alias("unitPrice", com.platform.app.service.xmlpo.UnitPrice.class);
 		return stream;
 	}
 
@@ -1755,6 +1756,9 @@ public class AppServiceImpl implements AppService{
 			if("1".equals(s)){
 				rspDetail.setPayStatus("1");
 				rspDetail.setPayDescri("支付成功");
+				//显示招工人及联系电话
+				OrgUser worker = orgUserService.getUser(ws.getEmpId());
+				rspDetail.setRemark("招工方：" + worker.getUserName() + "，联系电话：" + worker.getLoginName());
 			}else {
 				boolean isPay = workHireService.isPaySuccess(ws.getId());
 				if(isPay) {
@@ -1762,13 +1766,9 @@ public class AppServiceImpl implements AppService{
 					workHireService.saveWorkSign(ws);
 					rspDetail.setPayStatus("1");
 					rspDetail.setPayDescri("支付成功");
-					//发送短信通知招工方
-//					OrgUser worker = orgUserService.getUser(ws.getEmpId());
-//					try {
-//						mobileMessageService.sendMessage(emp.getLoginName(), "【仁禾劳务】" + worker.getUserName() + "(" + worker.getLoginName() + ")已报名，请知晓！");
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
+					//显示招工人及联系电话
+					OrgUser worker = orgUserService.getUser(ws.getEmpId());
+					rspDetail.setRemark("招工方：" + worker.getUserName() + "，联系电话：" + worker.getLoginName());
 				}else {
 					rspDetail.setPayStatus("0");
 					rspDetail.setPayDescri("待支付");
@@ -2633,6 +2633,53 @@ public class AppServiceImpl implements AppService{
 		rspMsg.setIdentification(reqMsg.getIdentification());
 		return outputMarshal(rspMsg);
 	}
+	
+	@Override
+	public String getAdvertisementUnitPriceList(String requestXml) {
+		Calendar calendar = Calendar.getInstance();
+		long l = calendar.getTimeInMillis();
+		logger.info(l + " 广告单价列表>>请求报文---------" + requestXml);
+		
+		XStream xstream = new XStream();
+		xstream.alias("reqMsg", ReqMsg.class);
+		xstream.alias("reqDetail", ReqDetail.class);
+		
+		ReqMsg reqMsg = (ReqMsg) xstream.fromXML(requestXml);
+		
+		String loginName = reqMsg.getOperater();
+		String identifyCode = reqMsg.getIdentification();
+		ReqDetail reqDetail = reqMsg.getReqDetail();
+		
+		//检查报文完整性
+		if(loginName == null || "".equals(loginName)) {
+			logger.info(l + " 广告单价列表>>---------operater值不允许为空");
+			return error(loginName, identifyCode, l,"4000", "用户名不允许为空");
+		}
+		
+		OrgUser loginUser = orgUserService.getUserByLoginName(loginName);
+		OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
+		
+		List<UnitPrice> list = businessUnitPriceService.getAdvertisementUnitPriceList(company.getId());
+		List<com.platform.app.service.xmlpo.UnitPrice> priceList = new ArrayList<com.platform.app.service.xmlpo.UnitPrice>();
+		if(list!=null && list.size()>0) {
+			for(int i=0;i<list.size();i++) {
+				UnitPrice ad = list.get(i);
+				com.platform.app.service.xmlpo.UnitPrice u = new com.platform.app.service.xmlpo.UnitPrice();
+				u.setPrice(ad.getPrice());
+				u.setMonths(ad.getMonths());
+				priceList.add(u);
+			}
+		}
+		RspMsg rspMsg = new RspMsg();
+		RspDetail rspDetail = new RspDetail();
+		rspDetail.setAdvertisementPriceList(priceList);
+		rspMsg.setRspDetail(rspDetail);
+		rspMsg.setRspResult("1000");
+		rspMsg.setRspDesc("成功");
+		rspMsg.setOperater(reqMsg.getOperater());
+		rspMsg.setIdentification(reqMsg.getIdentification());
+		return outputMarshal(rspMsg);
+	}
 
 	@Override
 	public String getAdvertisementDetail(String requestXml) {
@@ -2766,15 +2813,11 @@ public class AppServiceImpl implements AppService{
         pay.setTimestamp(timeStr);
         pay.setSign(appSignStr);
         
-        Work work = new Work();
-        work.setUnitPrice("" + adver.getUnitPrice());
-        work.setNum(adver.getMonths() + "");
-        work.setPayFee(adver.getTotalMoney() + "");
         
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
 		rspDetail.setWxPay(pay);
-		rspDetail.setWork(work);
+		rspDetail.setAdvertisement(transAdvertisement(adver));
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
 		rspMsg.setRspDesc("成功");
@@ -2834,9 +2877,8 @@ public class AppServiceImpl implements AppService{
 		adver.setContactUser(a.getContactUser());
 		adver.setContactUserPhone(a.getContactUserPhone());
 		adver.setMonths(Integer.valueOf(a.getMonths()));
-		
 		//设置单价
-		UnitPrice up = businessUnitPriceService.getUnitPrice(adver.getPublisherCompanyId(), "ADVER");
+		UnitPrice up = businessUnitPriceService.getUnitPrice(adver.getPublisherCompanyId(), a.getMonths());
 		if(up!=null) {
 			adver.setUnitPrice(up.getPrice());
 			adver.setTotalMoney(up.getPrice() * adver.getMonths());
@@ -2947,6 +2989,7 @@ public class AppServiceImpl implements AppService{
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
 		rspDetail.setWxPay(pay);
+		rspDetail.setAdvertisement(transAdvertisement(adver));
 		rspMsg.setRspDetail(rspDetail);
 		rspMsg.setRspResult("1000");
 		rspMsg.setRspDesc("成功");
@@ -2955,4 +2998,164 @@ public class AppServiceImpl implements AppService{
 		return outputMarshal(rspMsg);
 	}
 	
+	public com.platform.app.service.xmlpo.Advertisement transAdvertisement(Advertisement adver) {
+		if(adver == null) {
+			return null;
+		}
+		com.platform.app.service.xmlpo.Advertisement adverXml = new com.platform.app.service.xmlpo.Advertisement();
+		adverXml.setId(adver.getId());
+		adverXml.setPayFee(adver.getTotalMoney() + "");
+		adverXml.setUnitPrice(adver.getUnitPrice() + "");
+		adverXml.setMonths(adver.getMonths() + "");
+		return adverXml;
+	}
+
+	@Override
+	public String getLSWorkKindList(String requestXml) {
+		XStream xstream = new XStream();
+		xstream.alias("reqMsg", ReqMsg.class);
+		xstream.alias("reqDetail", ReqDetail.class);
+		
+		ReqMsg reqMsg = (ReqMsg) xstream.fromXML(requestXml);
+		
+		String loginName = reqMsg.getOperater();
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append("<rspMsg>");
+		sb.append("  <operater>" + loginName + "</operater>");
+		sb.append("  <rspResult>1000</rspResult>");
+		sb.append("  <rspDesc>成功</rspDesc>");
+		sb.append("  <rspDetail>");
+		sb.append("    <firstList>");
+		sb.append("      <first>");
+		sb.append("        <firstCode>普工</firstCode>");
+		sb.append("        <firstName>普工</firstName>");
+		sb.append("        <secondList>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>普工</secondCode>");
+		sb.append("        		<secondName>普工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        </secondList>");
+		sb.append("      </first>");
+		sb.append("      <first>");
+		sb.append("        <firstCode>保洁</firstCode>");
+		sb.append("        <firstName>保洁</firstName>");
+		sb.append("        <secondList>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>保洁</secondCode>");
+		sb.append("        		<secondName>保洁</secondName>");
+		sb.append("        	</second>");
+		sb.append("        </secondList>");
+		sb.append("      </first>      ");
+		sb.append("      <first>");
+		sb.append("        <firstCode>建筑装修</firstCode>");
+		sb.append("        <firstName>建筑装修</firstName>");
+		sb.append("        <secondList>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>瓦工</secondCode>");
+		sb.append("        		<secondName>瓦工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>钢筋工</secondCode>");
+		sb.append("        		<secondName>钢筋工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>架子工</secondCode>");
+		sb.append("        		<secondName>架子工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>建筑木工</secondCode>");
+		sb.append("        		<secondName>建筑木工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>家装木工</secondCode>");
+		sb.append("        		<secondName>家装木工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>电工</secondCode>");
+		sb.append("        		<secondName>电工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>水暖工</secondCode>");
+		sb.append("        		<secondName>水暖工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>防水工</secondCode>");
+		sb.append("        		<secondName>防水工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>腻子工</secondCode>");
+		sb.append("        		<secondName>腻子工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>油漆工</secondCode>");
+		sb.append("        		<secondName>油漆工</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>外墙保温</secondCode>");
+		sb.append("        		<secondName>外墙保温</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>外墙涂料</secondCode>");
+		sb.append("        		<secondName>外墙涂料</secondName>");
+		sb.append("        	</second>");
+		sb.append("        </secondList>");
+		sb.append("      </first>      ");
+		sb.append("      <first>");
+		sb.append("        <firstCode>电气焊类</firstCode>");
+		sb.append("        <firstName>电气焊类</firstName>");
+		sb.append("        <secondList>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>二保焊</secondCode>");
+		sb.append("        		<secondName>二保焊</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>电焊</secondCode>");
+		sb.append("        		<secondName>电焊</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>氩弧焊</secondCode>");
+		sb.append("        		<secondName>氩弧焊</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>铆焊</secondCode>");
+		sb.append("        		<secondName>铆焊</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>气割气焊</secondCode>");
+		sb.append("        		<secondName>气割气焊</secondName>");
+		sb.append("        	</second>");
+		sb.append("        </secondList>");
+		sb.append("      </first>      ");
+		sb.append("      <first>");
+		sb.append("        <firstCode>安装类/firstCode>");
+		sb.append("        <firstName>安装类</firstName>");
+		sb.append("        <secondList>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>彩钢打板安装</secondCode>");
+		sb.append("        		<secondName>彩钢打板安装</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>钢结构安装</secondCode>");
+		sb.append("        		<secondName>钢结构安装</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>门窗安装</secondCode>");
+		sb.append("        		<secondName>门窗安装</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>空调制冷安装</secondCode>");
+		sb.append("        		<secondName>空调制冷安装</secondName>");
+		sb.append("        	</second>");
+		sb.append("        	<second>");
+		sb.append("        		<secondCode>机械安装</secondCode>");
+		sb.append("        		<secondName>机械安装</secondName>");
+		sb.append("        	</second>");
+		sb.append("        </secondList>");
+		sb.append("      </first>");
+		sb.append("    </firstList>");
+		sb.append("  </rspDetail>");
+		sb.append("</rspMsg>");
+		return sb.toString();
+	}
 }

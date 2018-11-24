@@ -224,4 +224,13 @@ public interface AppService {
 	public String wxPayAdvertisement(String requestXml);
 
 	public String publishAdvertisement(String requestXml);
+	
+	public String getAdvertisementUnitPriceList(String requestXml);
+	
+	/**
+	 * 获取临时工工种列表（二级）
+	 * @param requestXml
+	 * @return
+	 */
+	public String getLSWorkKindList(String requestXml);
 }

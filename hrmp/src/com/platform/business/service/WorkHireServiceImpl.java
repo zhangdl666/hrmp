@@ -266,5 +266,10 @@ public class WorkHireServiceImpl implements WorkHireService {
 		return workHireDao.queryCBWorkHireForSign(loginName, page);
 	}
 
+	@Override
+	public List<BadRecord> getBadRecordList(String workHireId) {
+		return workHireDao.getBadRecordList(workHireId);
+	}
+
 
 }
