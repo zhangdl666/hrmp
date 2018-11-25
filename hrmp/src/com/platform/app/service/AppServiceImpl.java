@@ -1066,6 +1066,13 @@ public class AppServiceImpl implements AppService{
 			return error(loginName, identifyCode, l,"4000", "已经报名，请勿重复报名！");
 		}
 		
+		//临时工不允许重复报名
+		boolean b = workHireService.isCanSign(workHire, emp.getId());
+		if(!b) {
+			logger.info(l + " 报名>>---- -----已报名当天的其他招工，请勿重复报名！");
+			return error(loginName, identifyCode, l,"4000", "已报名当天的其他招工，请勿重复报名！");
+		}
+		
 		//验证是否超出报名上限
 		int planSignNum = workHire.getHireNum();
 		int acturalNum = workHireService.getWorkSignNum(sign.getWorkId());
@@ -2266,7 +2273,7 @@ public class AppServiceImpl implements AppService{
 		int hireNumActural = 0;
 		for(int i=0;i<signList.size();i++) {
 			WorkSignBo bo = signList.get(i);
-			signUsers = signUsers + bo.getEmp().getUserName() + bo.getEmp().getMobile() + "（" + bo.getWorkSign().getNum() + "）；";
+			signUsers = signUsers + bo.getEmp().getUserName() + "（" + bo.getWorkSign().getNum() + "）；";
 			hireNumActural = hireNumActural + bo.getWorkSign().getNum();
 		}
 		work.setHireNumActural(hireNumActural + "");
@@ -2554,6 +2561,7 @@ public class AppServiceImpl implements AppService{
 				a.setContent(ad.getContent());
 				a.setContactUser(ad.getContactUser());
 				a.setContactUserPhone(ad.getContactUserPhone());
+				a.setImage(ad.getImage());
 				respAdverList.add(a);
 			}
 		}
@@ -2618,6 +2626,7 @@ public class AppServiceImpl implements AppService{
 				a.setContent(ad.getContent());
 				a.setContactUser(ad.getContactUser());
 				a.setContactUserPhone(ad.getContactUserPhone());
+				a.setImage(ad.getImage());
 				respAdverList.add(a);
 			}
 		}
@@ -2712,6 +2721,7 @@ public class AppServiceImpl implements AppService{
 			logger.info(l + " 广告详情>>---------workId值不允许为空");
 			return error(loginName, identifyCode, l,"4000", "密码不允许为空");
 		}
+		advertisementService.click(workId);//点击量 + 1
 		Advertisement adver = advertisementService.getAdvertisement(workId);
 		if(adver == null) {
 			return error(loginName, identifyCode, l,"4000", "未找到广告信息");
@@ -2730,6 +2740,8 @@ public class AppServiceImpl implements AppService{
 		a.setPayFee(adver.getTotalMoney() + "");
 		a.setPayStatus(adver.getPayStatus());
 		a.setIsClosed(adver.getIsClosed());
+		a.setClickCount(adver.getClickCount() + "");
+		a.setImage(adver.getImage());
 		
 		RspMsg rspMsg = new RspMsg();
 		RspDetail rspDetail = new RspDetail();
@@ -2871,6 +2883,7 @@ public class AppServiceImpl implements AppService{
 		adver.setValidStatus("1");
 		adver.setPayStatus("0");
 		adver.setIsClosed("0");
+		adver.setImage(a.getImage());
 		
 		adver.setTitle(a.getTitle());
 		adver.setContent(a.getContent());

@@ -271,5 +271,10 @@ public class WorkHireServiceImpl implements WorkHireService {
 		return workHireDao.getBadRecordList(workHireId);
 	}
 
+	@Override
+	public boolean isCanSign(WorkHire workHire, String empId) {
+		return workHireDao.isCanSign(workHire, empId);
+	}
+
 
 }

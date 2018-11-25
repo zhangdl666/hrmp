@@ -12,6 +12,11 @@ public interface AdvertisementDao {
 	public Advertisement saveAdvertisement(Advertisement adver);
 	
 	/**
+	 * 点击量 + 1
+	 * @param id
+	 */
+	public void click(String id);
+	/**
 	 * 查询我发布的广告列表
 	 * @param userId
 	 * @param advertisement

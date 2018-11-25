@@ -84,6 +84,12 @@ public class Advertisement {
 	
 	@Column(name="CLOSE_TIME")
 	private Date closeTime;
+	
+	@Column(name="CLICK_COUNT")
+	private Integer clickCount;
+	
+	@Column(name="IMAGE")
+	private String image;
 
 	public String getId() {
 		return id;
@@ -244,6 +250,22 @@ public class Advertisement {
 
 	public void setIsClosed(String isClosed) {
 		this.isClosed = isClosed;
+	}
+
+	public Integer getClickCount() {
+		return clickCount;
+	}
+
+	public void setClickCount(Integer clickCount) {
+		this.clickCount = clickCount;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 	
 	

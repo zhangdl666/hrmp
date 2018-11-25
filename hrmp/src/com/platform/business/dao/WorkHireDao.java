@@ -26,6 +26,13 @@ public interface WorkHireDao {
 	public WorkSign getWorkSign(String workHireId,String empId);
 	
 	public WorkSign saveWorkSign(WorkSign ws);
+	/**
+	 * 验证用户是否可报名指定招工
+	 * @param workHire
+	 * @param empId
+	 * @return
+	 */
+	public boolean isCanSign(WorkHire workHire, String empId);
 	
 	public WorkHireVisit saveWorkHireVisit(WorkHireVisit v);
 	

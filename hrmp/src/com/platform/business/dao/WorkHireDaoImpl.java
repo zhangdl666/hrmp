@@ -1,7 +1,9 @@
 package com.platform.business.dao;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -286,6 +288,29 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 			return null;
 		}
 		return list.get(0);
+	}
+	
+	@Override
+	public boolean isCanSign(WorkHire workHire, String empId) {
+		if(!workHire.getEmpTypeId().equals("LS")) {
+			return true;
+		}
+		Date empDate = workHire.getEmpDate();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		String empDateStr = sdf.format(empDate);
+		
+		String hql = "from WorkSign d where empId = ? and validStatus = '1' " +
+				" and exists(select h from WorkHire h where h.id != ? and date_format(h.empDate,'%Y%m%d') = ?)";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, empId);
+		query.setString(1, workHire.getId());
+		query.setString(2, empDateStr);
+		
+		List<WorkSign> list = query.list();
+		if(list == null || list.size() ==0) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override

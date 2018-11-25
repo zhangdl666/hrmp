@@ -19,6 +19,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 		this.advertisementDao = advertisementDao;
 	}
 
+	
 	@Override
 	public Advertisement getAdvertisement(String id) {
 		return advertisementDao.getAdvertisement(id);
@@ -26,6 +27,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
 	@Override
 	public Advertisement saveAdvertisement(Advertisement adver) {
+		if(adver.getClickCount() == null) {
+			adver.setClickCount(0);
+		}
 		return advertisementDao.saveAdvertisement(adver);
 	}
 
@@ -54,6 +58,11 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 	@Override
 	public void deleteAdvertisement(Advertisement adver) {
 		advertisementDao.deleteAdvertisement(adver);
+	}
+
+	@Override
+	public void click(String id) {
+		advertisementDao.click(id);		
 	}
 
 }

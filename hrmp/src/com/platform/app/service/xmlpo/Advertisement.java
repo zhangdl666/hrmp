@@ -43,6 +43,13 @@ public class Advertisement {
 	private String isClosed;
 	
 	private String closeTime;
+	
+	private String clickCount;
+	
+	/**
+	 * ͼƬ
+	 */
+	private String image;
 
 	public String getId() {
 		return id;
@@ -172,6 +179,22 @@ public class Advertisement {
 
 	public void setIsClosed(String isClosed) {
 		this.isClosed = isClosed;
+	}
+
+	public String getClickCount() {
+		return clickCount;
+	}
+
+	public void setClickCount(String clickCount) {
+		this.clickCount = clickCount;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 	
 	

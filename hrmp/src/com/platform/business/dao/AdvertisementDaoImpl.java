@@ -53,6 +53,15 @@ public class AdvertisementDaoImpl implements AdvertisementDao {
 
 		return (Advertisement) query.uniqueResult();
 	}
+	
+	@Override
+	public void click(String id) {
+		String hql = "update Advertisement d set d.clickCount = d.clickCount + 1 where d.id = ?";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, id);
+		query.executeUpdate();
+
+	}
 
 	@Override
 	public Advertisement saveAdvertisement(Advertisement adver) {
