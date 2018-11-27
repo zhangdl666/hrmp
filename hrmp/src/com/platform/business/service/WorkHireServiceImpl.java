@@ -257,8 +257,8 @@ public class WorkHireServiceImpl implements WorkHireService {
 	}
 
 	@Override
-	public Page queryCQWorkHireForSign(String loginName, Page page) {
-		return workHireDao.queryCQWorkHireForSign(loginName, page);
+	public Page queryCQWorkHireForSign(String loginName, Page page,String keyword) {
+		return workHireDao.queryCQWorkHireForSign(loginName, page,keyword);
 	}
 
 	@Override

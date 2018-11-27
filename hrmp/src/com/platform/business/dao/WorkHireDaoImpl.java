@@ -839,7 +839,7 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 	}
 
 	@Override
-	public Page queryCQWorkHireForSign(String loginName, Page page) {
+	public Page queryCQWorkHireForSign(String loginName, Page page,String keyword) {
 		OrgUser loginUser = orgUserDao.getUserByLoginName(loginName);
 		if(loginUser == null) {
 			return null;
@@ -853,6 +853,9 @@ public class WorkHireDaoImpl implements WorkHireDao  {
 		sb.append(" and w.empTypeId = 'CQ'");
 		sb.append(" and w.publisherCompanyId = '" + company.getId() + "'");
 		sb.append(" and w.status = '" + WorkHire.WORK_HIRE_STATUS_PUBLISHING + "'");
+		if(keyword != null && !keyword.equals("")) {
+			sb.append(" and (w.workKind like '%" + keyword + "%' or w.workDescri like '%" + keyword + "%')");
+		}
 		sb.append(" order by w.publishTime desc ");
 		
 		

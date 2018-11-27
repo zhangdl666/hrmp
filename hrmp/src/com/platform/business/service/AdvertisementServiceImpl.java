@@ -1,5 +1,6 @@
 package com.platform.business.service;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.platform.business.dao.AdvertisementDao;
@@ -29,6 +30,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 	public Advertisement saveAdvertisement(Advertisement adver) {
 		if(adver.getClickCount() == null) {
 			adver.setClickCount(0);
+		}
+		if(adver.getEndTime() == null) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(adver.getCreateTime());
+			calendar.add(Calendar.MONTH, adver.getMonths());
+			adver.setEndTime(calendar.getTime());
 		}
 		return advertisementDao.saveAdvertisement(adver);
 	}

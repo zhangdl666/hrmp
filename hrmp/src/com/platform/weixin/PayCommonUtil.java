@@ -44,7 +44,7 @@ public class PayCommonUtil {
 	public static String APPID = "wx952f5178374ab836";
 	public static String MCH_ID = "1482009422";
 	
-	public static String notifyUrl = "http://rhlaowu.com.cn/hrmp/business/wxpayNotify.action";
+	public static String notifyUrl = "http://rhlaowu.com.cn:8080/business/wxpayNotify.action";
 
 	// 随机字符串生成
 	public static String getRandomString(int length) { // length表示生成字符串的长度

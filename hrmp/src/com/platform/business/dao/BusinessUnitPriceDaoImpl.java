@@ -66,4 +66,19 @@ public class BusinessUnitPriceDaoImpl implements BusinessUnitPriceDao {
 		
 		return list;
 	}
+	
+	@Override
+	public int getFreePublistCount(String userId) {
+		String hql = "select count(b) from Advertisement b where b.publisherId = ? and b.payStatus = '1' and b.totalMoney = 0";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		query.setString(0, userId);
+		
+		List<Number> list = query.list();
+		if(list==null || list.size()==0) {
+			return 0;
+		}
+		
+		Number num = list.get(0);
+		return num.intValue();
+	}
 }

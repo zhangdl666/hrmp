@@ -87,9 +87,10 @@ public interface WorkHireService {
 	 * 查询可报名长期招工
 	 * @param bo
 	 * @param page
+	 * @param keyword
 	 * @return
 	 */
-	public Page queryCQWorkHireForSign(String loginName,Page page);
+	public Page queryCQWorkHireForSign(String loginName,Page page,String keyword);
 	
 	/**
 	 * 查询可报名承包施工

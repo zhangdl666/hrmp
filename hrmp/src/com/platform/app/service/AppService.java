@@ -233,4 +233,11 @@ public interface AppService {
 	 * @return
 	 */
 	public String getLSWorkKindList(String requestXml);
+	
+	/**
+	 * 广告续费
+	 * @param requestXml
+	 * @return
+	 */
+	public String continueAdvertisement(String requestXml);
 }

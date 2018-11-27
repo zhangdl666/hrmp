@@ -784,7 +784,7 @@ public class AppServiceImpl implements AppService{
 			p = workHireService.queryLSWorkHireForSign(loginName, page);
 		}else if(empTypeId.equals("CQ")) {
 			logger.debug("CQ");
-			p = workHireService.queryCQWorkHireForSign(loginName, page);
+			p = workHireService.queryCQWorkHireForSign(loginName, page,reqDetail.getKeyword());
 		}else if(empTypeId.equals("CB")) {
 			logger.debug("CB");
 			p = workHireService.queryCBWorkHireForSign(loginName, page);
@@ -2561,6 +2561,7 @@ public class AppServiceImpl implements AppService{
 				a.setContent(ad.getContent());
 				a.setContactUser(ad.getContactUser());
 				a.setContactUserPhone(ad.getContactUserPhone());
+				a.setClickCount(ad.getClickCount() + "");
 				a.setImage(ad.getImage());
 				respAdverList.add(a);
 			}
@@ -2626,6 +2627,7 @@ public class AppServiceImpl implements AppService{
 				a.setContent(ad.getContent());
 				a.setContactUser(ad.getContactUser());
 				a.setContactUserPhone(ad.getContactUserPhone());
+				a.setClickCount(ad.getClickCount() + "");
 				a.setImage(ad.getImage());
 				respAdverList.add(a);
 			}
@@ -2668,8 +2670,15 @@ public class AppServiceImpl implements AppService{
 		OrgUser loginUser = orgUserService.getUserByLoginName(loginName);
 		OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
 		
+		int freePublish = businessUnitPriceService.getFreePublistCount(loginUser.getId());
 		List<UnitPrice> list = businessUnitPriceService.getAdvertisementUnitPriceList(company.getId());
 		List<com.platform.app.service.xmlpo.UnitPrice> priceList = new ArrayList<com.platform.app.service.xmlpo.UnitPrice>();
+		if(freePublish < 3){
+			com.platform.app.service.xmlpo.UnitPrice u = new com.platform.app.service.xmlpo.UnitPrice();
+			u.setPrice(0.0);
+			u.setMonths("免费试用");
+			priceList.add(u);
+		}
 		if(list!=null && list.size()>0) {
 			for(int i=0;i<list.size();i++) {
 				UnitPrice ad = list.get(i);
@@ -2838,6 +2847,7 @@ public class AppServiceImpl implements AppService{
 		return outputMarshal(rspMsg);
 	}
 	
+	@Override
 	public String publishAdvertisement(String requestXml) {
 		Calendar calendar = Calendar.getInstance();
 		long l = calendar.getTimeInMillis();
@@ -2889,19 +2899,262 @@ public class AppServiceImpl implements AppService{
 		adver.setContent(a.getContent());
 		adver.setContactUser(a.getContactUser());
 		adver.setContactUserPhone(a.getContactUserPhone());
-		adver.setMonths(Integer.valueOf(a.getMonths()));
-		//设置单价
-		UnitPrice up = businessUnitPriceService.getUnitPrice(adver.getPublisherCompanyId(), a.getMonths());
-		if(up!=null) {
-			adver.setUnitPrice(up.getPrice());
-			adver.setTotalMoney(up.getPrice() * adver.getMonths());
+		if("免费试用".equals(a.getMonths())) {
+			adver.setMonths(1);
+			adver.setUnitPrice(0);
+			adver.setTotalMoney(0);
+			adver.setRemark("免费试用");
+			adver.setPayStatus("1");
+			adver = advertisementService.saveAdvertisement(adver);
+			
 		}else {
-			adver.setUnitPrice(100);
-			adver.setTotalMoney(100 * adver.getMonths());
+			adver.setMonths(Integer.valueOf(a.getMonths()));
+			if(a.getUnitPrice()==null) {
+				//设置单价
+				UnitPrice up = businessUnitPriceService.getUnitPrice(adver.getPublisherCompanyId(), a.getMonths());
+				if(up!=null) {
+					adver.setUnitPrice(up.getPrice());
+					adver.setTotalMoney(up.getPrice() * adver.getMonths());
+				}else {
+					adver.setUnitPrice(100);
+					adver.setTotalMoney(100 * adver.getMonths());
+				}
+			}else {
+				adver.setUnitPrice(Double.valueOf(a.getUnitPrice()));
+			}
+		}
+		adver.setTotalMoney(adver.getUnitPrice() * adver.getMonths());
+		
+		if(adver.getTotalMoney() == 0) {//总价为0时，表示免费发布，此时无需走支付接口
+			adver.setPayStatus("1");
+			RspMsg rspMsg = new RspMsg();
+			RspDetail rspDetail = new RspDetail();
+			rspDetail.setAdvertisement(transAdvertisement(adver));
+			rspMsg.setRspDetail(rspDetail);
+			rspMsg.setRspResult("1000");
+			rspMsg.setRspDesc("成功");
+			rspMsg.setOperater(reqMsg.getOperater());
+			rspMsg.setIdentification(reqMsg.getIdentification());
+			return outputMarshal(rspMsg);
 		}
 				
-		adver = advertisementService.saveAdvertisement(adver);
+		//调用微信支付统一下单接口
+		SortedMap<String, Object> parameterMap = new TreeMap<String, Object>();
+        //应用ID
+        parameterMap.put("appid", PayCommonUtil.APPID);  
+        //商户号
+        parameterMap.put("mch_id", PayCommonUtil.MCH_ID);
+        //设备号
+        parameterMap.put("device_info", "WEB");
+        //随机字符串
+        parameterMap.put("nonce_str", PayCommonUtil.getRandomString(32));  
+        //商品描述
+        parameterMap.put("body", "renhelaowu-sign");
+        //商户订单号 
+        parameterMap.put("out_trade_no", adver.getId());
+        //货币类型
+        parameterMap.put("fee_type", "CNY");  
+        //总金额  单位：分
+        java.text.DecimalFormat df=new java.text.DecimalFormat("0");  
+        parameterMap.put("total_fee", df.format(adver.getTotalMoney()*100));  
+        //终端IP
+        parameterMap.put("spbill_create_ip", reqMsg.getClientIp());
+        //交易起始时间
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        parameterMap.put("time_start", sdf.format(cal.getTime()));
+        //交易结束时间  10分钟后订单失效
+        cal.add(Calendar.MINUTE, 10);
+        parameterMap.put("time_expire", sdf.format(cal.getTime()));
+        //通知地址
+        parameterMap.put("notify_url", PayCommonUtil.notifyUrl);
+        //支付类型
+        parameterMap.put("trade_type", "APP");
+        String signStr = PayCommonUtil.createSign("UTF-8", parameterMap); 
+        logger.info("jiner2");  
+        //签名
+        parameterMap.put("sign", signStr);  
+        String requestXML = PayCommonUtil.getRequestXml(parameterMap);  
+        logger.info(">>>>>>>>>>>>>>>>requestXML:" + requestXML);  
+        String result = PayCommonUtil.httpsRequest(  
+                "https://api.mch.weixin.qq.com/pay/unifiedorder", "POST",  
+                requestXML);
+        logger.info(result);
+        Map<String, String> map = null;  
+        try {  
+            map = PayCommonUtil.doXMLParse(result);
+        } catch (JDOMException e) {  
+            // TODO Auto-generated catch block  
+            e.printStackTrace();  
+        } catch (IOException e) {
+            // TODO Auto-generated catch block  
+            e.printStackTrace();  
+        }
+        
+        String return_code = map.get("return_code");
+        if("FAIL".equals(return_code)){//微信通信失败
+        	advertisementService.deleteAdvertisement(adver);
+        	return error(loginName, identifyCode, l,"4000", map.get("return_msg"));
+        }
+        
+        String result_code = map.get("result_code");
+        if("FAIL".equals(result_code)){
+        	advertisementService.deleteAdvertisement(adver);
+        	return error(loginName, identifyCode, l,"4000", map.get("err_code") + " --" + map.get("err_code_des"));
+        }
+        
+        //保存预支付id
+        adver.setPrepayId(map.get("prepay_id"));
+        adver.setPayStatus("0");
+        advertisementService.saveAdvertisement(adver);
+        
+        //生成签名，返回app
+        SortedMap<String, Object> appParameterMap = new TreeMap<String, Object>();
+        //应用ID
+        appParameterMap.put("appid", PayCommonUtil.APPID);  
+        //商户号
+        appParameterMap.put("partnerid", PayCommonUtil.MCH_ID);
+        //设备号
+        appParameterMap.put("prepayid", map.get("prepay_id"));
+        appParameterMap.put("package", "Sign=WXPay");
+        //随机字符串
+        String noncestr = PayCommonUtil.getRandomString(32);
+        appParameterMap.put("noncestr", noncestr);  
+        //时间戳
+        String timeStr = Calendar.getInstance().getTimeInMillis()/1000 + "";
+        appParameterMap.put("timestamp", timeStr);
+        String appSignStr = PayCommonUtil.createSign("UTF-8", appParameterMap); 
+        
+        //签名
+        parameterMap.put("sign", appSignStr);  
+        WXPay pay = new WXPay();
+        pay.setAppId(map.get("appid"));
+        pay.setPartnerId(map.get("mch_id"));
+        pay.setPrepayId(map.get("prepay_id"));
+        pay.setNonceStr(noncestr);
+        pay.setTimestamp(timeStr);
+        pay.setSign(appSignStr);
+        
+		RspMsg rspMsg = new RspMsg();
+		RspDetail rspDetail = new RspDetail();
+		rspDetail.setWxPay(pay);
+		rspDetail.setAdvertisement(transAdvertisement(adver));
+		rspMsg.setRspDetail(rspDetail);
+		rspMsg.setRspResult("1000");
+		rspMsg.setRspDesc("成功");
+		rspMsg.setOperater(reqMsg.getOperater());
+		rspMsg.setIdentification(reqMsg.getIdentification());
+		return outputMarshal(rspMsg);
+	}
+	
+	@Override
+	public String continueAdvertisement(String requestXml) {
+		Calendar calendar = Calendar.getInstance();
+		long l = calendar.getTimeInMillis();
+		logger.info(l + " 发布广告>>请求报文---------" + requestXml);
 		
+		XStream xstream = new XStream();
+		xstream.alias("reqMsg", ReqMsg.class);
+		xstream.alias("reqDetail", ReqDetail.class);
+		xstream.alias("advertisement", com.platform.app.service.xmlpo.Advertisement.class);
+		
+		ReqMsg reqMsg = (ReqMsg) xstream.fromXML(requestXml);
+		
+		String loginName = reqMsg.getOperater();
+		String identifyCode = reqMsg.getIdentification();
+		ReqDetail reqDetail = reqMsg.getReqDetail();
+		
+		//检查报文完整性
+		if(loginName == null || "".equals(loginName)) {
+			logger.info(l + " 发布广告>>---------operater值不允许为空");
+			return error(loginName, identifyCode, l,"4000", "用户名不允许为空");
+		}
+		
+		if(reqDetail == null) {
+			logger.info(l + " 发布广告>>---- -----reqDetail节点不存在");
+			return error(loginName, identifyCode, l,"4000", "reqDetail节点不存在");
+		}
+		
+		com.platform.app.service.xmlpo.Advertisement a = reqDetail.getAdvertisement();
+		if(a == null) {
+			logger.info(l + " 发布广告>>---------advertisement节点不存在");
+			return error(loginName, identifyCode, l,"4000", "advertisement节点不存在");
+		}
+		
+		String id = a.getId();
+		if(id == null || id.equals("")) {
+			logger.info(l + " 发布广告>>---- -----advertisement.id为空");
+			return error(loginName, identifyCode, l,"4000", "advertisement.id为空");
+		}
+		
+		Advertisement oldAdver = advertisementService.getAdvertisement(id);
+		if(oldAdver == null) {
+			logger.info(l + " 发布广告>>---- -----未找到推荐信息，advertisement.id：" + id);
+			return error(loginName, identifyCode, l,"4000", "未找到推荐信息，advertisement.id：" + id);
+		}
+		
+		Advertisement adver = new Advertisement();;
+		
+		OrgUser loginUser = orgUserService.getUserByLoginName(loginName);
+		OrgDept company = orgDeptService.getDirectCompany(loginUser.getDeptId());
+		
+		Date currentDate = calendar.getTime();
+		if(oldAdver.getEndTime().getTime() < currentDate.getTime()) {
+			adver.setCreateTime(currentDate);
+		}else {
+			adver.setCreateTime(oldAdver.getEndTime());
+		}
+		adver.setPublisherId(oldAdver.getPublisherId());
+		adver.setPublisherName(oldAdver.getPublisherName());
+		adver.setPublisherCompanyId(oldAdver.getPublisherCompanyId());
+		adver.setPublisherCompanyName(oldAdver.getPublisherCompanyName());
+		adver.setValidStatus("1");
+		adver.setPayStatus("0");
+		adver.setIsClosed("0");
+		adver.setImage(oldAdver.getImage());
+		
+		adver.setTitle(oldAdver.getTitle());
+		adver.setContent(oldAdver.getContent());
+		adver.setContactUser(oldAdver.getContactUser());
+		adver.setContactUserPhone(oldAdver.getContactUserPhone());
+		if("免费试用".equals(a.getMonths())) {
+			adver.setMonths(1);
+			adver.setUnitPrice(0);
+			adver.setTotalMoney(0);
+			adver.setRemark("免费试用");
+			adver.setPayStatus("1");
+			adver = advertisementService.saveAdvertisement(adver);
+		}else {
+			adver.setMonths(Integer.valueOf(a.getMonths()));
+			if(a.getUnitPrice()==null) {
+				//设置单价
+				UnitPrice up = businessUnitPriceService.getUnitPrice(adver.getPublisherCompanyId(), a.getMonths());
+				if(up!=null) {
+					adver.setUnitPrice(up.getPrice());
+					adver.setTotalMoney(up.getPrice() * adver.getMonths());
+				}else {
+					adver.setUnitPrice(100);
+					adver.setTotalMoney(100 * adver.getMonths());
+				}
+			}else {
+				adver.setUnitPrice(Double.valueOf(a.getUnitPrice()));
+			}
+		}
+		adver.setTotalMoney(adver.getUnitPrice() * adver.getMonths());
+		
+		if(adver.getTotalMoney() == 0) {//总价为0时，表示免费发布，此时无需走支付接口
+			adver.setPayStatus("1");
+			RspMsg rspMsg = new RspMsg();
+			RspDetail rspDetail = new RspDetail();
+			rspDetail.setAdvertisement(transAdvertisement(adver));
+			rspMsg.setRspDetail(rspDetail);
+			rspMsg.setRspResult("1000");
+			rspMsg.setRspDesc("成功");
+			rspMsg.setOperater(reqMsg.getOperater());
+			rspMsg.setIdentification(reqMsg.getIdentification());
+			return outputMarshal(rspMsg);
+		}
+				
 		//调用微信支付统一下单接口
 		SortedMap<String, Object> parameterMap = new TreeMap<String, Object>();
         //应用ID
@@ -3141,7 +3394,7 @@ public class AppServiceImpl implements AppService{
 		sb.append("        </secondList>");
 		sb.append("      </first>      ");
 		sb.append("      <first>");
-		sb.append("        <firstCode>安装类/firstCode>");
+		sb.append("        <firstCode>安装类</firstCode>");
 		sb.append("        <firstName>安装类</firstName>");
 		sb.append("        <secondList>");
 		sb.append("        	<second>");

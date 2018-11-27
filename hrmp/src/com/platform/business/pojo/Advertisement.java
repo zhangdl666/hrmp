@@ -88,6 +88,12 @@ public class Advertisement {
 	@Column(name="CLICK_COUNT")
 	private Integer clickCount;
 	
+	@Column(name="END_TIME")
+	private Date endTime;
+	
+	@Column(name="RELATION_ID")
+	private String relationId;
+	
 	@Column(name="IMAGE")
 	private String image;
 
@@ -258,6 +264,22 @@ public class Advertisement {
 
 	public void setClickCount(Integer clickCount) {
 		this.clickCount = clickCount;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public String getRelationId() {
+		return relationId;
+	}
+
+	public void setRelationId(String relationId) {
+		this.relationId = relationId;
 	}
 
 	public String getImage() {

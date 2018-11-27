@@ -13,4 +13,6 @@ public interface BusinessUnitPriceDao {
 	public UnitPrice getAdvertisementUnitPrice(String deptId, String months);
 	
 	public List<UnitPrice> getAdvertisementUnitPriceList(String deptId);
+	
+	public int getFreePublistCount(String userId);
 }

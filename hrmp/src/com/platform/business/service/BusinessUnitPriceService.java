@@ -13,4 +13,11 @@ public interface BusinessUnitPriceService {
 	public UnitPrice getAdvertisementUnitPrice(String deptId, String months);
 	
 	public List<UnitPrice> getAdvertisementUnitPriceList(String deptId);
+	
+	/**
+	 * 查询用户免费发布广告次数
+	 * @param userId
+	 * @return
+	 */
+	public int getFreePublistCount(String userId);
 }

@@ -312,4 +312,13 @@ public class AppServicePublish extends ServletEndpointSupport {
 	public String getLSWorkKindList(String requestXml) {
 		return appService.getLSWorkKindList(requestXml);
 	}
+	
+	/**
+	 * 广告续费
+	 * @param requestXml
+	 * @return
+	 */
+	public String continueAdvertisement(String requestXml){
+		return appService.continueAdvertisement(requestXml);
+	}
 }

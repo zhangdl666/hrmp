@@ -37,4 +37,10 @@ public class BusinessUnitPriceServiceImpl implements BusinessUnitPriceService{
 		return businessUnitPriceDao.getAdvertisementUnitPriceList(deptId);
 	}
 
+	@Override
+	public int getFreePublistCount(String userId) {
+		return businessUnitPriceDao.getFreePublistCount(userId);
+	}
+
+	
 }
