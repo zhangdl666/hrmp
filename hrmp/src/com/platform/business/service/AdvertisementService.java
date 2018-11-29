@@ -40,6 +40,8 @@ public interface AdvertisementService {
 	 */
 	public List<Advertisement> getNoPayList();
 	
+	public void queryWXPayResultFromWX();
+	
 	/**
 	 * 关闭超时广告
 	 */

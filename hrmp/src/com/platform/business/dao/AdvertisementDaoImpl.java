@@ -200,7 +200,7 @@ public class AdvertisementDaoImpl implements AdvertisementDao {
 	@Override
 	public void closeOverTimeAdvertisement() {
 		String hql = "update Advertisement d set d.isClosed = '1',d.closeTime = now(),d.remark='到期自动关闭' "
-				+ "where d.validStatus = '1' and d.isClosed = '0' and d.empDate < date_sub(NOW(),interval a.months month)";
+				+ "where d.validStatus = '1' and d.isClosed = '0' and d.endTime > now()";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.executeUpdate();
 	}

@@ -2905,7 +2905,6 @@ public class AppServiceImpl implements AppService{
 			adver.setTotalMoney(0);
 			adver.setRemark("免费试用");
 			adver.setPayStatus("1");
-			adver = advertisementService.saveAdvertisement(adver);
 			
 		}else {
 			adver.setMonths(Integer.valueOf(a.getMonths()));
@@ -2924,6 +2923,7 @@ public class AppServiceImpl implements AppService{
 			}
 		}
 		adver.setTotalMoney(adver.getUnitPrice() * adver.getMonths());
+		adver = advertisementService.saveAdvertisement(adver);
 		
 		if(adver.getTotalMoney() == 0) {//总价为0时，表示免费发布，此时无需走支付接口
 			adver.setPayStatus("1");
@@ -3117,13 +3117,13 @@ public class AppServiceImpl implements AppService{
 		adver.setContent(oldAdver.getContent());
 		adver.setContactUser(oldAdver.getContactUser());
 		adver.setContactUserPhone(oldAdver.getContactUserPhone());
+		adver.setRelationId(oldAdver.getId());
 		if("免费试用".equals(a.getMonths())) {
 			adver.setMonths(1);
 			adver.setUnitPrice(0);
 			adver.setTotalMoney(0);
 			adver.setRemark("免费试用");
 			adver.setPayStatus("1");
-			adver = advertisementService.saveAdvertisement(adver);
 		}else {
 			adver.setMonths(Integer.valueOf(a.getMonths()));
 			if(a.getUnitPrice()==null) {
@@ -3141,6 +3141,7 @@ public class AppServiceImpl implements AppService{
 			}
 		}
 		adver.setTotalMoney(adver.getUnitPrice() * adver.getMonths());
+		adver = advertisementService.saveAdvertisement(adver);
 		
 		if(adver.getTotalMoney() == 0) {//总价为0时，表示免费发布，此时无需走支付接口
 			adver.setPayStatus("1");
